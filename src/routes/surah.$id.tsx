@@ -195,6 +195,15 @@ function SurahPage() {
         </ul>
       </section>
 
+      {showTopBtn && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-24 left-4 z-40 h-10 w-10 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center transition-opacity"
+          aria-label={t("scrollToTop")}
+        >
+          <ArrowUp className="h-5 w-5" />
+        </button>
+      )}
     </AppShell>
   );
 }
