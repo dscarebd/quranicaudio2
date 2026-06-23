@@ -22,7 +22,15 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const recents = useRecents((s) => s.ids);
-  const recentList = recents.length ? recents : [1, 5, 18, 36, 67];
+  const FALLBACK = [1, 5, 18, 36, 67, 55];
+  const seen = new Set<number>();
+  const recentList: number[] = [];
+  for (const id of [...recents, ...FALLBACK]) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+    recentList.push(id);
+    if (recentList.length >= 10) break;
+  }
   return (
     <AppShell>
       <TopBar />

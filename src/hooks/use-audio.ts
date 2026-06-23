@@ -11,6 +11,8 @@ import { getSurah } from "@/lib/quran-data";
  */
 export function useAudioEngine() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const didMountRef = useRef(false);
+  const lastPushedSurahRef = useRef<number | null>(null);
   const surahId = usePlayer((s) => s.surahId);
   const ayahId = usePlayer((s) => s.ayahId);
   const isPlaying = usePlayer((s) => s.isPlaying);
@@ -70,7 +72,16 @@ export function useAudioEngine() {
     }
 
     if (isPlaying) audio.play().catch(() => {});
-    pushRecent(surahId);
+    // Only push to recents on real user-initiated track changes:
+    // - skip the first mount (restored state shouldn't re-push)
+    // - skip pushes that come from reciterId changes alone (same surah)
+    if (didMountRef.current && lastPushedSurahRef.current !== surahId) {
+      lastPushedSurahRef.current = surahId;
+      pushRecent(surahId);
+    } else {
+      didMountRef.current = true;
+      lastPushedSurahRef.current = surahId;
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [surahId, ayahId, reciterId]);
 
