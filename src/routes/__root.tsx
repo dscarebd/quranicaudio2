@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { PageTransition } from "../components/PageTransition";
+import { BottomNav } from "../components/BottomNav";
 
 function NotFoundComponent() {
   return (
