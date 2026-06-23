@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { TopBar } from "@/components/TopBar";
-import { Button } from "@/components/ui/button";
+
 import { useFavorites, useRecents, useReciterSelection } from "@/stores/persisted";
 import { usePlayer } from "@/stores/player";
-import { RECITERS, getReciter } from "@/lib/reciters";
+import { getReciter } from "@/lib/reciters";
 import { ChevronRight, Mic2, Heart, Clock, Gauge, Repeat, Shuffle, Trash2 } from "lucide-react";
 
 
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/profile")({
 
 function ProfilePage() {
   const reciterId = useReciterSelection((s) => s.reciterId);
-  const setReciter = useReciterSelection((s) => s.setReciter);
+  
   const favorites = useFavorites((s) => s.ids);
   const recents = useRecents((s) => s.ids);
   const reciter = getReciter(reciterId);
