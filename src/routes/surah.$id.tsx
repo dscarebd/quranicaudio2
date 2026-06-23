@@ -118,7 +118,22 @@ function SurahPage() {
       </div>
 
       <section className="mt-6 px-5">
-        <h3 className="text-sm uppercase tracking-widest text-muted-foreground mb-3">Verses</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm uppercase tracking-widest text-muted-foreground">Verses</h3>
+          <div className="inline-flex rounded-full bg-surface p-1 text-xs font-semibold">
+            {(["en", "bn"] as const).map((l) => (
+              <button
+                key={l}
+                onClick={() => setLang(l)}
+                className={`px-3 py-1 rounded-full transition ${
+                  lang === l ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                }`}
+              >
+                {l === "en" ? "English" : "বাংলা"}
+              </button>
+            ))}
+          </div>
+        </div>
         {isLoading && (
           <div className="space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -127,8 +142,9 @@ function SurahPage() {
           </div>
         )}
         <ul className="space-y-2">
-          {data?.map((ayah) => {
+          {data?.arabic.map((ayah, idx) => {
             const active = playerSurahId === id && playerAyahId === ayah.numberInSurah;
+            const tr = data.translation[idx]?.text;
             return (
               <li key={ayah.number}>
                 <button
@@ -152,12 +168,23 @@ function SurahPage() {
                   <p className="arabic text-2xl leading-loose text-right text-foreground">
                     {ayah.text}
                   </p>
+                  {tr && (
+                    <p
+                      className={`mt-3 text-sm leading-relaxed text-muted-foreground ${
+                        lang === "bn" ? "text-right" : "text-left"
+                      }`}
+                      lang={lang}
+                    >
+                      {tr}
+                    </p>
+                  )}
                 </button>
               </li>
             );
           })}
         </ul>
       </section>
+
     </AppShell>
   );
 }
