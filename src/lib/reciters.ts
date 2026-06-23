@@ -1,4 +1,4 @@
-// 18 reciters available. Each has:
+// 20 reciters available. Each has:
 //  - mp3quranBase: base URL for full-surah MP3s — append "NNN.mp3"
 //  - everyayahFolder: folder name on everyayah.com for verse-by-verse MP3s
 //  - image: photo URL from QuranCentral public artwork CDN
@@ -166,6 +166,14 @@ export const RECITERS: Reciter[] = [
     mp3quranBase: "https://server11.mp3quran.net/ahmad_nu/",
     everyayahFolder: "Alafasy_128kbps",
     image: img("ahmad-alnufais"),
+  },
+  {
+    id: "mansour-alsalemi",
+    name: "Mansour Al-Salemi",
+    arabic: "منصور السالمي",
+    mp3quranBase: "https://server14.mp3quran.net/mansor/",
+    everyayahFolder: "Alafasy_128kbps",
+    image: img("mansour-al-salimi"),
   },
 ];
 
