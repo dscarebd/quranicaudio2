@@ -25,17 +25,8 @@ export function SurahListItem({ id }: { id: number }) {
     <Link
       to="/surah/$id"
       params={{ id: String(id) }}
-      className="flex items-center gap-4 px-5 py-3 active:bg-surface rounded-2xl"
+      className="flex items-center gap-3 px-5 py-3 active:bg-surface rounded-2xl"
     >
-      <button
-        onClick={onPlay}
-        aria-label={isPlaying ? "Pause" : "Play"}
-        className={`h-12 w-12 rounded-full flex items-center justify-center shrink-0 transition ${
-          isActive ? "bg-primary text-primary-foreground" : "bg-surface text-foreground/80"
-        }`}
-      >
-        {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
-      </button>
       <div className="flex-1 min-w-0">
         <h4 className="font-semibold text-foreground truncate">
           {String(surah.id).padStart(2, "0")} Sura {surah.name}
@@ -44,6 +35,17 @@ export function SurahListItem({ id }: { id: number }) {
           {isActive ? `${formatTime(currentTime)} / ${approxDuration(surah.ayahs)}` : approxDuration(surah.ayahs)}
         </p>
       </div>
+      <button
+        onClick={onPlay}
+        aria-label={isPlaying ? "Pause" : "Play"}
+        className="p-2"
+      >
+        {isPlaying ? (
+          <Pause className={`h-6 w-6 transition ${isActive ? "text-primary" : "text-muted-foreground"}`} />
+        ) : (
+          <Play className="h-6 w-6 text-muted-foreground transition" />
+        )}
+      </button>
       <button
         onClick={(e) => {
           e.preventDefault();
