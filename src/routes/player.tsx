@@ -257,3 +257,83 @@ function PlayerPage() {
     </AppShell>
   );
 }
+
+function ReciterSwitcher() {
+  const selectedId = useReciterSelection((s) => s.reciterId);
+  const setReciter = useReciterSelection((s) => s.setReciter);
+  const reciter = getReciter(selectedId);
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <button className="w-full flex items-center gap-3 p-3 rounded-2xl bg-surface transition active:scale-[0.98]">
+          <img
+            src={reciter.image}
+            alt={reciter.name}
+            loading="lazy"
+            width={40}
+            height={40}
+            className="h-10 w-10 rounded-full object-cover bg-surface-2 ring-2 ring-border"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
+            }}
+          />
+          <div className="flex-1 text-left min-w-0">
+            <p className="text-xs text-muted-foreground">Reciter</p>
+            <p className="font-semibold text-sm truncate">{reciter.name}</p>
+          </div>
+          <Mic2 className="h-4 w-4 text-muted-foreground" />
+        </button>
+      </SheetTrigger>
+      <SheetContent side="bottom" className="rounded-t-3xl pb-8">
+        <SheetHeader className="text-left mb-4">
+          <SheetTitle className="font-display">Choose Reciter</SheetTitle>
+        </SheetHeader>
+        <ul className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
+          {RECITERS.map((r) => {
+            const active = r.id === selectedId;
+            return (
+              <li key={r.id}>
+                <button
+                  onClick={() => {
+                    setReciter(r.id);
+                    setOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 p-3 rounded-2xl transition active:scale-[0.98] ${
+                    active
+                      ? "bg-primary/15 ring-1 ring-primary"
+                      : "bg-surface hover:bg-surface-2"
+                  }`}
+                >
+                  <img
+                    src={r.image}
+                    alt={r.name}
+                    loading="lazy"
+                    width={48}
+                    height={48}
+                    className="h-12 w-12 rounded-full object-cover bg-surface-2 ring-2 ring-border"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
+                    }}
+                  />
+                  <div className="flex-1 text-left min-w-0">
+                    <p className={`font-semibold text-sm truncate ${active ? "text-primary" : ""}`}>
+                      {r.name}
+                    </p>
+                    <p className="arabic text-xs text-muted-foreground">{r.arabic}</p>
+                  </div>
+                  {active && (
+                    <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </SheetContent>
+    </Sheet>
+  );
+}
