@@ -113,7 +113,7 @@ function SurahPage() {
 
       <div className="px-5 mt-5 flex items-center justify-between">
         <div>
-          <div className="arabic text-3xl font-bold">{surah.arabic}</div>
+          <div className="arabic text-3xl font-bold text-left">{surah.arabic}</div>
           <p className="text-sm text-muted-foreground mt-1">
             {surah.meaning} · {surah.ayahs} {t("ayahs")} · {surahType(surah, appLang)}
           </p>
