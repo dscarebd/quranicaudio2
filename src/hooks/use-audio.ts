@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { usePlayer } from "@/stores/player";
-import { useReciterSelection, useRecents } from "@/stores/persisted";
+import { useReciterSelection, useRecents, usePlaybackPositions } from "@/stores/persisted";
 import { getReciter } from "@/lib/reciters";
 import { fullSurahUrl, ayahAudioUrl } from "@/lib/audio-urls";
 import { getSurah } from "@/lib/quran-data";
@@ -51,6 +51,24 @@ export function useAudioEngine() {
     audio.src = url;
     audio.load();
     audio.playbackRate = usePlayer.getState().playbackRate;
+
+    // Resume from saved position (full-surah playback only)
+    if (ayahId == null) {
+      const saved = usePlaybackPositions.getState().get(reciterId, surahId);
+      if (saved > 2) {
+        const applyResume = () => {
+          try {
+            if (audio.duration && saved < audio.duration - 3) {
+              audio.currentTime = saved;
+              usePlayer.getState().setTime(saved);
+            }
+          } catch { /* ignore */ }
+          audio.removeEventListener("loadedmetadata", applyResume);
+        };
+        audio.addEventListener("loadedmetadata", applyResume);
+      }
+    }
+
     if (isPlaying) audio.play().catch(() => {});
     pushRecent(surahId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
