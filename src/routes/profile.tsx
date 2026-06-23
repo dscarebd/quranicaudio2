@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { TopBar } from "@/components/TopBar";
+
 
 import { useFavorites, useRecents, useReciterSelection } from "@/stores/persisted";
 import { usePlayer } from "@/stores/player";
@@ -41,8 +41,6 @@ function ProfilePage() {
 
   return (
     <AppShell>
-      <TopBar />
-
       {/* User card */}
       <UserCard favoritesCount={favorites.length} recentsCount={recents.length} />
 
