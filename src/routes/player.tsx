@@ -9,6 +9,8 @@ import { SurahCoverArt } from "@/components/SurahCoverArt";
 import { AppShell } from "@/components/AppShell";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useT, surahName, surahType } from "@/lib/i18n";
+
 
 const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5, 1.75, 2];
 const SLEEP_OPTIONS: { label: string; value: number | "end-of-track" | null }[] = [
@@ -49,6 +51,7 @@ function PlayerPage() {
   const setSleepTimer = usePlayer((s) => s.setSleepTimer);
   const isFav = useFavorites((s) => surahId != null && s.ids.includes(surahId));
   const toggleFav = useFavorites((s) => s.toggle);
+  const { lang, t } = useT();
 
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -62,7 +65,7 @@ function PlayerPage() {
     sleepMode === "off"
       ? null
       : sleepMode === "end-of-track"
-        ? "End of track"
+        ? t("endOfTrack")
         : formatTime(sleepRemaining / 1000);
 
   // Avoid SSR/hydration blink: zustand store is client-only, so the server
@@ -82,8 +85,8 @@ function PlayerPage() {
     return (
       <AppShell>
         <div className="px-5 pt-20 text-center text-muted-foreground animate-in fade-in duration-300">
-          <p>No track playing.</p>
-          <Link to="/" className="text-primary font-semibold mt-4 inline-block">Go home</Link>
+          <p>{t("noTrack")}</p>
+          <Link to="/" className="text-primary font-semibold mt-4 inline-block">{t("goHome")}</Link>
         </div>
       </AppShell>
     );
@@ -97,11 +100,11 @@ function PlayerPage() {
         <button
           onClick={() => navigate({ to: "/" })}
           className="h-10 w-10 rounded-full bg-surface flex items-center justify-center transition-transform active:scale-90"
-          aria-label="Back"
+          aria-label={t("back")}
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
-        <h1 className="text-lg font-bold font-display">Now playing</h1>
+        <h1 className="text-lg font-bold font-display">{t("nowPlaying")}</h1>
         <div className="w-10" />
       </header>
 
@@ -112,15 +115,15 @@ function PlayerPage() {
       <div className="px-5 mt-6 flex items-center justify-between gap-4">
         <div className="min-w-0">
           <h2 className="text-2xl font-bold font-display truncate">
-            {String(surah.id).padStart(2, "0")} Sura {surah.name}
+            {String(surah.id).padStart(2, "0")} {t("sura")} {surahName(surah, lang)}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {ayahId != null ? `Ayah ${ayahId} / ${surah.ayahs}` : `${surah.ayahs} verses · ${surah.type}`}
+            {ayahId != null ? `${t("verses")} ${ayahId} / ${surah.ayahs}` : `${surah.ayahs} ${t("ayahs")} · ${surahType(surah, lang)}`}
           </p>
         </div>
         <button
           onClick={() => toggleFav(surahId)}
-          aria-label="Favorite"
+          aria-label={t("favorite")}
           className="p-2 transition-transform active:scale-75"
         >
           <Heart className={`h-7 w-7 transition-colors duration-200 ${isFav ? "fill-primary text-primary" : "text-muted-foreground"}`} />
@@ -147,7 +150,7 @@ function PlayerPage() {
         </div>
         {sleepMode === "minutes" && sleepEndsAt && (
           <div className="text-center text-xs text-muted-foreground mt-1">
-            Sleep at{" "}
+            {t("sleepAt")}{" "}
             {new Date(sleepEndsAt).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
@@ -157,19 +160,19 @@ function PlayerPage() {
       </div>
 
       <div className="px-5 mt-10 flex items-center justify-between">
-        <button onClick={cycleRepeat} aria-label="Repeat" className="text-muted-foreground p-2 transition-transform active:scale-90">
+        <button onClick={cycleRepeat} aria-label={t("repeat")} className="text-muted-foreground p-2 transition-transform active:scale-90">
           {repeat === "one" ? (
             <Repeat1 className="h-6 w-6 text-primary" />
           ) : (
             <Repeat className={`h-6 w-6 transition-colors ${repeat === "all" ? "text-primary" : ""}`} />
           )}
         </button>
-        <button onClick={prev} aria-label="Previous" className="text-foreground p-2 transition-transform active:scale-90">
+        <button onClick={prev} aria-label={t("previous")} className="text-foreground p-2 transition-transform active:scale-90">
           <SkipBack className="h-8 w-8 fill-current" />
         </button>
         <button
           onClick={toggle}
-          aria-label={isPlaying ? "Pause" : "Play"}
+          aria-label={isPlaying ? t("pause") : t("play")}
           aria-pressed={isPlaying}
           className={`relative h-20 w-20 rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all duration-200 ${
             isPlaying
@@ -187,10 +190,10 @@ function PlayerPage() {
           )}
         </button>
 
-        <button onClick={next} aria-label="Next" className="text-foreground p-2 transition-transform active:scale-90">
+        <button onClick={next} aria-label={t("next")} className="text-foreground p-2 transition-transform active:scale-90">
           <SkipForward className="h-8 w-8 fill-current" />
         </button>
-        <button onClick={toggleShuffle} aria-label="Shuffle" className="text-muted-foreground p-2 transition-transform active:scale-90">
+        <button onClick={toggleShuffle} aria-label={t("shuffle")} className="text-muted-foreground p-2 transition-transform active:scale-90">
           <Shuffle className={`h-6 w-6 transition-colors ${shuffle ? "text-primary" : ""}`} />
         </button>
       </div>
@@ -200,14 +203,14 @@ function PlayerPage() {
           <PopoverTrigger asChild>
             <button
               className={`flex items-center gap-2 h-10 px-4 rounded-full bg-surface text-sm font-medium transition-all active:scale-95 ${playbackRate !== 1 ? "text-primary" : "text-foreground"}`}
-              aria-label="Playback speed"
+              aria-label={t("playbackSpeed")}
             >
               <Gauge className="h-4 w-4" />
               {playbackRate}x
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-48 p-2" align="center">
-            <p className="text-xs text-muted-foreground px-2 pb-2">Playback speed</p>
+            <p className="text-xs text-muted-foreground px-2 pb-2">{t("playbackSpeed")}</p>
             <div className="grid grid-cols-3 gap-1">
               {SPEED_OPTIONS.map((s) => (
                 <button
@@ -230,14 +233,14 @@ function PlayerPage() {
           <PopoverTrigger asChild>
             <button
               className={`flex items-center gap-2 h-10 px-4 rounded-full bg-surface text-sm font-medium ${sleepMode !== "off" ? "text-primary" : "text-foreground"}`}
-              aria-label="Sleep timer"
+              aria-label={t("sleepTimer")}
             >
               <Moon className="h-4 w-4" />
-              {sleepLabel ?? "Sleep"}
+              {sleepLabel ?? t("sleep")}
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-56 p-2" align="center">
-            <p className="text-xs text-muted-foreground px-2 pb-2">Sleep timer</p>
+            <p className="text-xs text-muted-foreground px-2 pb-2">{t("sleepTimer")}</p>
             <div className="flex flex-col">
               {SLEEP_OPTIONS.map((opt) => {
                 const active =
@@ -276,6 +279,7 @@ function ReciterSwitcher() {
   const setReciter = useReciterSelection((s) => s.setReciter);
   const reciter = getReciter(selectedId);
   const [open, setOpen] = useState(false);
+  const { t } = useT();
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -293,7 +297,7 @@ function ReciterSwitcher() {
             }}
           />
           <div className="flex-1 text-left min-w-0">
-            <p className="text-xs text-muted-foreground">Reciter</p>
+            <p className="text-xs text-muted-foreground">{t("reciter")}</p>
             <p className="font-semibold text-sm truncate">{reciter.name}</p>
           </div>
           <Mic2 className="h-4 w-4 text-muted-foreground" />
@@ -301,7 +305,7 @@ function ReciterSwitcher() {
       </SheetTrigger>
       <SheetContent side="bottom" className="rounded-t-3xl pb-8">
         <SheetHeader className="text-left mb-4">
-          <SheetTitle className="font-display">Choose Reciter</SheetTitle>
+          <SheetTitle className="font-display">{t("chooseReciter")}</SheetTitle>
         </SheetHeader>
         <ul className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
           {RECITERS.map((r) => {
