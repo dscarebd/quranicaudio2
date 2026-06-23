@@ -87,17 +87,30 @@ export function useAudioEngine() {
     if (typeof window === "undefined") return;
     if (!audioRef.current) audioRef.current = new Audio();
     const audio = audioRef.current;
+    let lastSaved = 0;
     const onTime = () => {
       // Honor any pending seek
       const seek = usePlayer.getState().consumeSeek();
       if (seek != null && Math.abs(audio.currentTime - seek) > 0.4) {
         audio.currentTime = seek;
       }
-      usePlayer.getState().setTime(audio.currentTime);
+      const t = audio.currentTime;
+      usePlayer.getState().setTime(t);
+      // Persist position (full-surah only) every ~3s
+      const { surahId: sid, ayahId: aid } = usePlayer.getState();
+      if (sid != null && aid == null && t - lastSaved >= 3) {
+        lastSaved = t;
+        usePlaybackPositions.getState().save(reciterId, sid, t);
+      }
     };
     const onMeta = () => usePlayer.getState().setDuration(audio.duration || 0);
     const onEnd = () => {
       const { surahId: sid, ayahId: aid, repeat: r, next, sleepMode } = usePlayer.getState();
+      // Clear resume point on natural completion of a full surah
+      if (sid != null && aid == null) {
+        usePlaybackPositions.getState().clear(reciterId, sid);
+        lastSaved = 0;
+      }
       if (sleepMode === "end-of-track") {
         usePlayer.setState({ isPlaying: false, sleepMode: "off", sleepEndsAt: null });
         return;
