@@ -3,6 +3,8 @@ import { Check, Users } from "lucide-react";
 import { RECITERS } from "@/lib/reciters";
 import { useReciterSelection } from "@/stores/persisted";
 import { AppShell } from "@/components/AppShell";
+import { useT } from "@/lib/i18n";
+
 
 export const Route = createFileRoute("/reciters")({
   head: () => ({
@@ -17,6 +19,7 @@ export const Route = createFileRoute("/reciters")({
 function RecitersPage() {
   const selected = useReciterSelection((s) => s.reciterId);
   const setReciter = useReciterSelection((s) => s.setReciter);
+  const { t } = useT();
 
   return (
     <AppShell>
@@ -26,14 +29,14 @@ function RecitersPage() {
             <Users className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-xl font-bold font-display">Reciters</h1>
+            <h1 className="text-xl font-bold font-display">{t("reciters")}</h1>
             <p className="text-xs text-muted-foreground">
-              {RECITERS.length} renowned voices
+              {RECITERS.length} {t("renownedVoices")}
             </p>
           </div>
         </div>
         <p className="text-sm text-muted-foreground mt-3">
-          Tap a reciter to switch — your choice applies to every surah.
+          {t("recitersHint")}
         </p>
       </header>
 
