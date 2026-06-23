@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Shuffle, Repeat, Repeat1 } from "lucide-react";
+import { Shuffle, Repeat, Repeat1, Play, Pause } from "lucide-react";
 import { usePlayer, formatTime } from "@/stores/player";
 import { getSurah } from "@/lib/quran-data";
 import { SurahCoverArt } from "./SurahCoverArt";
