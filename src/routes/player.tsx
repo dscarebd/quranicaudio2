@@ -246,6 +246,7 @@ function PlayerPage() {
           </PopoverContent>
         </Popover>
       </div>
+      </div>
 
     </AppShell>
   );
