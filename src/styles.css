@@ -83,6 +83,7 @@
   body { font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
   h1, h2, h3, h4, .font-display { font-family: var(--font-display); }
   .arabic { font-family: "Amiri Quran", "Scheherazade New", "Traditional Arabic", serif; direction: rtl; }
+  [lang="bn"] { font-family: var(--font-bengali); }
 }
 
 @media (max-width: 430px) {
