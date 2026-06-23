@@ -37,7 +37,9 @@ function Home() {
   return (
     <AppShell>
       <TopBar />
-      <NowPlayingCard />
+      <div className="pt-4">
+        <NowPlayingCard />
+      </div>
 
       {showRecents && (
         <section>
