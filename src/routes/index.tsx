@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
+import { TopBar } from "@/components/TopBar";
 import { NowPlayingCard } from "@/components/NowPlayingCard";
 import { RecentCard } from "@/components/RecentCard";
 import { SurahListItem } from "@/components/SurahListItem";
@@ -32,6 +33,7 @@ function Home() {
   }
   return (
     <AppShell>
+      <TopBar />
       <NowPlayingCard />
 
       <section>

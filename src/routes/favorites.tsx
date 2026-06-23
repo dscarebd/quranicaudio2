@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
+import { TopBar } from "@/components/TopBar";
 import { SurahListItem } from "@/components/SurahListItem";
 import { useFavorites } from "@/stores/persisted";
 
@@ -12,6 +13,7 @@ function FavoritesPage() {
   const ids = useFavorites((s) => s.ids);
   return (
     <AppShell>
+      <TopBar />
       <h1 className="text-3xl font-bold font-display px-5 mt-2 mb-4">Favorites</h1>
       {ids.length === 0 ? (
         <div className="px-5 py-16 text-center text-muted-foreground">
