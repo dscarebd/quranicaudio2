@@ -1,10 +1,24 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { ChevronLeft, Heart, Info, Pause, Play, Repeat, Repeat1, Shuffle, SkipBack, SkipForward } from "lucide-react";
+import { ChevronLeft, Gauge, Heart, Moon, Pause, Play, Repeat, Repeat1, Shuffle, SkipBack, SkipForward } from "lucide-react";
+import { useEffect, useState } from "react";
 import { usePlayer, formatTime } from "@/stores/player";
 import { getSurah } from "@/lib/quran-data";
 import { useFavorites } from "@/stores/persisted";
 import { SurahCoverArt } from "@/components/SurahCoverArt";
 import { AppShell } from "@/components/AppShell";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5, 1.75, 2];
+const SLEEP_OPTIONS: { label: string; value: number | "end-of-track" | null }[] = [
+  { label: "Off", value: null },
+  { label: "End of track", value: "end-of-track" },
+  { label: "5 min", value: 5 },
+  { label: "10 min", value: 10 },
+  { label: "15 min", value: 15 },
+  { label: "30 min", value: 30 },
+  { label: "45 min", value: 45 },
+  { label: "60 min", value: 60 },
+];
 
 export const Route = createFileRoute("/player")({
   head: () => ({ meta: [{ title: "Now Playing — Quran Audio" }] }),
