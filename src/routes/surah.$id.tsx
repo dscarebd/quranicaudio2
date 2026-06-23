@@ -180,8 +180,8 @@ function SurahPage() {
                   </p>
                   {tr && (
                     <p
-                      className={`mt-3 text-sm leading-relaxed text-muted-foreground ${
-                        lang === "bn" ? "text-right font-bengali" : "text-left"
+                      className={`mt-3 text-sm leading-relaxed text-muted-foreground text-left ${
+                        lang === "bn" ? "font-bengali" : ""
                       }`}
                       lang={lang}
                     >
