@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, Heart, Pause, Play } from "lucide-react";
-import { useState } from "react";
+import { ChevronLeft, Heart, Pause, Play, ArrowUp } from "lucide-react";
+import { useState, useEffect } from "react";
 import { getSurah } from "@/lib/quran-data";
 import { usePlayer } from "@/stores/player";
 import { useFavorites } from "@/stores/persisted";
@@ -63,6 +63,13 @@ function SurahPage() {
 
   const [lang, setLang] = useState<TranslationLang>("en");
   const { lang: appLang, t } = useT();
+  const [showTopBtn, setShowTopBtn] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShowTopBtn(window.scrollY > 300);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const { data, isLoading } = useQuery({
     queryKey: ["surah-text", id, lang],
@@ -188,6 +195,15 @@ function SurahPage() {
         </ul>
       </section>
 
+      {showTopBtn && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-24 left-4 z-40 h-10 w-10 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center transition-opacity"
+          aria-label={t("scrollToTop")}
+        >
+          <ArrowUp className="h-5 w-5" />
+        </button>
+      )}
     </AppShell>
   );
 }
