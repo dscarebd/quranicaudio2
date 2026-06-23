@@ -11,14 +11,14 @@ export function TopBar({ centerLogo = true }: { centerLogo?: boolean }) {
 
   return (
     <header
-      className="sticky top-0 z-30 flex items-center justify-between px-5 pb-3 bg-primary border-b border-primary-foreground/15"
+      className="sticky top-0 z-30 grid grid-cols-3 items-center px-5 pb-3 bg-primary border-b border-primary-foreground/15"
       style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)" }}
     >
-      <Link to="/search" className="text-primary-foreground/90 p-1" aria-label={t("search")}>
+      <Link to="/search" className="text-primary-foreground/90 p-1 justify-self-start" aria-label={t("search")}>
         <Search className="h-6 w-6" />
       </Link>
       {centerLogo ? (
-        <Link to="/" aria-label={t("home")} className="flex h-8 items-center justify-center">
+        <Link to="/" aria-label={t("home")} className="flex h-8 items-center justify-center justify-self-center">
           <img
             src={logoAsset.url}
             alt="Logo"
@@ -29,7 +29,7 @@ export function TopBar({ centerLogo = true }: { centerLogo?: boolean }) {
       ) : (
         <span />
       )}
-      <div
+      <div className="justify-self-end"
         role="group"
         aria-label={t("language")}
         className="inline-flex items-center rounded-full bg-primary-foreground/15 p-0.5 text-xs font-semibold"
