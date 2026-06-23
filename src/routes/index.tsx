@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Stream the Holy Quran with 15 renowned reciters. Verse by verse, full surah, offline." },
       { property: "og:title", content: "Quran Audio" },
       { property: "og:description", content: "Listen to all 114 Surahs with 15 reciters." },
-      { name: "theme-color", content: "#0a0a0a" },
+      { name: "theme-color", content: "#fafbff" },
     ],
   }),
   component: Home,
