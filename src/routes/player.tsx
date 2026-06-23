@@ -63,10 +63,23 @@ function PlayerPage() {
         ? "End of track"
         : formatTime(sleepRemaining / 1000);
 
+  // Avoid SSR/hydration blink: zustand store is client-only, so the server
+  // always renders surahId == null. Wait for mount before deciding what to show.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!mounted) {
+    return (
+      <AppShell>
+        <div className="px-5 pt-20" />
+      </AppShell>
+    );
+  }
+
   if (surahId == null) {
     return (
       <AppShell>
-        <div className="px-5 pt-20 text-center text-muted-foreground">
+        <div className="px-5 pt-20 text-center text-muted-foreground animate-in fade-in duration-300">
           <p>No track playing.</p>
           <Link to="/" className="text-primary font-semibold mt-4 inline-block">Go home</Link>
         </div>
