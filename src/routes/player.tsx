@@ -86,9 +86,7 @@ function PlayerPage() {
           <ChevronLeft className="h-5 w-5" />
         </button>
         <h1 className="text-lg font-bold font-display">Now playing</h1>
-        <button className="h-10 w-10 rounded-full bg-surface flex items-center justify-center" aria-label="Info">
-          <Info className="h-5 w-5" />
-        </button>
+        <div className="w-10" />
       </header>
 
       <div className="px-5 mt-6">
