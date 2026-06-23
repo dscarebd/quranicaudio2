@@ -178,6 +178,21 @@ export const RECITERS: Reciter[] = [
     everyayahFolder: "Alafasy_128kbps",
     image: img("mansour-al-salimi"),
   },
+  {
+    id: "omar-hisham",
+    name: "Omar Hisham Al-Arabi",
+    arabic: "عمر هشام العربي",
+    // 71 surahs hosted on archive.org (same files surahquran.com uses).
+    // Missing surahs fall back to Alafasy automatically.
+    mp3quranBase: "https://archive.org/download/Omar-Hisham/",
+    everyayahFolder: "Alafasy_128kbps",
+    image: img("omar-hisham-al-arabi"),
+    missingSurahs: [
+      2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 21, 23, 24, 26, 27, 28, 29, 30,
+      31, 33, 34, 35, 37, 38, 39, 41, 42, 43, 45, 46, 47, 48, 57, 60, 63, 64,
+      65, 74, 83, 84, 108,
+    ],
+  },
 ];
 
 export const getReciter = (id: string) =>
