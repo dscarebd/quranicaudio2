@@ -41,10 +41,6 @@ function ProfilePage() {
   return (
     <AppShell>
       <TopBar />
-      <div className="px-5 mt-2 mb-6">
-        <h1 className="text-3xl font-bold font-display">Profile</h1>
-        <p className="text-sm text-muted-foreground mt-1">Manage your listening preferences</p>
-      </div>
 
       {/* User card */}
       <div className="mx-5 mb-6 rounded-3xl bg-surface border border-border p-5 flex items-center gap-4">
