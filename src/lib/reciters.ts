@@ -159,7 +159,14 @@ export const RECITERS: Reciter[] = [
     everyayahFolder: "Alafasy_128kbps",
     image: img("muhammad-al-luhaidan"),
   },
-
+  {
+    id: "alnufais",
+    name: "Ahmad Alnufais",
+    arabic: "أحمد النفيس",
+    mp3quranBase: "https://server11.mp3quran.net/ahmad_nu/",
+    everyayahFolder: "Alafasy_128kbps",
+    image: img("ahmad-alnufais"),
+  },
 ];
 
 export const getReciter = (id: string) =>
