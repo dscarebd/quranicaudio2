@@ -1,21 +1,14 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
-@import "@fontsource/outfit/400.css";
-@import "@fontsource/outfit/600.css";
-@import "@fontsource/outfit/700.css";
-@import "@fontsource/outfit/800.css";
-@import "@fontsource/figtree/400.css";
-@import "@fontsource/figtree/500.css";
-@import "@fontsource/figtree/600.css";
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-display: "Outfit", system-ui, sans-serif;
-  --font-body: "Figtree", system-ui, sans-serif;
-  --font-sans: "Figtree", system-ui, sans-serif;
+  --font-display: "Anek Bangla", system-ui, sans-serif;
+  --font-body: "Anek Bangla", system-ui, sans-serif;
+  --font-sans: "Anek Bangla", system-ui, sans-serif;
   --font-bengali: "Anek Bangla", "Noto Sans Bengali", sans-serif;
+
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
