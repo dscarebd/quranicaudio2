@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Search } from "lucide-react";
 import logoAsset from "@/assets/logo.png.asset.json";
 import { useLanguage } from "@/stores/language";
 import { useT } from "@/lib/i18n";
@@ -13,14 +14,19 @@ export function TopBar() {
       className="sticky top-0 z-30 grid grid-cols-2 items-center px-5 pb-4 bg-primary border-b border-primary-foreground/15"
       style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)" }}
     >
-      <Link to="/" aria-label={t("home")} className="flex h-9 items-center justify-self-start">
-        <img
-          src={logoAsset.url}
-          alt="Logo"
-          className="h-8 w-auto object-contain brightness-0 invert"
-          draggable={false}
-        />
-      </Link>
+      <div className="flex items-center gap-3 justify-self-start">
+        <Link to="/search" className="text-primary-foreground/90 p-1" aria-label={t("search")}>
+          <Search className="h-6 w-6" />
+        </Link>
+        <Link to="/" aria-label={t("home")} className="flex h-10 items-center">
+          <img
+            src={logoAsset.url}
+            alt="Logo"
+            className="h-9 w-auto object-contain brightness-0 invert"
+            draggable={false}
+          />
+        </Link>
+      </div>
       <div
         role="group"
         aria-label={t("language")}
