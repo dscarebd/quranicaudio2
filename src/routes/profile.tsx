@@ -169,3 +169,122 @@ function Row({
     </button>
   );
 }
+
+const PROFILE_KEY = "q_profile";
+
+type ProfileData = { name: string; avatar: string | null };
+
+function loadProfile(): ProfileData {
+  if (typeof window === "undefined") return { name: "Listener", avatar: null };
+  try {
+    const raw = localStorage.getItem(PROFILE_KEY);
+    if (raw) return { name: "Listener", avatar: null, ...JSON.parse(raw) };
+  } catch {}
+  return { name: "Listener", avatar: null };
+}
+
+function UserCard({ favoritesCount, recentsCount }: { favoritesCount: number; recentsCount: number }) {
+  const [profile, setProfile] = useState<ProfileData>({ name: "Listener", avatar: null });
+  const [editing, setEditing] = useState(false);
+  const [draftName, setDraftName] = useState("");
+  const fileRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    setProfile(loadProfile());
+  }, []);
+
+  const persist = (next: ProfileData) => {
+    setProfile(next);
+    try {
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(next));
+    } catch {}
+  };
+
+  const onPickImage = (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image must be under 2MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      persist({ ...profile, avatar: typeof reader.result === "string" ? reader.result : null });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const startEdit = () => {
+    setDraftName(profile.name);
+    setEditing(true);
+  };
+  const saveEdit = () => {
+    const name = draftName.trim().slice(0, 40) || "Listener";
+    persist({ ...profile, name });
+    setEditing(false);
+  };
+  const cancelEdit = () => setEditing(false);
+
+  return (
+    <div className="mx-5 mb-6 rounded-3xl bg-surface border border-border p-5 flex items-center gap-4">
+      <button
+        type="button"
+        onClick={() => fileRef.current?.click()}
+        className="relative h-14 w-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-bold font-display overflow-hidden shrink-0"
+        aria-label="Change profile picture"
+      >
+        {profile.avatar ? (
+          <img src={profile.avatar} alt="Profile" className="h-full w-full object-cover" />
+        ) : (
+          (profile.name || "Q").charAt(0).toUpperCase()
+        )}
+        <span className="absolute bottom-0 right-0 h-5 w-5 rounded-full bg-background border border-border flex items-center justify-center">
+          <Camera className="h-3 w-3 text-foreground" />
+        </span>
+      </button>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) onPickImage(f);
+          e.target.value = "";
+        }}
+      />
+      <div className="flex-1 min-w-0">
+        {editing ? (
+          <div className="flex items-center gap-2">
+            <input
+              autoFocus
+              value={draftName}
+              onChange={(e) => setDraftName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") saveEdit();
+                if (e.key === "Escape") cancelEdit();
+              }}
+              maxLength={40}
+              className="flex-1 min-w-0 bg-muted rounded-lg px-2 py-1 text-sm font-semibold outline-none focus:ring-2 focus:ring-primary"
+            />
+            <button onClick={saveEdit} aria-label="Save" className="p-1 rounded-md hover:bg-muted">
+              <Check className="h-4 w-4 text-primary" />
+            </button>
+            <button onClick={cancelEdit} aria-label="Cancel" className="p-1 rounded-md hover:bg-muted">
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <div className="font-semibold truncate">{profile.name}</div>
+            <button onClick={startEdit} aria-label="Edit name" className="p-1 rounded-md hover:bg-muted">
+              <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+          </div>
+        )}
+        <div className="text-xs text-muted-foreground">
+          {favoritesCount} favorites · {recentsCount} recently played
+        </div>
+      </div>
+    </div>
+  );
+}
