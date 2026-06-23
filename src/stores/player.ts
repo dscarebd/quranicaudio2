@@ -69,11 +69,15 @@ export const usePlayer = create<PlayerState>((set, get) => ({
     const { surahId, ayahId, shuffle } = get();
     if (surahId == null) return;
     if (ayahId != null) {
-      set({ ayahId: ayahId + 1, currentTime: 0, duration: 0, isPlaying: true });
+      if (shuffle) {
+        const surah = getSurah(surahId);
+        const total = surah?.ayahs ?? 1;
+        set({ ayahId: randInt(total, ayahId), currentTime: 0, duration: 0, isPlaying: true });
+      } else {
+        set({ ayahId: ayahId + 1, currentTime: 0, duration: 0, isPlaying: true });
+      }
     } else {
-      const nextId = shuffle
-        ? Math.floor(Math.random() * 114) + 1
-        : Math.min(114, surahId + 1);
+      const nextId = shuffle ? randInt(114, surahId) : Math.min(114, surahId + 1);
       set({ surahId: nextId, currentTime: 0, duration: 0, isPlaying: true });
     }
   },
