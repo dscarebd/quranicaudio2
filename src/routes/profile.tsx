@@ -44,17 +44,8 @@ function ProfilePage() {
       <TopBar />
 
       {/* User card */}
-      <div className="mx-5 mb-6 rounded-3xl bg-surface border border-border p-5 flex items-center gap-4">
-        <div className="h-14 w-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-bold font-display">
-          Q
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="font-semibold truncate">Listener</div>
-          <div className="text-xs text-muted-foreground">
-            {favorites.length} favorites · {recents.length} recently played
-          </div>
-        </div>
-      </div>
+      <UserCard favoritesCount={favorites.length} recentsCount={recents.length} />
+
 
       {/* Reciter */}
       <Section title="Playback">
