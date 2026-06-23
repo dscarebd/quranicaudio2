@@ -60,3 +60,32 @@ export const useReciterSelection = create<ReciterState>((set) => ({
     write("q_reciter", id);
   },
 }));
+
+/* ---- Playback positions (resume per reciter+surah) ---- */
+type PositionsMap = Record<string, number>; // key: `${reciterId}:${surahId}` -> seconds
+type PositionsState = {
+  map: PositionsMap;
+  get: (reciterId: string, surahId: number) => number;
+  save: (reciterId: string, surahId: number, seconds: number) => void;
+  clear: (reciterId: string, surahId: number) => void;
+};
+const POS_KEY = "q_positions";
+export const usePlaybackPositions = create<PositionsState>((set, get) => ({
+  map: read<PositionsMap>(POS_KEY, {}),
+  get: (reciterId, surahId) => get().map[`${reciterId}:${surahId}`] ?? 0,
+  save: (reciterId, surahId, seconds) => {
+    if (!isFinite(seconds) || seconds < 2) return;
+    const key = `${reciterId}:${surahId}`;
+    const next = { ...get().map, [key]: Math.floor(seconds) };
+    set({ map: next });
+    write(POS_KEY, next);
+  },
+  clear: (reciterId, surahId) => {
+    const key = `${reciterId}:${surahId}`;
+    if (!(key in get().map)) return;
+    const next = { ...get().map };
+    delete next[key];
+    set({ map: next });
+    write(POS_KEY, next);
+  },
+}));

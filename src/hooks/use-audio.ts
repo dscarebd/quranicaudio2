@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { usePlayer } from "@/stores/player";
-import { useReciterSelection, useRecents } from "@/stores/persisted";
+import { useReciterSelection, useRecents, usePlaybackPositions } from "@/stores/persisted";
 import { getReciter } from "@/lib/reciters";
 import { fullSurahUrl, ayahAudioUrl } from "@/lib/audio-urls";
 import { getSurah } from "@/lib/quran-data";
@@ -51,6 +51,24 @@ export function useAudioEngine() {
     audio.src = url;
     audio.load();
     audio.playbackRate = usePlayer.getState().playbackRate;
+
+    // Resume from saved position (full-surah playback only)
+    if (ayahId == null) {
+      const saved = usePlaybackPositions.getState().get(reciterId, surahId);
+      if (saved > 2) {
+        const applyResume = () => {
+          try {
+            if (audio.duration && saved < audio.duration - 3) {
+              audio.currentTime = saved;
+              usePlayer.getState().setTime(saved);
+            }
+          } catch { /* ignore */ }
+          audio.removeEventListener("loadedmetadata", applyResume);
+        };
+        audio.addEventListener("loadedmetadata", applyResume);
+      }
+    }
+
     if (isPlaying) audio.play().catch(() => {});
     pushRecent(surahId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -69,17 +87,30 @@ export function useAudioEngine() {
     if (typeof window === "undefined") return;
     if (!audioRef.current) audioRef.current = new Audio();
     const audio = audioRef.current;
+    let lastSaved = 0;
     const onTime = () => {
       // Honor any pending seek
       const seek = usePlayer.getState().consumeSeek();
       if (seek != null && Math.abs(audio.currentTime - seek) > 0.4) {
         audio.currentTime = seek;
       }
-      usePlayer.getState().setTime(audio.currentTime);
+      const t = audio.currentTime;
+      usePlayer.getState().setTime(t);
+      // Persist position (full-surah only) every ~3s
+      const { surahId: sid, ayahId: aid } = usePlayer.getState();
+      if (sid != null && aid == null && t - lastSaved >= 3) {
+        lastSaved = t;
+        usePlaybackPositions.getState().save(useReciterSelection.getState().reciterId, sid, t);
+      }
     };
     const onMeta = () => usePlayer.getState().setDuration(audio.duration || 0);
     const onEnd = () => {
       const { surahId: sid, ayahId: aid, repeat: r, next, sleepMode } = usePlayer.getState();
+      // Clear resume point on natural completion of a full surah
+      if (sid != null && aid == null) {
+        usePlaybackPositions.getState().clear(useReciterSelection.getState().reciterId, sid);
+        lastSaved = 0;
+      }
       if (sleepMode === "end-of-track") {
         usePlayer.setState({ isPlaying: false, sleepMode: "off", sleepEndsAt: null });
         return;
