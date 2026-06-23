@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { Heart, Play, Pause } from "lucide-react";
 import { SURAHS, approxDuration } from "@/lib/quran-data";
 import { usePlayer, formatTime } from "@/stores/player";
@@ -15,19 +15,30 @@ export function SurahListItem({ id }: { id: number }) {
   const isFav = useFavorites((s) => s.ids.includes(id));
   const toggleFav = useFavorites((s) => s.toggle);
   const { lang, t } = useT();
+  const navigate = useNavigate();
 
   const onPlay = (e: React.MouseEvent) => {
-    e.preventDefault();
     e.stopPropagation();
     if (isActive) toggle();
     else play(id, null);
   };
 
+  const onOpen = () => {
+    navigate({ to: "/surah/$id", params: { id: String(id) } });
+  };
+
   return (
-    <Link
-      to="/surah/$id"
-      params={{ id: String(id) }}
-      className="flex items-center gap-3 px-5 py-3 active:bg-surface rounded-2xl"
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen();
+        }
+      }}
+      className="flex items-center gap-3 px-5 py-3 active:bg-surface rounded-2xl cursor-pointer"
     >
       <div className="flex-1 min-w-0">
         <h4 className="font-semibold text-foreground truncate">
@@ -38,6 +49,7 @@ export function SurahListItem({ id }: { id: number }) {
         </p>
       </div>
       <button
+        type="button"
         onClick={onPlay}
         aria-label={isPlaying ? t("pause") : t("play")}
         className="p-2 rounded-full bg-surface hover:bg-muted transition"
@@ -49,8 +61,8 @@ export function SurahListItem({ id }: { id: number }) {
         )}
       </button>
       <button
+        type="button"
         onClick={(e) => {
-          e.preventDefault();
           e.stopPropagation();
           toggleFav(id);
         }}
@@ -63,6 +75,6 @@ export function SurahListItem({ id }: { id: number }) {
           }`}
         />
       </button>
-    </Link>
+    </div>
   );
 }
