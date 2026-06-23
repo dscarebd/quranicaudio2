@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, Heart, Pause, Play } from "lucide-react";
-import { useState } from "react";
+import { ChevronLeft, Heart, Pause, Play, ArrowUp } from "lucide-react";
+import { useState, useEffect } from "react";
 import { getSurah } from "@/lib/quran-data";
 import { usePlayer } from "@/stores/player";
 import { useFavorites } from "@/stores/persisted";
