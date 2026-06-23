@@ -1,4 +1,12 @@
 import { create } from "zustand";
+import { getSurah } from "@/lib/quran-data";
+
+const randInt = (max: number, excluding?: number) => {
+  if (max <= 1) return 1;
+  let n = Math.floor(Math.random() * max) + 1;
+  if (excluding != null && n === excluding) n = (n % max) + 1;
+  return n;
+};
 
 export type RepeatMode = "off" | "all" | "one";
 
