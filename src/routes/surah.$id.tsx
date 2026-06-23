@@ -171,7 +171,7 @@ function SurahPage() {
                   {tr && (
                     <p
                       className={`mt-3 text-sm leading-relaxed text-muted-foreground ${
-                        lang === "bn" ? "text-right" : "text-left"
+                        lang === "bn" ? "text-right font-bengali" : "text-left"
                       }`}
                       lang={lang}
                     >
