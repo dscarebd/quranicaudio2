@@ -129,7 +129,7 @@ function SurahPage() {
                   lang === l ? "bg-primary text-primary-foreground" : "text-muted-foreground"
                 }`}
               >
-                {l === "en" ? "English" : "বাংলা"}
+                <span lang={l}>{l === "en" ? "English" : "বাংলা"}</span>
               </button>
             ))}
           </div>
