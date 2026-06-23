@@ -72,7 +72,16 @@ export function useAudioEngine() {
     }
 
     if (isPlaying) audio.play().catch(() => {});
-    pushRecent(surahId);
+    // Only push to recents on real user-initiated track changes:
+    // - skip the first mount (restored state shouldn't re-push)
+    // - skip pushes that come from reciterId changes alone (same surah)
+    if (didMountRef.current && lastPushedSurahRef.current !== surahId) {
+      lastPushedSurahRef.current = surahId;
+      pushRecent(surahId);
+    } else {
+      didMountRef.current = true;
+      lastPushedSurahRef.current = surahId;
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [surahId, ayahId, reciterId]);
 
