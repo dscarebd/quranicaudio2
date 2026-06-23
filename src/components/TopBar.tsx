@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Search, Info } from "lucide-react";
-import { Logo } from "./Logo";
+import logoAsset from "@/assets/logo.png.asset.json";
 
 export function TopBar({ centerLogo = true }: { centerLogo?: boolean }) {
   return (
@@ -9,8 +9,13 @@ export function TopBar({ centerLogo = true }: { centerLogo?: boolean }) {
         <Search className="h-6 w-6" />
       </Link>
       {centerLogo ? (
-        <Link to="/" aria-label="Home" className="flex h-8 w-16 items-center justify-center text-foreground">
-          <Logo className="h-7 w-14 shrink-0" />
+        <Link to="/" aria-label="Home" className="flex h-8 items-center justify-center">
+          <img
+            src={logoAsset.url}
+            alt="Logo"
+            className="h-7 w-auto object-contain dark:invert"
+            draggable={false}
+          />
         </Link>
       ) : (
         <span />
