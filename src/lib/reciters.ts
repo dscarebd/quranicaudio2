@@ -1,13 +1,18 @@
 // 15 reciters available. Each has:
 //  - mp3quranBase: base URL for full-surah MP3s — append "NNN.mp3"
 //  - everyayahFolder: folder name on everyayah.com for verse-by-verse MP3s
+//  - image: photo URL from QuranCentral public artwork CDN
 export type Reciter = {
   id: string;
   name: string;
   arabic: string;
   mp3quranBase: string;
   everyayahFolder: string;
+  image: string;
 };
+
+const img = (slug: string) =>
+  `https://artwork.qurancentral.com/${slug}-300x300.jpg`;
 
 export const RECITERS: Reciter[] = [
   {
@@ -16,6 +21,7 @@ export const RECITERS: Reciter[] = [
     arabic: "مشاري راشد العفاسي",
     mp3quranBase: "https://server8.mp3quran.net/afs/",
     everyayahFolder: "Alafasy_128kbps",
+    image: img("mishary-rashid-alafasy"),
   },
   {
     id: "abdulbasit",
@@ -23,6 +29,7 @@ export const RECITERS: Reciter[] = [
     arabic: "عبد الباسط عبد الصمد",
     mp3quranBase: "https://server7.mp3quran.net/basit/",
     everyayahFolder: "AbdulSamad_64kbps_QuranExplorer.Com",
+    image: img("abdul-basit-abd-us-samad"),
   },
   {
     id: "sudais",
@@ -30,6 +37,7 @@ export const RECITERS: Reciter[] = [
     arabic: "عبد الرحمن السديس",
     mp3quranBase: "https://server11.mp3quran.net/sds/",
     everyayahFolder: "Abdurrahmaan_As-Sudais_192kbps",
+    image: img("abdur-rahman-as-sudais"),
   },
   {
     id: "shuraim",
@@ -37,6 +45,7 @@ export const RECITERS: Reciter[] = [
     arabic: "سعود الشريم",
     mp3quranBase: "https://server7.mp3quran.net/shur/",
     everyayahFolder: "Saood_ash-Shuraym_128kbps",
+    image: img("saud-al-shuraim"),
   },
   {
     id: "husary",
@@ -44,6 +53,7 @@ export const RECITERS: Reciter[] = [
     arabic: "محمود خليل الحصري",
     mp3quranBase: "https://server13.mp3quran.net/husr/",
     everyayahFolder: "Husary_128kbps",
+    image: img("mahmoud-khalil-al-husary"),
   },
   {
     id: "minshawi",
@@ -51,6 +61,7 @@ export const RECITERS: Reciter[] = [
     arabic: "محمد صديق المنشاوي",
     mp3quranBase: "https://server10.mp3quran.net/minsh/",
     everyayahFolder: "Minshawy_Murattal_128kbps",
+    image: img("muhammad-siddiq-al-minshawi"),
   },
   {
     id: "muaiqly",
@@ -58,6 +69,7 @@ export const RECITERS: Reciter[] = [
     arabic: "ماهر المعيقلي",
     mp3quranBase: "https://server12.mp3quran.net/maher/",
     everyayahFolder: "MaherAlMuaiqly128kbps",
+    image: img("maher-al-mueaqly"),
   },
   {
     id: "ajamy",
@@ -65,6 +77,7 @@ export const RECITERS: Reciter[] = [
     arabic: "أحمد العجمي",
     mp3quranBase: "https://server10.mp3quran.net/ajm/",
     everyayahFolder: "ahmed_ibn_ali_al_ajamy_128kbps",
+    image: img("ahmed-al-ajmi"),
   },
   {
     id: "ghamdi",
@@ -72,6 +85,7 @@ export const RECITERS: Reciter[] = [
     arabic: "سعد الغامدي",
     mp3quranBase: "https://server7.mp3quran.net/s_gmd/",
     everyayahFolder: "Ghamadi_40kbps",
+    image: img("saad-al-ghamdi"),
   },
   {
     id: "matrood",
@@ -79,6 +93,7 @@ export const RECITERS: Reciter[] = [
     arabic: "عبد الله المطرود",
     mp3quranBase: "https://server8.mp3quran.net/mtrod/",
     everyayahFolder: "Abdullaah_3awwaad_Al-Juhaynee_128kbps",
+    image: img("abdullah-al-matrood"),
   },
   {
     id: "hudhaify",
@@ -86,6 +101,7 @@ export const RECITERS: Reciter[] = [
     arabic: "علي الحذيفي",
     mp3quranBase: "https://server7.mp3quran.net/hthfi/",
     everyayahFolder: "Hudhaify_128kbps",
+    image: img("ali-abdur-rahman-al-huthaify"),
   },
   {
     id: "shaatri",
@@ -93,6 +109,7 @@ export const RECITERS: Reciter[] = [
     arabic: "أبو بكر الشاطري",
     mp3quranBase: "https://server11.mp3quran.net/shatri/",
     everyayahFolder: "Abu_Bakr_Ash-Shaatree_128kbps",
+    image: img("abu-bakr-al-shatri"),
   },
   {
     id: "basfar",
@@ -100,6 +117,7 @@ export const RECITERS: Reciter[] = [
     arabic: "عبد الله بصفر",
     mp3quranBase: "https://server7.mp3quran.net/basfer/",
     everyayahFolder: "Abdullah_Basfar_192kbps",
+    image: img("abdullah-basfar"),
   },
   {
     id: "juhany",
@@ -107,6 +125,7 @@ export const RECITERS: Reciter[] = [
     arabic: "عبد الله عواد الجهني",
     mp3quranBase: "https://server13.mp3quran.net/jhn/",
     everyayahFolder: "Abdullaah_3awwaad_Al-Juhaynee_128kbps",
+    image: img("abdullah-awad-al-juhani"),
   },
   {
     id: "rifai",
@@ -114,6 +133,7 @@ export const RECITERS: Reciter[] = [
     arabic: "هاني الرفاعي",
     mp3quranBase: "https://server8.mp3quran.net/rifai/",
     everyayahFolder: "Hani_Rifai_192kbps",
+    image: img("hani-ar-rifai"),
   },
 ];
 

@@ -38,17 +38,18 @@ function RecitersPage() {
                   active ? "bg-primary/15 ring-1 ring-primary" : "bg-surface"
                 }`}
               >
-                <div
-                  className={`h-12 w-12 rounded-full flex items-center justify-center text-lg font-bold ${
-                    active ? "bg-primary text-primary-foreground" : "bg-surface-2 text-foreground"
-                  }`}
-                >
-                  {r.name
-                    .split(" ")
-                    .slice(0, 2)
-                    .map((p) => p[0])
-                    .join("")}
-                </div>
+                <img
+                  src={r.image}
+                  alt={r.name}
+                  loading="lazy"
+                  width={48}
+                  height={48}
+                  className="h-12 w-12 rounded-full object-cover bg-surface-2"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
+                  }}
+                />
+
                 <div className="flex-1 text-left min-w-0">
                   <p className="font-semibold truncate">{r.name}</p>
                   <p className="arabic text-sm text-muted-foreground">{r.arabic}</p>
