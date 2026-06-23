@@ -1,10 +1,24 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { ChevronLeft, Heart, Info, Pause, Play, Repeat, Repeat1, Shuffle, SkipBack, SkipForward } from "lucide-react";
+import { ChevronLeft, Gauge, Heart, Moon, Pause, Play, Repeat, Repeat1, Shuffle, SkipBack, SkipForward } from "lucide-react";
+import { useEffect, useState } from "react";
 import { usePlayer, formatTime } from "@/stores/player";
 import { getSurah } from "@/lib/quran-data";
 import { useFavorites } from "@/stores/persisted";
 import { SurahCoverArt } from "@/components/SurahCoverArt";
 import { AppShell } from "@/components/AppShell";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5, 1.75, 2];
+const SLEEP_OPTIONS: { label: string; value: number | "end-of-track" | null }[] = [
+  { label: "Off", value: null },
+  { label: "End of track", value: "end-of-track" },
+  { label: "5 min", value: 5 },
+  { label: "10 min", value: 10 },
+  { label: "15 min", value: 15 },
+  { label: "30 min", value: 30 },
+  { label: "45 min", value: 45 },
+  { label: "60 min", value: 60 },
+];
 
 export const Route = createFileRoute("/player")({
   head: () => ({ meta: [{ title: "Now Playing — Quran Audio" }] }),
@@ -26,8 +40,28 @@ function PlayerPage() {
   const prev = usePlayer((s) => s.prev);
   const toggleShuffle = usePlayer((s) => s.toggleShuffle);
   const cycleRepeat = usePlayer((s) => s.cycleRepeat);
+  const playbackRate = usePlayer((s) => s.playbackRate);
+  const setPlaybackRate = usePlayer((s) => s.setPlaybackRate);
+  const sleepMode = usePlayer((s) => s.sleepMode);
+  const sleepEndsAt = usePlayer((s) => s.sleepEndsAt);
+  const setSleepTimer = usePlayer((s) => s.setSleepTimer);
   const isFav = useFavorites((s) => surahId != null && s.ids.includes(surahId));
   const toggleFav = useFavorites((s) => s.toggle);
+
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (sleepMode !== "minutes") return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [sleepMode]);
+  const sleepRemaining =
+    sleepMode === "minutes" && sleepEndsAt ? Math.max(0, sleepEndsAt - now) : 0;
+  const sleepLabel =
+    sleepMode === "off"
+      ? null
+      : sleepMode === "end-of-track"
+        ? "End of track"
+        : formatTime(sleepRemaining / 1000);
 
   if (surahId == null) {
     return (
@@ -52,9 +86,7 @@ function PlayerPage() {
           <ChevronLeft className="h-5 w-5" />
         </button>
         <h1 className="text-lg font-bold font-display">Now playing</h1>
-        <button className="h-10 w-10 rounded-full bg-surface flex items-center justify-center" aria-label="Info">
-          <Info className="h-5 w-5" />
-        </button>
+        <div className="w-10" />
       </header>
 
       <div className="px-5 mt-6">
@@ -116,6 +148,78 @@ function PlayerPage() {
           <Shuffle className={`h-6 w-6 ${shuffle ? "text-primary" : ""}`} />
         </button>
       </div>
+
+      <div className="px-5 mt-8 flex items-center justify-center gap-3">
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              className={`flex items-center gap-2 h-10 px-4 rounded-full bg-surface text-sm font-medium ${playbackRate !== 1 ? "text-primary" : "text-foreground"}`}
+              aria-label="Playback speed"
+            >
+              <Gauge className="h-4 w-4" />
+              {playbackRate}x
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-48 p-2" align="center">
+            <p className="text-xs text-muted-foreground px-2 pb-2">Playback speed</p>
+            <div className="grid grid-cols-3 gap-1">
+              {SPEED_OPTIONS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setPlaybackRate(s)}
+                  className={`h-9 rounded-md text-sm font-medium transition ${
+                    playbackRate === s
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-surface"
+                  }`}
+                >
+                  {s}x
+                </button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              className={`flex items-center gap-2 h-10 px-4 rounded-full bg-surface text-sm font-medium ${sleepMode !== "off" ? "text-primary" : "text-foreground"}`}
+              aria-label="Sleep timer"
+            >
+              <Moon className="h-4 w-4" />
+              {sleepLabel ?? "Sleep"}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-56 p-2" align="center">
+            <p className="text-xs text-muted-foreground px-2 pb-2">Sleep timer</p>
+            <div className="flex flex-col">
+              {SLEEP_OPTIONS.map((opt) => {
+                const active =
+                  (opt.value === null && sleepMode === "off") ||
+                  (opt.value === "end-of-track" && sleepMode === "end-of-track") ||
+                  (typeof opt.value === "number" &&
+                    sleepMode === "minutes" &&
+                    sleepEndsAt != null &&
+                    Math.abs((sleepEndsAt - Date.now()) / 60_000 - opt.value) < 1);
+                return (
+                  <button
+                    key={opt.label}
+                    onClick={() => setSleepTimer(opt.value)}
+                    className={`text-left px-3 h-9 rounded-md text-sm transition ${
+                      active
+                        ? "bg-primary text-primary-foreground font-semibold"
+                        : "hover:bg-surface"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+
     </AppShell>
   );
 }

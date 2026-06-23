@@ -15,8 +15,20 @@ export function useAudioEngine() {
   const ayahId = usePlayer((s) => s.ayahId);
   const isPlaying = usePlayer((s) => s.isPlaying);
   const repeat = usePlayer((s) => s.repeat);
+  const playbackRate = usePlayer((s) => s.playbackRate);
   const reciterId = useReciterSelection((s) => s.reciterId);
   const pushRecent = useRecents((s) => s.push);
+
+  // Apply playback rate
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.playbackRate = playbackRate;
+  }, [playbackRate]);
+
+  // Sleep timer poll
+  useEffect(() => {
+    const id = setInterval(() => usePlayer.getState().clearSleepIfNeeded(), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   // Build / replace source whenever track or reciter changes
   useEffect(() => {
@@ -38,6 +50,7 @@ export function useAudioEngine() {
         : fullSurahUrl(reciter, surahId);
     audio.src = url;
     audio.load();
+    audio.playbackRate = usePlayer.getState().playbackRate;
     if (isPlaying) audio.play().catch(() => {});
     pushRecent(surahId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,7 +79,11 @@ export function useAudioEngine() {
     };
     const onMeta = () => usePlayer.getState().setDuration(audio.duration || 0);
     const onEnd = () => {
-      const { surahId: sid, ayahId: aid, repeat: r, next } = usePlayer.getState();
+      const { surahId: sid, ayahId: aid, repeat: r, next, sleepMode } = usePlayer.getState();
+      if (sleepMode === "end-of-track") {
+        usePlayer.setState({ isPlaying: false, sleepMode: "off", sleepEndsAt: null });
+        return;
+      }
       if (r === "one") {
         audio.currentTime = 0;
         audio.play().catch(() => {});

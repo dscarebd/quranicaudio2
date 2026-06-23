@@ -2,6 +2,8 @@ import { create } from "zustand";
 
 export type RepeatMode = "off" | "all" | "one";
 
+export type SleepMode = "off" | "end-of-track" | "minutes";
+
 export type PlayerState = {
   surahId: number | null;
   ayahId: number | null; // null = playing full surah
@@ -10,6 +12,9 @@ export type PlayerState = {
   duration: number;
   shuffle: boolean;
   repeat: RepeatMode;
+  playbackRate: number;
+  sleepMode: SleepMode;
+  sleepEndsAt: number | null; // epoch ms when timer fires (minutes mode)
   // Imperative actions wired up by use-audio
   play: (surahId: number, ayahId?: number | null) => void;
   toggle: () => void;
@@ -21,6 +26,9 @@ export type PlayerState = {
   prev: () => void;
   toggleShuffle: () => void;
   cycleRepeat: () => void;
+  setPlaybackRate: (r: number) => void;
+  setSleepTimer: (minutes: number | "end-of-track" | null) => void;
+  clearSleepIfNeeded: () => void;
   _seekRequest: number | null;
   consumeSeek: () => number | null;
 };
@@ -33,6 +41,9 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   duration: 0,
   shuffle: false,
   repeat: "off",
+  playbackRate: 1,
+  sleepMode: "off",
+  sleepEndsAt: null,
   _seekRequest: null,
   play: (surahId, ayahId = null) =>
     set({ surahId, ayahId, isPlaying: true, currentTime: 0, duration: 0 }),
@@ -76,6 +87,22 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   cycleRepeat: () => {
     const order: RepeatMode[] = ["off", "all", "one"];
     set({ repeat: order[(order.indexOf(get().repeat) + 1) % order.length] });
+  },
+  setPlaybackRate: (r) => set({ playbackRate: r }),
+  setSleepTimer: (m) => {
+    if (m == null) {
+      set({ sleepMode: "off", sleepEndsAt: null });
+    } else if (m === "end-of-track") {
+      set({ sleepMode: "end-of-track", sleepEndsAt: null });
+    } else {
+      set({ sleepMode: "minutes", sleepEndsAt: Date.now() + m * 60_000 });
+    }
+  },
+  clearSleepIfNeeded: () => {
+    const { sleepMode, sleepEndsAt } = get();
+    if (sleepMode === "minutes" && sleepEndsAt != null && Date.now() >= sleepEndsAt) {
+      set({ isPlaying: false, sleepMode: "off", sleepEndsAt: null });
+    }
   },
 }));
 
