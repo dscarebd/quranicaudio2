@@ -5,7 +5,7 @@ import { SURAHS, approxDuration } from "@/lib/quran-data";
 import { usePlayer } from "@/stores/player";
 import { useRecents } from "@/stores/persisted";
 import { SurahCoverArt } from "./SurahCoverArt";
-import { useT, surahName } from "@/lib/i18n";
+import { useT, surahName, localizeNum } from "@/lib/i18n";
 
 const DISMISS_DISTANCE = 110;
 

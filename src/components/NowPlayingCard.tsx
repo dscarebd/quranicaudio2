@@ -4,7 +4,7 @@ import { usePlayer, formatTime } from "@/stores/player";
 import { getSurah } from "@/lib/quran-data";
 import { SurahCoverArt } from "./SurahCoverArt";
 import { cn } from "@/lib/utils";
-import { useT, surahName } from "@/lib/i18n";
+import { useT, surahName, localizeNum } from "@/lib/i18n";
 
 export function NowPlayingCard() {
   const surahId = usePlayer((s) => s.surahId);
