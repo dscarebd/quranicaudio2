@@ -63,10 +63,23 @@ function PlayerPage() {
         ? "End of track"
         : formatTime(sleepRemaining / 1000);
 
+  // Avoid SSR/hydration blink: zustand store is client-only, so the server
+  // always renders surahId == null. Wait for mount before deciding what to show.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!mounted) {
+    return (
+      <AppShell>
+        <div className="px-5 pt-20" />
+      </AppShell>
+    );
+  }
+
   if (surahId == null) {
     return (
       <AppShell>
-        <div className="px-5 pt-20 text-center text-muted-foreground">
+        <div className="px-5 pt-20 text-center text-muted-foreground animate-in fade-in duration-300">
           <p>No track playing.</p>
           <Link to="/" className="text-primary font-semibold mt-4 inline-block">Go home</Link>
         </div>
@@ -77,10 +90,11 @@ function PlayerPage() {
 
   return (
     <AppShell>
+      <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
       <header className="flex items-center justify-between px-5 pt-4 pb-2">
         <button
           onClick={() => navigate({ to: "/" })}
-          className="h-10 w-10 rounded-full bg-surface flex items-center justify-center"
+          className="h-10 w-10 rounded-full bg-surface flex items-center justify-center transition-transform active:scale-90"
           aria-label="Back"
         >
           <ChevronLeft className="h-5 w-5" />
@@ -90,7 +104,7 @@ function PlayerPage() {
       </header>
 
       <div className="px-5 mt-6">
-        <SurahCoverArt surahId={surahId} className="w-full aspect-square rounded-3xl" />
+        <SurahCoverArt surahId={surahId} className="w-full aspect-square rounded-3xl shadow-2xl shadow-primary/10 transition-transform duration-500" />
       </div>
 
       <div className="px-5 mt-6 flex items-center justify-between gap-4">
@@ -102,8 +116,12 @@ function PlayerPage() {
             {ayahId != null ? `Ayah ${ayahId} / ${surah.ayahs}` : `${surah.ayahs} verses · ${surah.type}`}
           </p>
         </div>
-        <button onClick={() => toggleFav(surahId)} aria-label="Favorite" className="p-2">
-          <Heart className={`h-7 w-7 ${isFav ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+        <button
+          onClick={() => toggleFav(surahId)}
+          aria-label="Favorite"
+          className="p-2 transition-transform active:scale-75"
+        >
+          <Heart className={`h-7 w-7 transition-colors duration-200 ${isFav ? "fill-primary text-primary" : "text-muted-foreground"}`} />
         </button>
       </div>
 
@@ -115,9 +133,9 @@ function PlayerPage() {
           step={0.1}
           value={Math.min(currentTime, duration || currentTime)}
           onChange={(e) => seek(Number(e.target.value))}
-          className="w-full accent-primary"
+          className="w-full accent-primary cursor-pointer"
         />
-        <div className="flex justify-between text-sm text-muted-foreground mt-1">
+        <div className="flex justify-between text-sm text-muted-foreground mt-1 tabular-nums">
           <span>{formatTime(currentTime)}</span>
           <span>-{formatTime(Math.max(0, duration - currentTime))}</span>
         </div>
@@ -133,28 +151,28 @@ function PlayerPage() {
       </div>
 
       <div className="px-5 mt-10 flex items-center justify-between">
-        <button onClick={cycleRepeat} aria-label="Repeat" className="text-muted-foreground p-2">
+        <button onClick={cycleRepeat} aria-label="Repeat" className="text-muted-foreground p-2 transition-transform active:scale-90">
           {repeat === "one" ? (
             <Repeat1 className="h-6 w-6 text-primary" />
           ) : (
-            <Repeat className={`h-6 w-6 ${repeat === "all" ? "text-primary" : ""}`} />
+            <Repeat className={`h-6 w-6 transition-colors ${repeat === "all" ? "text-primary" : ""}`} />
           )}
         </button>
-        <button onClick={prev} aria-label="Previous" className="text-foreground p-2">
+        <button onClick={prev} aria-label="Previous" className="text-foreground p-2 transition-transform active:scale-90">
           <SkipBack className="h-8 w-8 fill-current" />
         </button>
         <button
           onClick={toggle}
           aria-label={isPlaying ? "Pause" : "Play"}
-          className="h-20 w-20 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-xl shadow-primary/30 active:scale-95 transition"
+          className="h-20 w-20 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-xl shadow-primary/30 active:scale-95 transition-transform duration-150"
         >
           {isPlaying ? <Pause className="h-9 w-9" /> : <Play className="h-9 w-9 ml-1" />}
         </button>
-        <button onClick={next} aria-label="Next" className="text-foreground p-2">
+        <button onClick={next} aria-label="Next" className="text-foreground p-2 transition-transform active:scale-90">
           <SkipForward className="h-8 w-8 fill-current" />
         </button>
-        <button onClick={toggleShuffle} aria-label="Shuffle" className="text-muted-foreground p-2">
-          <Shuffle className={`h-6 w-6 ${shuffle ? "text-primary" : ""}`} />
+        <button onClick={toggleShuffle} aria-label="Shuffle" className="text-muted-foreground p-2 transition-transform active:scale-90">
+          <Shuffle className={`h-6 w-6 transition-colors ${shuffle ? "text-primary" : ""}`} />
         </button>
       </div>
 
@@ -162,7 +180,7 @@ function PlayerPage() {
         <Popover>
           <PopoverTrigger asChild>
             <button
-              className={`flex items-center gap-2 h-10 px-4 rounded-full bg-surface text-sm font-medium ${playbackRate !== 1 ? "text-primary" : "text-foreground"}`}
+              className={`flex items-center gap-2 h-10 px-4 rounded-full bg-surface text-sm font-medium transition-all active:scale-95 ${playbackRate !== 1 ? "text-primary" : "text-foreground"}`}
               aria-label="Playback speed"
             >
               <Gauge className="h-4 w-4" />
@@ -227,6 +245,7 @@ function PlayerPage() {
             </div>
           </PopoverContent>
         </Popover>
+      </div>
       </div>
 
     </AppShell>
