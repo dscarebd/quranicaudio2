@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Heart, Home, User, Users } from "lucide-react";
+import { Heart, Home, Settings, Users } from "lucide-react";
 import { useT } from "@/lib/i18n";
 
 export function BottomNav() {
@@ -9,7 +9,7 @@ export function BottomNav() {
     { to: "/", icon: <Home className="h-5 w-5" />, label: t("home"), match: (p: string) => p === "/" },
     { to: "/reciters", icon: <Users className="h-5 w-5" />, label: t("reciters"), match: (p: string) => p.startsWith("/reciters") },
     { to: "/favorites", icon: <Heart className="h-5 w-5" />, label: t("favorites"), match: (p: string) => p.startsWith("/favorites") },
-    { to: "/profile", icon: <User className="h-5 w-5" />, label: t("profile"), match: (p: string) => p.startsWith("/profile") },
+    { to: "/profile", icon: <Settings className="h-5 w-5" />, label: t("settings"), match: (p: string) => p.startsWith("/profile") },
   ];
   return (
     <nav className="fixed bottom-4 left-4 right-4 z-30 mx-auto max-w-md bg-surface/95 backdrop-blur rounded-[2rem] border border-border shadow-lg">
