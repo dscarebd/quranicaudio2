@@ -100,7 +100,7 @@ export function useAudioEngine() {
       const { surahId: sid, ayahId: aid } = usePlayer.getState();
       if (sid != null && aid == null && t - lastSaved >= 3) {
         lastSaved = t;
-        usePlaybackPositions.getState().save(reciterId, sid, t);
+        usePlaybackPositions.getState().save(useReciterSelection.getState().reciterId, sid, t);
       }
     };
     const onMeta = () => usePlayer.getState().setDuration(audio.duration || 0);
@@ -108,7 +108,7 @@ export function useAudioEngine() {
       const { surahId: sid, ayahId: aid, repeat: r, next, sleepMode } = usePlayer.getState();
       // Clear resume point on natural completion of a full surah
       if (sid != null && aid == null) {
-        usePlaybackPositions.getState().clear(reciterId, sid);
+        usePlaybackPositions.getState().clear(useReciterSelection.getState().reciterId, sid);
         lastSaved = 0;
       }
       if (sleepMode === "end-of-track") {
