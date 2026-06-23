@@ -84,6 +84,10 @@
   .arabic { font-family: "Amiri Quran", "Scheherazade New", "Traditional Arabic", serif; direction: rtl; }
 }
 
+@media (max-width: 430px) {
+  html { font-size: 14px; }
+}
+
 /* Hide scrollbar on horizontal scrollers */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
