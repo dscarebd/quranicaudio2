@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { Shuffle, Repeat, Repeat1, Play, Pause } from "lucide-react";
 import { usePlayer, formatTime } from "@/stores/player";
 import { getSurah } from "@/lib/quran-data";
-import { SurahCoverArt } from "./SurahCoverArt";
 import { cn } from "@/lib/utils";
 import { useT, surahName, localizeNum } from "@/lib/i18n";
 import logoAsset from "@/assets/logo.png.asset.json";
@@ -103,11 +102,14 @@ export function NowPlayingCard() {
             />
           </div>
         ) : (
-          <SurahCoverArt
-            surahId={surahId!}
-            showName={false}
-            className="h-20 w-20 rounded-full ring-2 ring-primary-foreground/30"
-          />
+          <div className="h-20 w-20 rounded-full ring-2 ring-primary-foreground/30 bg-primary-foreground/10 inline-flex items-center justify-center">
+            <img
+              src={logoAsset.url}
+              alt="Logo"
+              className="h-10 w-auto object-contain brightness-0 invert opacity-70"
+              draggable={false}
+            />
+          </div>
         )}
       </div>
       <svg
