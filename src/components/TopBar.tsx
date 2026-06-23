@@ -1,15 +1,24 @@
 import { Link } from "@tanstack/react-router";
-import { Search, Info } from "lucide-react";
+import { Search } from "lucide-react";
 import logoAsset from "@/assets/logo.png.asset.json";
+import { useLanguage } from "@/stores/language";
+import { useT } from "@/lib/i18n";
 
 export function TopBar({ centerLogo = true }: { centerLogo?: boolean }) {
+  const lang = useLanguage((s) => s.lang);
+  const setLang = useLanguage((s) => s.setLang);
+  const { t } = useT();
+
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between px-5 pb-3 bg-primary border-b border-primary-foreground/15" style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)" }}>
-      <Link to="/search" className="text-primary-foreground/90 p-1" aria-label="Search">
+    <header
+      className="sticky top-0 z-30 flex items-center justify-between px-5 pb-3 bg-primary border-b border-primary-foreground/15"
+      style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)" }}
+    >
+      <Link to="/search" className="text-primary-foreground/90 p-1" aria-label={t("search")}>
         <Search className="h-6 w-6" />
       </Link>
       {centerLogo ? (
-        <Link to="/" aria-label="Home" className="flex h-8 items-center justify-center">
+        <Link to="/" aria-label={t("home")} className="flex h-8 items-center justify-center">
           <img
             src={logoAsset.url}
             alt="Logo"
@@ -20,9 +29,30 @@ export function TopBar({ centerLogo = true }: { centerLogo?: boolean }) {
       ) : (
         <span />
       )}
-      <button className="text-primary-foreground/80 p-1" aria-label="Info">
-        <Info className="h-6 w-6" />
-      </button>
+      <div
+        role="group"
+        aria-label={t("language")}
+        className="inline-flex items-center rounded-full bg-primary-foreground/15 p-0.5 text-xs font-semibold"
+      >
+        {(["en", "bn"] as const).map((l) => {
+          const active = lang === l;
+          return (
+            <button
+              key={l}
+              type="button"
+              onClick={() => setLang(l)}
+              aria-pressed={active}
+              className={`px-2.5 h-7 rounded-full transition-colors ${
+                active
+                  ? "bg-primary-foreground text-primary"
+                  : "text-primary-foreground/80"
+              }`}
+            >
+              <span lang={l}>{l === "en" ? "EN" : "বাং"}</span>
+            </button>
+          );
+        })}
+      </div>
     </header>
   );
 }
