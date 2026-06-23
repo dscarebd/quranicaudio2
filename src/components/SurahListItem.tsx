@@ -53,7 +53,7 @@ export function SurahListItem({ id }: { id: number }) {
           toggleFav(id);
         }}
         aria-label="Favorite"
-        className="p-2"
+        className="p-2 rounded-full bg-surface hover:bg-muted transition"
       >
         <Heart
           className={`h-6 w-6 transition ${
