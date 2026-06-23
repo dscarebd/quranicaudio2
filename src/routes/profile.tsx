@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { TopBar } from "@/components/TopBar";
 
 import { useFavorites, useRecents, useReciterSelection } from "@/stores/persisted";
 import { usePlayer } from "@/stores/player";
 import { getReciter } from "@/lib/reciters";
-import { ChevronRight, Mic2, Heart, Clock, Gauge, Repeat, Shuffle, Trash2 } from "lucide-react";
+import { ChevronRight, Mic2, Heart, Clock, Gauge, Repeat, Shuffle, Trash2, Pencil, Camera, Check, X } from "lucide-react";
 
 
 export const Route = createFileRoute("/profile")({
