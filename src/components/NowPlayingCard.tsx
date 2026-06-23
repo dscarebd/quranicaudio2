@@ -8,8 +8,10 @@ import { cn } from "@/lib/utils";
 export function NowPlayingCard() {
   const surahId = usePlayer((s) => s.surahId);
   const currentTime = usePlayer((s) => s.currentTime);
+  const isPlaying = usePlayer((s) => s.isPlaying);
   const shuffle = usePlayer((s) => s.shuffle);
   const repeat = usePlayer((s) => s.repeat);
+  const toggle = usePlayer((s) => s.toggle);
   const toggleShuffle = usePlayer((s) => s.toggleShuffle);
   const cycleRepeat = usePlayer((s) => s.cycleRepeat);
   if (surahId == null) return null;
