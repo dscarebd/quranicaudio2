@@ -133,6 +133,100 @@ export function useAudioEngine() {
     return unsub;
   }, []);
 
+  // Media Session: lock screen / notification metadata
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("mediaSession" in navigator)) return;
+    if (surahId == null) {
+      navigator.mediaSession.metadata = null;
+      navigator.mediaSession.playbackState = "none";
+      return;
+    }
+    const surah = getSurah(surahId);
+    const reciter = getReciter(reciterId);
+    const title = surah
+      ? ayahId != null
+        ? `${surah.name} · Ayah ${ayahId}`
+        : `${surah.id}. ${surah.name}`
+      : "Quran";
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title,
+      artist: reciter?.name ?? "Reciter",
+      album: surah ? `${surah.arabic} — ${surah.meaning}` : "Holy Quran",
+    });
+  }, [surahId, ayahId, reciterId]);
+
+  // Media Session: playback state + action handlers
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("mediaSession" in navigator)) return;
+    navigator.mediaSession.playbackState = isPlaying ? "playing" : "paused";
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("mediaSession" in navigator)) return;
+    const ms = navigator.mediaSession;
+    const safe = (action: MediaSessionAction, handler: MediaSessionActionHandler | null) => {
+      try {
+        ms.setActionHandler(action, handler);
+      } catch {
+        /* unsupported action */
+      }
+    };
+    safe("play", () => {
+      audioRef.current?.play().catch(() => {});
+      usePlayer.getState().setPlaying(true);
+    });
+    safe("pause", () => {
+      audioRef.current?.pause();
+      usePlayer.getState().setPlaying(false);
+    });
+    safe("previoustrack", () => usePlayer.getState().prev());
+    safe("nexttrack", () => usePlayer.getState().next());
+    safe("seekbackward", (details) => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      audio.currentTime = Math.max(0, audio.currentTime - (details.seekOffset ?? 10));
+    });
+    safe("seekforward", (details) => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + (details.seekOffset ?? 10));
+    });
+    safe("seekto", (details) => {
+      const audio = audioRef.current;
+      if (!audio || details.seekTime == null) return;
+      audio.currentTime = details.seekTime;
+    });
+    safe("stop", () => {
+      audioRef.current?.pause();
+      usePlayer.getState().setPlaying(false);
+    });
+    return () => {
+      const actions: MediaSessionAction[] = [
+        "play", "pause", "previoustrack", "nexttrack",
+        "seekbackward", "seekforward", "seekto", "stop",
+      ];
+      actions.forEach((a) => safe(a, null));
+    };
+  }, []);
+
+  // Media Session: position state for scrubbing on lock screen
+  const currentTime = usePlayer((s) => s.currentTime);
+  const duration = usePlayer((s) => s.duration);
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("mediaSession" in navigator)) return;
+    if (!("setPositionState" in navigator.mediaSession)) return;
+    if (!duration || !isFinite(duration)) return;
+    try {
+      navigator.mediaSession.setPositionState({
+        duration,
+        position: Math.min(currentTime, duration),
+        playbackRate,
+      });
+    } catch {
+      /* ignore */
+    }
+  }, [currentTime, duration, playbackRate]);
+
   // touch repeat so React keeps deps fresh
   void repeat;
 }
