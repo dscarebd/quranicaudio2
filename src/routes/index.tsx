@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+
 import useEmblaCarousel from "embla-carousel-react";
 import { AppShell } from "@/components/AppShell";
 import { TopBar } from "@/components/TopBar";
@@ -23,7 +25,11 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const recents = useRecents((s) => s.ids);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const showRecents = mounted && recents.length > 0;
   const [emblaRef] = useEmblaCarousel({
+
     align: "start",
     containScroll: "trimSnaps",
     dragFree: true,
@@ -33,7 +39,7 @@ function Home() {
       <TopBar />
       <NowPlayingCard />
 
-      {recents.length > 0 && (
+      {showRecents && (
         <section>
           <h2 className="text-2xl font-bold font-display px-5 mb-3">Recently Played</h2>
           <div ref={emblaRef} className="overflow-hidden">

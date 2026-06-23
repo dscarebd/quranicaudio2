@@ -161,7 +161,14 @@ export function useAudioEngine() {
       audio.removeEventListener("ended", onEnd);
       audio.removeEventListener("play", onPlay);
       audio.removeEventListener("pause", onPause);
+      try {
+        audio.pause();
+        audio.removeAttribute("src");
+        audio.load();
+      } catch { /* ignore */ }
+      audioRef.current = null;
     };
+
   }, []);
 
   // React to seek requests from UI scrubber
