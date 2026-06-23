@@ -7,6 +7,8 @@ import { usePlayer } from "@/stores/player";
 import { useFavorites } from "@/stores/persisted";
 import { SurahCoverArt } from "@/components/SurahCoverArt";
 import { AppShell } from "@/components/AppShell";
+import { useT, surahName, surahType } from "@/lib/i18n";
+
 
 type Ayah = { number: number; numberInSurah: number; text: string };
 type TranslationLang = "en" | "bn";
@@ -60,6 +62,7 @@ function SurahPage() {
   const toggleFav = useFavorites((s) => s.toggle);
 
   const [lang, setLang] = useState<TranslationLang>("en");
+  const { lang: appLang, t } = useT();
 
   const { data, isLoading } = useQuery({
     queryKey: ["surah-text", id, lang],
@@ -87,12 +90,12 @@ function SurahPage() {
         <button
           onClick={() => navigate({ to: "/" })}
           className="h-10 w-10 rounded-full bg-surface flex items-center justify-center"
-          aria-label="Back"
+          aria-label={t("back")}
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
-        <h1 className="text-lg font-bold font-display truncate">Sura {surah.name}</h1>
-        <button onClick={() => toggleFav(id)} aria-label="Favorite" className="p-2">
+        <h1 className="text-lg font-bold font-display truncate">{t("sura")} {surahName(surah, appLang)}</h1>
+        <button onClick={() => toggleFav(id)} aria-label={t("favorite")} className="p-2">
           <Heart className={`h-6 w-6 ${isFav ? "fill-primary text-primary" : "text-muted-foreground"}`} />
         </button>
       </header>
@@ -105,13 +108,13 @@ function SurahPage() {
         <div>
           <div className="arabic text-3xl font-bold">{surah.arabic}</div>
           <p className="text-sm text-muted-foreground mt-1">
-            {surah.meaning} · {surah.ayahs} verses · {surah.type}
+            {surah.meaning} · {surah.ayahs} {t("ayahs")} · {surahType(surah, appLang)}
           </p>
         </div>
         <button
           onClick={() => (fullActive ? toggle() : play(id, null))}
           className="h-14 w-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/30"
-          aria-label="Play full surah"
+          aria-label={t("play")}
         >
           {fullActive && isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 ml-0.5" />}
         </button>
@@ -119,7 +122,7 @@ function SurahPage() {
 
       <section className="mt-6 px-5">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm uppercase tracking-widest text-muted-foreground">Verses</h3>
+          <h3 className="text-sm uppercase tracking-widest text-muted-foreground">{t("verses")}</h3>
           <div className="inline-flex rounded-full bg-surface p-1 text-xs font-semibold">
             {(["en", "bn"] as const).map((l) => (
               <button

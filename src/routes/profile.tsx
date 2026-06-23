@@ -7,6 +7,9 @@ import { useFavorites, useRecents, useReciterSelection } from "@/stores/persiste
 import { usePlayer } from "@/stores/player";
 import { getReciter } from "@/lib/reciters";
 import { ChevronRight, Mic2, Heart, Clock, Gauge, Repeat, Shuffle, Trash2, Pencil, Check, X } from "lucide-react";
+import { useT } from "@/lib/i18n";
+
+
 
 
 export const Route = createFileRoute("/profile")({
@@ -27,6 +30,7 @@ function ProfilePage() {
   const toggleShuffle = usePlayer((s) => s.toggleShuffle);
   const cycleRepeat = usePlayer((s) => s.cycleRepeat);
   const setPlaybackRate = usePlayer((s) => s.setPlaybackRate);
+  const { t } = useT();
 
   const rates = [0.75, 1, 1.25, 1.5, 2];
 
@@ -48,14 +52,14 @@ function ProfilePage() {
 
 
       {/* Reciter */}
-      <Section title="Playback">
+      <Section title={t("playback")}>
         <Link
           to="/reciters"
           className="flex items-center gap-3 px-5 py-4 hover:bg-muted/50 transition"
         >
           <Mic2 className="h-5 w-5 text-primary" />
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium">Reciter</div>
+            <div className="text-sm font-medium">{t("reciter")}</div>
             <div className="text-xs text-muted-foreground truncate">{reciter.name}</div>
           </div>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -63,19 +67,19 @@ function ProfilePage() {
 
         <Row
           icon={<Shuffle className="h-5 w-5 text-primary" />}
-          label="Shuffle"
-          value={shuffle ? "On" : "Off"}
+          label={t("shuffle")}
+          value={shuffle ? t("on") : t("off")}
           onClick={toggleShuffle}
         />
         <Row
           icon={<Repeat className="h-5 w-5 text-primary" />}
-          label="Repeat"
-          value={repeat === "off" ? "Off" : repeat === "one" ? "One" : "All"}
+          label={t("repeat")}
+          value={repeat === "off" ? t("off") : repeat === "one" ? t("one") : t("all")}
           onClick={cycleRepeat}
         />
         <div className="px-5 py-4 flex items-center gap-3">
           <Gauge className="h-5 w-5 text-primary" />
-          <div className="flex-1 text-sm font-medium">Playback speed</div>
+          <div className="flex-1 text-sm font-medium">{t("playbackSpeed")}</div>
           <div className="flex gap-1">
             {rates.map((r) => (
               <button
@@ -95,38 +99,38 @@ function ProfilePage() {
       </Section>
 
       {/* Library */}
-      <Section title="Library">
+      <Section title={t("library")}>
         <Link
           to="/favorites"
           className="flex items-center gap-3 px-5 py-4 hover:bg-muted/50 transition"
         >
           <Heart className="h-5 w-5 text-primary" />
-          <div className="flex-1 text-sm font-medium">Favorites</div>
+          <div className="flex-1 text-sm font-medium">{t("favorites")}</div>
           <div className="text-xs text-muted-foreground">{favorites.length}</div>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </Link>
         <div className="px-5 py-4 flex items-center gap-3">
           <Clock className="h-5 w-5 text-primary" />
-          <div className="flex-1 text-sm font-medium">Recently played</div>
+          <div className="flex-1 text-sm font-medium">{t("recentlyPlayedShort")}</div>
           <div className="text-xs text-muted-foreground">{recents.length}</div>
         </div>
       </Section>
 
       {/* Data */}
-      <Section title="Data">
+      <Section title={t("data")}>
         <button
           onClick={clearRecents}
           className="w-full flex items-center gap-3 px-5 py-4 hover:bg-muted/50 transition text-left"
         >
           <Trash2 className="h-5 w-5 text-destructive" />
-          <div className="flex-1 text-sm font-medium">Clear recently played</div>
+          <div className="flex-1 text-sm font-medium">{t("clearRecents")}</div>
         </button>
         <button
           onClick={clearFavorites}
           className="w-full flex items-center gap-3 px-5 py-4 hover:bg-muted/50 transition text-left"
         >
           <Trash2 className="h-5 w-5 text-destructive" />
-          <div className="flex-1 text-sm font-medium">Clear favorites</div>
+          <div className="flex-1 text-sm font-medium">{t("clearFavorites")}</div>
         </button>
       </Section>
 

@@ -9,6 +9,8 @@ import { RecentCard } from "@/components/RecentCard";
 import { SurahListItem } from "@/components/SurahListItem";
 import { SURAHS } from "@/lib/quran-data";
 import { useRecents } from "@/stores/persisted";
+import { useT } from "@/lib/i18n";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,7 +30,9 @@ function Home() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const showRecents = mounted && recents.length > 0;
+  const { t } = useT();
   const [emblaRef] = useEmblaCarousel({
+
 
     align: "start",
     containScroll: "trimSnaps",
@@ -43,7 +47,7 @@ function Home() {
 
       {showRecents && (
         <section>
-          <h2 className="text-2xl font-bold font-display px-5 mb-3">Recently Played</h2>
+          <h2 className="text-2xl font-bold font-display px-5 mb-3">{t("recentlyPlayed")}</h2>
           <div ref={emblaRef} className="overflow-hidden">
             <div className="flex gap-4 px-5 pb-2 touch-pan-y">
               {recents.map((id) => (
@@ -58,8 +62,8 @@ function Home() {
 
       <section className="mt-8">
         <div className="flex items-center justify-between px-5 mb-2">
-          <h2 className="text-2xl font-bold font-display">All Surah</h2>
-          <button className="text-primary font-semibold text-sm">Download all</button>
+          <h2 className="text-2xl font-bold font-display">{t("allSurah")}</h2>
+          <button className="text-primary font-semibold text-sm">{t("downloadAll")}</button>
         </div>
         <div className="flex flex-col">
           {SURAHS.map((s) => (

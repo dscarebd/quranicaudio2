@@ -4,6 +4,7 @@ import { usePlayer, formatTime } from "@/stores/player";
 import { getSurah } from "@/lib/quran-data";
 import { SurahCoverArt } from "./SurahCoverArt";
 import { cn } from "@/lib/utils";
+import { useT, surahName } from "@/lib/i18n";
 
 export function NowPlayingCard() {
   const surahId = usePlayer((s) => s.surahId);
@@ -14,6 +15,7 @@ export function NowPlayingCard() {
   const toggle = usePlayer((s) => s.toggle);
   const toggleShuffle = usePlayer((s) => s.toggleShuffle);
   const cycleRepeat = usePlayer((s) => s.cycleRepeat);
+  const { lang, t } = useT();
   if (surahId == null) return null;
   const surah = getSurah(surahId);
   if (!surah) return null;
@@ -30,15 +32,15 @@ export function NowPlayingCard() {
     >
       <div className="flex items-center gap-4">
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium opacity-80">Now Playing</p>
+          <p className="text-sm font-medium opacity-80">{t("nowPlaying")}</p>
           <h3 className="text-xl font-bold font-display mt-1 truncate">
-            {String(surah.id).padStart(2, "0")} Sura {surah.name}
+            {String(surah.id).padStart(2, "0")} {t("sura")} {surahName(surah, lang)}
           </h3>
           <div className="flex items-center gap-3 mt-6">
             <p className="text-sm font-semibold opacity-80">{formatTime(currentTime)}</p>
             <button
               type="button"
-              aria-label={isPlaying ? "Pause" : "Play"}
+              aria-label={isPlaying ? t("pause") : t("play")}
               onClick={(e) => {
                 stop(e);
                 toggle();
@@ -49,7 +51,7 @@ export function NowPlayingCard() {
             </button>
             <button
               type="button"
-              aria-label={shuffle ? "Disable shuffle" : "Enable shuffle"}
+              aria-label={t("shuffle")}
               aria-pressed={shuffle}
               onClick={(e) => {
                 stop(e);
@@ -66,7 +68,7 @@ export function NowPlayingCard() {
             </button>
             <button
               type="button"
-              aria-label={`Repeat: ${repeat}`}
+              aria-label={t("repeat")}
               onClick={(e) => {
                 stop(e);
                 cycleRepeat();

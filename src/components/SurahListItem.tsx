@@ -3,6 +3,7 @@ import { Heart, Play, Pause } from "lucide-react";
 import { SURAHS, approxDuration } from "@/lib/quran-data";
 import { usePlayer, formatTime } from "@/stores/player";
 import { useFavorites } from "@/stores/persisted";
+import { useT, surahName } from "@/lib/i18n";
 
 export function SurahListItem({ id }: { id: number }) {
   const surah = SURAHS[id - 1];
@@ -13,6 +14,7 @@ export function SurahListItem({ id }: { id: number }) {
   const toggle = usePlayer((s) => s.toggle);
   const isFav = useFavorites((s) => s.ids.includes(id));
   const toggleFav = useFavorites((s) => s.toggle);
+  const { lang, t } = useT();
 
   const onPlay = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -29,7 +31,7 @@ export function SurahListItem({ id }: { id: number }) {
     >
       <div className="flex-1 min-w-0">
         <h4 className="font-semibold text-foreground truncate">
-          {String(surah.id).padStart(2, "0")} Sura {surah.name}
+          {String(surah.id).padStart(2, "0")} {t("sura")} {surahName(surah, lang)}
         </h4>
         <p className={`text-sm mt-0.5 ${isActive ? "text-primary" : "text-muted-foreground"}`}>
           {isActive ? `${formatTime(currentTime)} / ${approxDuration(surah.ayahs)}` : approxDuration(surah.ayahs)}
@@ -37,7 +39,7 @@ export function SurahListItem({ id }: { id: number }) {
       </div>
       <button
         onClick={onPlay}
-        aria-label={isPlaying ? "Pause" : "Play"}
+        aria-label={isPlaying ? t("pause") : t("play")}
         className="p-2 rounded-full bg-surface hover:bg-muted transition"
       >
         {isPlaying ? (
@@ -52,7 +54,7 @@ export function SurahListItem({ id }: { id: number }) {
           e.stopPropagation();
           toggleFav(id);
         }}
-        aria-label="Favorite"
+        aria-label={t("favorite")}
         className="p-2 rounded-full bg-surface hover:bg-muted transition"
       >
         <Heart
