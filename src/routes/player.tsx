@@ -121,6 +121,15 @@ function PlayerPage() {
           <span>{formatTime(currentTime)}</span>
           <span>-{formatTime(Math.max(0, duration - currentTime))}</span>
         </div>
+        {sleepMode === "minutes" && sleepEndsAt && (
+          <div className="text-center text-xs text-muted-foreground mt-1">
+            Sleep at{" "}
+            {new Date(sleepEndsAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </div>
+        )}
       </div>
 
       <div className="px-5 mt-10 flex items-center justify-between">
