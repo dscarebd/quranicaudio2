@@ -58,6 +58,7 @@ const dict = {
     renownedVoices: "renowned voices",
     recitersHint: "Tap a reciter to switch — your choice applies to every surah.",
     tapToListen: "Tap a Surah to start listening",
+    scrollToTop: "Scroll to top",
   },
   bn: {
     search: "অনুসন্ধান",
