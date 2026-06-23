@@ -11,6 +11,8 @@ import { getSurah } from "@/lib/quran-data";
  */
 export function useAudioEngine() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const didMountRef = useRef(false);
+  const lastPushedSurahRef = useRef<number | null>(null);
   const surahId = usePlayer((s) => s.surahId);
   const ayahId = usePlayer((s) => s.ayahId);
   const isPlaying = usePlayer((s) => s.isPlaying);
