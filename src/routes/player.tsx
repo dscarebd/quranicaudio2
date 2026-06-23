@@ -127,7 +127,11 @@ function PlayerPage() {
         </button>
       </div>
 
-      <div className="px-5 mt-8">
+      <div className="px-5 mt-4">
+        <ReciterSwitcher />
+      </div>
+
+      <div className="px-5 mt-6">
         <input
           type="range"
           min={0}
