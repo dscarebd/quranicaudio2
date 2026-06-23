@@ -1,7 +1,9 @@
-// 20 reciters available. Each has:
+// 21 reciters available. Each has:
 //  - mp3quranBase: base URL for full-surah MP3s — append "NNN.mp3"
 //  - everyayahFolder: folder name on everyayah.com for verse-by-verse MP3s
 //  - image: photo URL from QuranCentral public artwork CDN
+//  - missingSurahs (optional): surah numbers this reciter has NOT recorded.
+//    fullSurahUrl will fall back to Alafasy for those.
 export type Reciter = {
   id: string;
   name: string;
@@ -9,6 +11,7 @@ export type Reciter = {
   mp3quranBase: string;
   everyayahFolder: string;
   image: string;
+  missingSurahs?: number[];
 };
 
 const img = (slug: string) =>
