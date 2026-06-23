@@ -1,32 +1,26 @@
 ## Goal
-Make the `NowPlayingCard` always visible on the screen. When no Surah is currently playing, display a placeholder state that matches the card's visual style with a message prompting the user to start listening.
+Add **Abd Al-Rahman Al-Ossi** (عبد الرحمن العوسي) to the reciter list so users can play all 114 surahs with his recitation, the same as the existing 15 reciters.
 
-## What will change
+## Changes
 
-### 1. Translation dictionary (`src/lib/i18n.ts`)
-- Add new translation key `tapToListen`:
-  - English: `"Tap a Surah to start listening"`
-  - Bangla: `"শোনা শুরু করতে একটি সূরায় ট্যাপ করুন"`
+**1. `src/lib/reciters.ts`** — append one entry to `RECITERS`:
 
-### 2. NowPlayingCard component (`src/components/NowPlayingCard.tsx`)
-- Remove the early `return null` when `surahId == null`.
-- Render the card always, preserving the existing background, shape, wave pattern, and layout.
-- When `surahId == null`:
-  - Keep the "Now Playing" / "এখন চলছে" label at the top.
-  - Show the new `tapToListen` placeholder message in the title area.
-  - Hide the time display, play/pause, shuffle, and repeat controls.
-  - Show a static placeholder icon or cover-art area (e.g., a muted/generic SurahCoverArt or a simple note icon) instead of the rotating surah art.
-- The card remains clickable/tappable and links to `/player` as before.
-- When a Surah IS playing, behavior stays exactly the same as today (surah name, controls, cover art, time).
+```ts
+{
+  id: "ossi",
+  name: "Abd Al-Rahman Al-Ossi",
+  arabic: "عبد الرحمن العوسي",
+  mp3quranBase: "https://server6.mp3quran.net/3osi/", // full-surah MP3s NNN.mp3
+  everyayahFolder: "Alafasy_128kbps",                  // fallback (no ayah-by-ayah set on everyayah)
+  image: img("abdur-rahman-al-ossi"),
+}
+```
 
-### 3. Styling
-- Placeholder text should be slightly muted (opacity) so it visually reads as an idle/invitation state.
-- No new colors or hardcoded values — use existing theme tokens (`opacity-60`, `text-primary-foreground`, etc.).
+No other code changes needed — `reciters.tsx`, `player.tsx`, `audio-urls.ts`, and the surah page all iterate `RECITERS`, so he'll appear automatically in the reciters grid, player, and selectors.
 
-## Scope
-- Only `NowPlayingCard.tsx` and `src/lib/i18n.ts` are modified.
-- No changes to player logic, audio store, or other pages.
+## Notes / open items
+- Full-surah URL base from mp3quran.net for Al-Ossi is `server6.mp3quran.net/3osi/` (files `001.mp3`…`114.mp3`). I'll verify the exact server number works before finalizing; if that mirror is offline I'll swap to the current live one returned by mp3quran's reciter API.
+- everyayah.com does not host an Al-Ossi verse-by-verse set, so verse-level playback (if any feature uses `everyayahFolder`) falls back to Alafasy for him. Full-surah playback — what you asked for — works fully.
+- Artwork: using the QuranCentral CDN slug `abdur-rahman-al-ossi`. If the image 404s I'll fall back to a generic placeholder.
 
-## Outcome
-- The NowPlayingCard is never hidden.
-- Users always see a consistent card at the bottom, with a friendly localized prompt to begin listening when idle.
+Confirm and I'll implement.
