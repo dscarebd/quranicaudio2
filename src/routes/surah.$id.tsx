@@ -1,0 +1,146 @@
+import { createFileRoute, useNavigate, notFound } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronLeft, Heart, Pause, Play } from "lucide-react";
+import { getSurah } from "@/lib/quran-data";
+import { usePlayer } from "@/stores/player";
+import { useFavorites } from "@/stores/persisted";
+import { SurahCoverArt } from "@/components/SurahCoverArt";
+import { AppShell } from "@/components/AppShell";
+
+type Ayah = { number: number; numberInSurah: number; text: string };
+
+export const Route = createFileRoute("/surah/$id")({
+  params: {
+    parse: (raw) => ({ id: parseInt(raw.id, 10) }),
+    stringify: (parsed) => ({ id: String(parsed.id) }),
+  },
+  head: ({ params }) => {
+    const surah = getSurah(params.id);
+    return {
+      meta: [
+        { title: surah ? `${surah.name} — Quran Audio` : "Surah" },
+        { name: "description", content: surah ? `Listen to Surah ${surah.name} (${surah.arabic}) — ${surah.ayahs} verses.` : "" },
+      ],
+    };
+  },
+  loader: ({ params }) => {
+    const surah = getSurah(params.id);
+    if (!surah) throw notFound();
+  },
+  component: SurahPage,
+  notFoundComponent: () => (
+    <AppShell>
+      <div className="p-8 text-center text-muted-foreground">Surah not found.</div>
+    </AppShell>
+  ),
+  errorComponent: () => (
+    <AppShell>
+      <div className="p-8 text-center text-muted-foreground">Failed to load surah.</div>
+    </AppShell>
+  ),
+});
+
+function SurahPage() {
+  const { id } = Route.useParams();
+  const navigate = useNavigate();
+  const surah = getSurah(id)!;
+  const playerSurahId = usePlayer((s) => s.surahId);
+  const playerAyahId = usePlayer((s) => s.ayahId);
+  const isPlaying = usePlayer((s) => s.isPlaying);
+  const play = usePlayer((s) => s.play);
+  const toggle = usePlayer((s) => s.toggle);
+  const isFav = useFavorites((s) => s.ids.includes(id));
+  const toggleFav = useFavorites((s) => s.toggle);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["surah-text", id],
+    queryFn: async (): Promise<Ayah[]> => {
+      const res = await fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`);
+      const json = await res.json();
+      return json?.data?.ayahs ?? [];
+    },
+    staleTime: 1000 * 60 * 60,
+  });
+
+  const fullActive = playerSurahId === id && playerAyahId == null;
+
+  return (
+    <AppShell>
+      <header className="flex items-center justify-between px-5 pt-4 pb-2">
+        <button
+          onClick={() => navigate({ to: "/" })}
+          className="h-10 w-10 rounded-full bg-surface flex items-center justify-center"
+          aria-label="Back"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <h1 className="text-lg font-bold font-display truncate">Sura {surah.name}</h1>
+        <button onClick={() => toggleFav(id)} aria-label="Favorite" className="p-2">
+          <Heart className={`h-6 w-6 ${isFav ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+        </button>
+      </header>
+
+      <div className="px-5 mt-4">
+        <SurahCoverArt surahId={id} className="w-full aspect-[16/9] rounded-3xl" />
+      </div>
+
+      <div className="px-5 mt-5 flex items-center justify-between">
+        <div>
+          <div className="arabic text-3xl font-bold">{surah.arabic}</div>
+          <p className="text-sm text-muted-foreground mt-1">
+            {surah.meaning} · {surah.ayahs} verses · {surah.type}
+          </p>
+        </div>
+        <button
+          onClick={() => (fullActive ? toggle() : play(id, null))}
+          className="h-14 w-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/30"
+          aria-label="Play full surah"
+        >
+          {fullActive && isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 ml-0.5" />}
+        </button>
+      </div>
+
+      <section className="mt-6 px-5">
+        <h3 className="text-sm uppercase tracking-widest text-muted-foreground mb-3">Verses</h3>
+        {isLoading && (
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-20 rounded-2xl bg-surface animate-pulse" />
+            ))}
+          </div>
+        )}
+        <ul className="space-y-2">
+          {data?.map((ayah) => {
+            const active = playerSurahId === id && playerAyahId === ayah.numberInSurah;
+            return (
+              <li key={ayah.number}>
+                <button
+                  onClick={() => (active ? toggle() : play(id, ayah.numberInSurah))}
+                  className={`w-full text-left rounded-2xl p-4 transition ${
+                    active ? "bg-primary/15 ring-1 ring-primary" : "bg-surface"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                      active ? "bg-primary text-primary-foreground" : "bg-surface-2 text-muted-foreground"
+                    }`}>
+                      {ayah.numberInSurah}
+                    </span>
+                    {active && isPlaying ? (
+                      <Pause className="h-4 w-4 text-primary" />
+                    ) : (
+                      <Play className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </div>
+                  <p className="arabic text-2xl leading-loose text-right text-foreground">
+                    {ayah.text}
+                  </p>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    </AppShell>
+  );
+}
