@@ -132,6 +132,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here via PageTransition's <Outlet />. */}
       <PageTransition />
+      <BottomNav />
     </QueryClientProvider>
   );
 }
