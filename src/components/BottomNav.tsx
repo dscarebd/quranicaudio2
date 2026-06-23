@@ -1,12 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Heart, Mic2, User } from "lucide-react";
-import { Logo } from "./Logo";
+import { Heart, Home, User, Users } from "lucide-react";
 
 export function BottomNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const items = [
-    { to: "/", icon: <Logo className="h-5 w-10" />, label: "Home", match: (p: string) => p === "/" },
-    { to: "/reciters", icon: <Mic2 className="h-5 w-5" />, label: "Reciters", match: (p: string) => p.startsWith("/reciters") },
+    { to: "/", icon: <Home className="h-5 w-5" />, label: "Home", match: (p: string) => p === "/" },
+    { to: "/reciters", icon: <Users className="h-5 w-5" />, label: "Reciters", match: (p: string) => p.startsWith("/reciters") },
     { to: "/favorites", icon: <Heart className="h-5 w-5" />, label: "Favorites", match: (p: string) => p.startsWith("/favorites") },
     { to: "/profile", icon: <User className="h-5 w-5" />, label: "Profile", match: (p: string) => p.startsWith("/profile") },
   ];
