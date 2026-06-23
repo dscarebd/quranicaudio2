@@ -37,6 +37,7 @@ export const useFavorites = create<FavState>((set, get) => ({
 type RecentsState = {
   ids: number[];
   push: (id: number) => void;
+  remove: (id: number) => void;
 };
 export const useRecents = create<RecentsState>((set, get) => ({
   ids: read<number[]>("q_recents", []),
@@ -46,7 +47,13 @@ export const useRecents = create<RecentsState>((set, get) => ({
     set({ ids: next });
     write("q_recents", next);
   },
+  remove: (id) => {
+    const next = get().ids.filter((x) => x !== id);
+    set({ ids: next });
+    write("q_recents", next);
+  },
 }));
+
 
 /* ---- Reciter selection ---- */
 type ReciterState = {
