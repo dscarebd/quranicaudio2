@@ -13,6 +13,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { PageTransition } from "../components/PageTransition";
 import { BottomNav } from "../components/BottomNav";
+import { useAudioEngine } from "../hooks/use-audio";
+
 
 function NotFoundComponent() {
   return (
@@ -123,6 +125,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useAudioEngine();
 
   useEffect(() => {
     void import("../pwa/register-sw").then((m) => m.registerServiceWorker());
@@ -136,3 +139,4 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
+

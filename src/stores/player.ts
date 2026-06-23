@@ -53,8 +53,16 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   sleepMode: "off",
   sleepEndsAt: null,
   _seekRequest: null,
-  play: (surahId, ayahId = null) =>
-    set({ surahId, ayahId, isPlaying: true, currentTime: 0, duration: 0 }),
+  play: (surahId, ayahId = null) => {
+    const cur = get();
+    if (cur.surahId === surahId && cur.ayahId === ayahId) {
+      // Same track: restart from 0 and ensure playing, don't reload src
+      set({ isPlaying: true, currentTime: 0, _seekRequest: 0 });
+      return;
+    }
+    set({ surahId, ayahId, isPlaying: true, currentTime: 0, duration: 0 });
+  },
+
   toggle: () => set({ isPlaying: !get().isPlaying }),
   setTime: (t) => set({ currentTime: t }),
   setDuration: (d) => set({ duration: d }),
