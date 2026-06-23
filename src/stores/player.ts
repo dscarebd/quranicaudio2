@@ -88,6 +88,22 @@ export const usePlayer = create<PlayerState>((set, get) => ({
     const order: RepeatMode[] = ["off", "all", "one"];
     set({ repeat: order[(order.indexOf(get().repeat) + 1) % order.length] });
   },
+  setPlaybackRate: (r) => set({ playbackRate: r }),
+  setSleepTimer: (m) => {
+    if (m == null) {
+      set({ sleepMode: "off", sleepEndsAt: null });
+    } else if (m === "end-of-track") {
+      set({ sleepMode: "end-of-track", sleepEndsAt: null });
+    } else {
+      set({ sleepMode: "minutes", sleepEndsAt: Date.now() + m * 60_000 });
+    }
+  },
+  clearSleepIfNeeded: () => {
+    const { sleepMode, sleepEndsAt } = get();
+    if (sleepMode === "minutes" && sleepEndsAt != null && Date.now() >= sleepEndsAt) {
+      set({ isPlaying: false, sleepMode: "off", sleepEndsAt: null });
+    }
+  },
 }));
 
 export const formatTime = (s: number) => {
