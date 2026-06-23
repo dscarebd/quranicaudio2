@@ -15,8 +15,20 @@ export function useAudioEngine() {
   const ayahId = usePlayer((s) => s.ayahId);
   const isPlaying = usePlayer((s) => s.isPlaying);
   const repeat = usePlayer((s) => s.repeat);
+  const playbackRate = usePlayer((s) => s.playbackRate);
   const reciterId = useReciterSelection((s) => s.reciterId);
   const pushRecent = useRecents((s) => s.push);
+
+  // Apply playback rate
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.playbackRate = playbackRate;
+  }, [playbackRate]);
+
+  // Sleep timer poll
+  useEffect(() => {
+    const id = setInterval(() => usePlayer.getState().clearSleepIfNeeded(), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   // Build / replace source whenever track or reciter changes
   useEffect(() => {
