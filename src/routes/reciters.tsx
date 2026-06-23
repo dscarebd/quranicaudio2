@@ -1,16 +1,9 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ChevronLeft, Check, Download, Loader2, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { Check } from "lucide-react";
 import { RECITERS } from "@/lib/reciters";
 import { useReciterSelection } from "@/stores/persisted";
 import { AppShell } from "@/components/AppShell";
-import {
-  downloadReciter,
-  clearReciterCache,
-  getCachedSurahCount,
-  type DownloadHandle,
-  type DownloadProgress,
-} from "@/lib/offline-download";
+import { TopBar } from "@/components/TopBar";
 
 export const Route = createFileRoute("/reciters")({
   head: () => ({
