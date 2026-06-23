@@ -23,15 +23,6 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const recents = useRecents((s) => s.ids);
-  const FALLBACK = [1, 5, 18, 36, 67, 55];
-  const seen = new Set<number>();
-  const recentList: number[] = [];
-  for (const id of [...recents, ...FALLBACK]) {
-    if (seen.has(id)) continue;
-    seen.add(id);
-    recentList.push(id);
-    if (recentList.length >= 10) break;
-  }
   const [emblaRef] = useEmblaCarousel({
     align: "start",
     containScroll: "trimSnaps",
@@ -42,16 +33,19 @@ function Home() {
       <TopBar />
       <NowPlayingCard />
 
-      <section>
-        <h2 className="text-2xl font-bold font-display px-5 mb-3">Recently Played</h2>
-        <div ref={emblaRef} className="overflow-hidden">
-          <div className="flex gap-4 px-5 pb-2 touch-pan-y">
-            {recentList.map((id) => (
-              <RecentCard key={id} id={id} />
-            ))}
+      {recents.length > 0 && (
+        <section>
+          <h2 className="text-2xl font-bold font-display px-5 mb-3">Recently Played</h2>
+          <div ref={emblaRef} className="overflow-hidden">
+            <div className="flex gap-4 px-5 pb-2 touch-pan-y">
+              {recents.map((id) => (
+                <RecentCard key={id} id={id} />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
 
 
       <section className="mt-8">
