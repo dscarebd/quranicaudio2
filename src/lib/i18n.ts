@@ -57,6 +57,7 @@ const dict = {
     noResults: "No surahs match",
     renownedVoices: "renowned voices",
     recitersHint: "Tap a reciter to switch — your choice applies to every surah.",
+    tapToListen: "Tap a Surah to start listening",
   },
   bn: {
     search: "অনুসন্ধান",
@@ -113,6 +114,7 @@ const dict = {
     noResults: "কোনো সূরা মিলেনি",
     renownedVoices: "বিখ্যাত কণ্ঠস্বর",
     recitersHint: "ট্যাপ করে কারী পরিবর্তন করুন — আপনার পছন্দ প্রতিটি সূরায় প্রযোজ্য হবে।",
+    tapToListen: "শোনা শুরু করতে একটি সূরায় ট্যাপ করুন",
   },
 } as const;
 
