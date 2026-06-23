@@ -9,38 +9,129 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SearchRouteImport } from './routes/search'
+import { Route as RecitersRouteImport } from './routes/reciters'
+import { Route as PlayerRouteImport } from './routes/player'
+import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SurahIdRouteImport } from './routes/surah.$id'
 
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecitersRoute = RecitersRouteImport.update({
+  id: '/reciters',
+  path: '/reciters',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayerRoute = PlayerRouteImport.update({
+  id: '/player',
+  path: '/player',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FavoritesRoute = FavoritesRouteImport.update({
+  id: '/favorites',
+  path: '/favorites',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SurahIdRoute = SurahIdRouteImport.update({
+  id: '/surah/$id',
+  path: '/surah/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/favorites': typeof FavoritesRoute
+  '/player': typeof PlayerRoute
+  '/reciters': typeof RecitersRoute
+  '/search': typeof SearchRoute
+  '/surah/$id': typeof SurahIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/favorites': typeof FavoritesRoute
+  '/player': typeof PlayerRoute
+  '/reciters': typeof RecitersRoute
+  '/search': typeof SearchRoute
+  '/surah/$id': typeof SurahIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/favorites': typeof FavoritesRoute
+  '/player': typeof PlayerRoute
+  '/reciters': typeof RecitersRoute
+  '/search': typeof SearchRoute
+  '/surah/$id': typeof SurahIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/favorites'
+    | '/player'
+    | '/reciters'
+    | '/search'
+    | '/surah/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/favorites' | '/player' | '/reciters' | '/search' | '/surah/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/favorites'
+    | '/player'
+    | '/reciters'
+    | '/search'
+    | '/surah/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FavoritesRoute: typeof FavoritesRoute
+  PlayerRoute: typeof PlayerRoute
+  RecitersRoute: typeof RecitersRoute
+  SearchRoute: typeof SearchRoute
+  SurahIdRoute: typeof SurahIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reciters': {
+      id: '/reciters'
+      path: '/reciters'
+      fullPath: '/reciters'
+      preLoaderRoute: typeof RecitersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/player': {
+      id: '/player'
+      path: '/player'
+      fullPath: '/player'
+      preLoaderRoute: typeof PlayerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/favorites': {
+      id: '/favorites'
+      path: '/favorites'
+      fullPath: '/favorites'
+      preLoaderRoute: typeof FavoritesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +139,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/surah/$id': {
+      id: '/surah/$id'
+      path: '/surah/$id'
+      fullPath: '/surah/$id'
+      preLoaderRoute: typeof SurahIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FavoritesRoute: FavoritesRoute,
+  PlayerRoute: PlayerRoute,
+  RecitersRoute: RecitersRoute,
+  SearchRoute: SearchRoute,
+  SurahIdRoute: SurahIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
