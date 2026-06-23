@@ -50,6 +50,7 @@ export function useAudioEngine() {
         : fullSurahUrl(reciter, surahId);
     audio.src = url;
     audio.load();
+    audio.playbackRate = usePlayer.getState().playbackRate;
     if (isPlaying) audio.play().catch(() => {});
     pushRecent(surahId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
