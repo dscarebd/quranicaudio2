@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Shuffle, Repeat, Repeat1 } from "lucide-react";
+import { Shuffle, Repeat, Repeat1, Play, Pause } from "lucide-react";
 import { usePlayer, formatTime } from "@/stores/player";
 import { getSurah } from "@/lib/quran-data";
 import { SurahCoverArt } from "./SurahCoverArt";
@@ -8,8 +8,10 @@ import { cn } from "@/lib/utils";
 export function NowPlayingCard() {
   const surahId = usePlayer((s) => s.surahId);
   const currentTime = usePlayer((s) => s.currentTime);
+  const isPlaying = usePlayer((s) => s.isPlaying);
   const shuffle = usePlayer((s) => s.shuffle);
   const repeat = usePlayer((s) => s.repeat);
+  const toggle = usePlayer((s) => s.toggle);
   const toggleShuffle = usePlayer((s) => s.toggleShuffle);
   const cycleRepeat = usePlayer((s) => s.cycleRepeat);
   if (surahId == null) return null;
@@ -34,6 +36,17 @@ export function NowPlayingCard() {
           </h3>
           <div className="flex items-center gap-3 mt-6">
             <p className="text-sm font-semibold opacity-80">{formatTime(currentTime)}</p>
+            <button
+              type="button"
+              aria-label={isPlaying ? "Pause" : "Play"}
+              onClick={(e) => {
+                stop(e);
+                toggle();
+              }}
+              className="h-10 w-10 inline-flex items-center justify-center rounded-full bg-primary-foreground text-primary transition-colors active:scale-95"
+            >
+              {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
+            </button>
             <button
               type="button"
               aria-label={shuffle ? "Disable shuffle" : "Enable shuffle"}
