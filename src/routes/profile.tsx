@@ -6,7 +6,7 @@ import { useFavorites, useRecents, useReciterSelection } from "@/stores/persiste
 import { usePlayer } from "@/stores/player";
 import { RECITERS, getReciter } from "@/lib/reciters";
 import { ChevronRight, Mic2, Heart, Clock, Gauge, Repeat, Shuffle, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [{ title: "Profile — Quran Audio" }] }),
