@@ -90,7 +90,8 @@ export function useAudioEngine() {
         return;
       }
       // verse-by-verse: advance until last ayah of surah
-      if (aid != null && sid != null) {
+      const { shuffle } = usePlayer.getState();
+      if (aid != null && sid != null && !shuffle) {
         const surah = getSurah(sid);
         if (surah && aid >= surah.ayahs) {
           if (r === "all") {
