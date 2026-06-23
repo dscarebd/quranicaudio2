@@ -38,6 +38,17 @@ export function NowPlayingCard() {
             <p className="text-sm font-semibold opacity-80">{formatTime(currentTime)}</p>
             <button
               type="button"
+              aria-label={isPlaying ? "Pause" : "Play"}
+              onClick={(e) => {
+                stop(e);
+                toggle();
+              }}
+              className="h-10 w-10 inline-flex items-center justify-center rounded-full bg-primary-foreground text-primary transition-colors active:scale-95"
+            >
+              {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
+            </button>
+            <button
+              type="button"
               aria-label={shuffle ? "Disable shuffle" : "Enable shuffle"}
               aria-pressed={shuffle}
               onClick={(e) => {
