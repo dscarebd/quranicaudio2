@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, Heart, Pause, Play } from "lucide-react";
+import { useState } from "react";
 import { getSurah } from "@/lib/quran-data";
 import { usePlayer } from "@/stores/player";
 import { useFavorites } from "@/stores/persisted";
@@ -8,6 +9,12 @@ import { SurahCoverArt } from "@/components/SurahCoverArt";
 import { AppShell } from "@/components/AppShell";
 
 type Ayah = { number: number; numberInSurah: number; text: string };
+type TranslationLang = "en" | "bn";
+const TRANSLATION_EDITION: Record<TranslationLang, string> = {
+  en: "en.sahih",
+  bn: "bn.bengali",
+};
+
 
 export const Route = createFileRoute("/surah/$id")({
   params: {
@@ -52,15 +59,25 @@ function SurahPage() {
   const isFav = useFavorites((s) => s.ids.includes(id));
   const toggleFav = useFavorites((s) => s.toggle);
 
+  const [lang, setLang] = useState<TranslationLang>("en");
+
   const { data, isLoading } = useQuery({
-    queryKey: ["surah-text", id],
-    queryFn: async (): Promise<Ayah[]> => {
-      const res = await fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`);
+    queryKey: ["surah-text", id, lang],
+    queryFn: async (): Promise<{ arabic: Ayah[]; translation: Ayah[] }> => {
+      const edition = TRANSLATION_EDITION[lang];
+      const res = await fetch(
+        `https://api.alquran.cloud/v1/surah/${id}/editions/quran-uthmani,${edition}`,
+      );
       const json = await res.json();
-      return json?.data?.ayahs ?? [];
+      const editions = (json?.data ?? []) as Array<{ ayahs: Ayah[] }>;
+      return {
+        arabic: editions[0]?.ayahs ?? [],
+        translation: editions[1]?.ayahs ?? [],
+      };
     },
     staleTime: 1000 * 60 * 60,
   });
+
 
   const fullActive = playerSurahId === id && playerAyahId == null;
 
