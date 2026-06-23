@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { BottomNav } from "./BottomNav";
 import { useAudioEngine } from "@/hooks/use-audio";
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -9,7 +8,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="mx-auto max-w-md min-h-screen pb-24 relative">
         {children}
       </div>
-      <BottomNav />
     </div>
   );
 }
