@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useFavorites, useRecents, useReciterSelection } from "@/stores/persisted";
 import { usePlayer } from "@/stores/player";
 import { RECITERS, getReciter } from "@/lib/reciters";
-import { ChevronRight, Mic2, Heart, Clock, Gauge, Repeat, Shuffle, Trash2, Info } from "lucide-react";
+import { ChevronRight, Mic2, Heart, Clock, Gauge, Repeat, Shuffle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/profile")({
@@ -166,22 +166,6 @@ function ProfilePage() {
         </button>
       </Section>
 
-      {/* About */}
-      <Section title="About">
-        <div className="px-5 py-4 flex items-center gap-3">
-          <Info className="h-5 w-5 text-primary" />
-          <div className="flex-1">
-            <div className="text-sm font-medium">Quran Audio</div>
-            <div className="text-xs text-muted-foreground">Version 1.0.0</div>
-          </div>
-        </div>
-      </Section>
-
-      <div className="px-5 pb-6">
-        <Button variant="outline" className="w-full" asChild>
-          <Link to="/">Back to home</Link>
-        </Button>
-      </div>
     </AppShell>
   );
 }
