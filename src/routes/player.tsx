@@ -119,7 +119,7 @@ function PlayerPage() {
         />
         <div className="flex justify-between text-sm text-muted-foreground mt-1">
           <span>{formatTime(currentTime)}</span>
-          <span>{formatTime(duration)}</span>
+          <span>-{formatTime(Math.max(0,0, duration - currentTime))}</span>
         </div>
       </div>
 
