@@ -144,7 +144,7 @@ export const RECITERS: Reciter[] = [
     arabic: "عبد الرحمن العوسي",
     mp3quranBase: "https://server6.mp3quran.net/aloosi/",
     everyayahFolder: "Alafasy_128kbps",
-    image: img("abdur-rahman-al-ossi"),
+    image: img("abdul-rahman-jamal-aloosi"),
   },
   {
     id: "yasser",
