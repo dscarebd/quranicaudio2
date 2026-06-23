@@ -29,10 +29,10 @@ export function TopBar({ centerLogo = true }: { centerLogo?: boolean }) {
       ) : (
         <span />
       )}
-      <div className="justify-self-end"
+      <div
         role="group"
         aria-label={t("language")}
-        className="inline-flex items-center rounded-full bg-primary-foreground/15 p-0.5 text-xs font-semibold"
+        className="inline-flex items-center justify-self-end rounded-full bg-primary-foreground/15 p-0.5 text-xs font-semibold"
       >
         {(["en", "bn"] as const).map((l) => {
           const active = lang === l;
