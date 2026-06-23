@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Search } from "lucide-react";
 import logoAsset from "@/assets/logo.png.asset.json";
 import { useLanguage } from "@/stores/language";
 import { useT } from "@/lib/i18n";
