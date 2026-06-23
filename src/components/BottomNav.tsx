@@ -19,7 +19,7 @@ export function BottomNav() {
               key={it.to}
               to={it.to}
               className={`flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-2xl transition ${
-                active ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                active ? "text-primary" : "text-muted-foreground"
               }`}
             >
               {it.icon}
