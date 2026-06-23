@@ -170,10 +170,23 @@ function PlayerPage() {
         <button
           onClick={toggle}
           aria-label={isPlaying ? "Pause" : "Play"}
-          className="h-20 w-20 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-xl shadow-primary/30 active:scale-95 transition-transform duration-150"
+          aria-pressed={isPlaying}
+          className={`relative h-20 w-20 rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all duration-200 ${
+            isPlaying
+              ? "bg-primary text-primary-foreground shadow-primary/40 ring-4 ring-primary/25"
+              : "bg-foreground text-background shadow-foreground/20"
+          }`}
         >
-          {isPlaying ? <Pause className="h-9 w-9" /> : <Play className="h-9 w-9 ml-1" />}
+          {isPlaying && (
+            <span className="absolute inset-0 rounded-full bg-primary/30 animate-ping" aria-hidden />
+          )}
+          {isPlaying ? (
+            <Pause className="h-9 w-9 relative" fill="currentColor" />
+          ) : (
+            <Play className="h-9 w-9 ml-1 relative" fill="currentColor" />
+          )}
         </button>
+
         <button onClick={next} aria-label="Next" className="text-foreground p-2 transition-transform active:scale-90">
           <SkipForward className="h-8 w-8 fill-current" />
         </button>
