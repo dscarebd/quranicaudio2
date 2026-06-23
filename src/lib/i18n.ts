@@ -138,3 +138,13 @@ export function surahName(surah: Pick<Surah, "name" | "bangla">, lang: Lang): st
 export function surahType(s: Surah, lang: Lang): string {
   return s.type === "Meccan" ? translate(lang, "meccan") : translate(lang, "medinan");
 }
+
+const BN_DIGITS = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+
+export function toBanglaNum(value: number | string): string {
+  return String(value).replace(/[0-9]/g, (d) => BN_DIGITS[parseInt(d, 10)]);
+}
+
+export function localizeNum(value: number | string, lang: Lang): string {
+  return lang === "bn" ? toBanglaNum(value) : String(value);
+}

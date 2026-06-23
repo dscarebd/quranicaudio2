@@ -9,7 +9,7 @@ import { SurahCoverArt } from "@/components/SurahCoverArt";
 import { AppShell } from "@/components/AppShell";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { useT, surahName, surahType } from "@/lib/i18n";
+import { useT, surahName, surahType, localizeNum } from "@/lib/i18n";
 
 
 const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5, 1.75, 2];
@@ -115,10 +115,10 @@ function PlayerPage() {
       <div className="px-5 mt-6 flex items-center justify-between gap-4">
         <div className="min-w-0">
           <h2 className="text-2xl font-bold font-display truncate">
-            {String(surah.id).padStart(2, "0")} {t("sura")} {surahName(surah, lang)}
+            {localizeNum(String(surah.id).padStart(2, "0"), lang)} {t("sura")} {surahName(surah, lang)}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {ayahId != null ? `${t("verses")} ${ayahId} / ${surah.ayahs}` : `${surah.ayahs} ${t("ayahs")} · ${surahType(surah, lang)}`}
+            {ayahId != null ? `${t("verses")} ${localizeNum(ayahId, lang)} / ${localizeNum(surah.ayahs, lang)}` : `${localizeNum(surah.ayahs, lang)} ${t("ayahs")} · ${surahType(surah, lang)}`}
           </p>
         </div>
         <button

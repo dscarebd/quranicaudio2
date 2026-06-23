@@ -4,7 +4,7 @@ import { usePlayer, formatTime } from "@/stores/player";
 import { getSurah } from "@/lib/quran-data";
 import { SurahCoverArt } from "./SurahCoverArt";
 import { cn } from "@/lib/utils";
-import { useT, surahName } from "@/lib/i18n";
+import { useT, surahName, localizeNum } from "@/lib/i18n";
 
 export function NowPlayingCard() {
   const surahId = usePlayer((s) => s.surahId);
@@ -40,7 +40,7 @@ export function NowPlayingCard() {
           ) : (
             <>
               <h3 className="text-xl font-bold font-display mt-1 truncate">
-                {String(surah!.id).padStart(2, "0")} {t("sura")} {surahName(surah!, lang)}
+                {localizeNum(String(surah!.id).padStart(2, "0"), lang)} {t("sura")} {surahName(surah!, lang)}
               </h3>
               <div className="flex items-center gap-3 mt-6">
                 <p className="text-sm font-semibold opacity-80">{formatTime(currentTime)}</p>
