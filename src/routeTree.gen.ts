@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as RecitersRouteImport } from './routes/reciters'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PlayerRouteImport } from './routes/player'
 import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as IndexRouteImport } from './routes/index'
@@ -24,6 +25,11 @@ const SearchRoute = SearchRouteImport.update({
 const RecitersRoute = RecitersRouteImport.update({
   id: '/reciters',
   path: '/reciters',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlayerRoute = PlayerRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/favorites': typeof FavoritesRoute
   '/player': typeof PlayerRoute
+  '/profile': typeof ProfileRoute
   '/reciters': typeof RecitersRoute
   '/search': typeof SearchRoute
   '/surah/$id': typeof SurahIdRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/favorites': typeof FavoritesRoute
   '/player': typeof PlayerRoute
+  '/profile': typeof ProfileRoute
   '/reciters': typeof RecitersRoute
   '/search': typeof SearchRoute
   '/surah/$id': typeof SurahIdRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/favorites': typeof FavoritesRoute
   '/player': typeof PlayerRoute
+  '/profile': typeof ProfileRoute
   '/reciters': typeof RecitersRoute
   '/search': typeof SearchRoute
   '/surah/$id': typeof SurahIdRoute
@@ -78,16 +87,25 @@ export interface FileRouteTypes {
     | '/'
     | '/favorites'
     | '/player'
+    | '/profile'
     | '/reciters'
     | '/search'
     | '/surah/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/favorites' | '/player' | '/reciters' | '/search' | '/surah/$id'
+  to:
+    | '/'
+    | '/favorites'
+    | '/player'
+    | '/profile'
+    | '/reciters'
+    | '/search'
+    | '/surah/$id'
   id:
     | '__root__'
     | '/'
     | '/favorites'
     | '/player'
+    | '/profile'
     | '/reciters'
     | '/search'
     | '/surah/$id'
@@ -97,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FavoritesRoute: typeof FavoritesRoute
   PlayerRoute: typeof PlayerRoute
+  ProfileRoute: typeof ProfileRoute
   RecitersRoute: typeof RecitersRoute
   SearchRoute: typeof SearchRoute
   SurahIdRoute: typeof SurahIdRoute
@@ -116,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/reciters'
       fullPath: '/reciters'
       preLoaderRoute: typeof RecitersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/player': {
@@ -153,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FavoritesRoute: FavoritesRoute,
   PlayerRoute: PlayerRoute,
+  ProfileRoute: ProfileRoute,
   RecitersRoute: RecitersRoute,
   SearchRoute: SearchRoute,
   SurahIdRoute: SurahIdRoute,

@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Heart, Mic2 } from "lucide-react";
+import { Heart, Mic2, User } from "lucide-react";
 import { Logo } from "./Logo";
 
 export function BottomNav() {
@@ -8,6 +8,7 @@ export function BottomNav() {
     { to: "/", icon: <Logo className="h-5 w-10" />, label: "Home", match: (p: string) => p === "/" },
     { to: "/reciters", icon: <Mic2 className="h-5 w-5" />, label: "Reciters", match: (p: string) => p.startsWith("/reciters") },
     { to: "/favorites", icon: <Heart className="h-5 w-5" />, label: "Favorites", match: (p: string) => p.startsWith("/favorites") },
+    { to: "/profile", icon: <User className="h-5 w-5" />, label: "Profile", match: (p: string) => p.startsWith("/profile") },
   ];
   return (
     <nav className="fixed bottom-0 inset-x-0 z-30 bg-background/95 backdrop-blur border-t border-border">
@@ -18,7 +19,7 @@ export function BottomNav() {
             <Link
               key={it.to}
               to={it.to}
-              className={`flex flex-col items-center gap-1 px-6 py-2 rounded-2xl transition ${
+              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition ${
                 active ? "bg-primary text-primary-foreground" : "text-muted-foreground"
               }`}
             >
