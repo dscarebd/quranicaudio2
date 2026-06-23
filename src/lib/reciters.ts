@@ -1,4 +1,4 @@
-// 17 reciters available. Each has:
+// 18 reciters available. Each has:
 //  - mp3quranBase: base URL for full-surah MP3s — append "NNN.mp3"
 //  - everyayahFolder: folder name on everyayah.com for verse-by-verse MP3s
 //  - image: photo URL from QuranCentral public artwork CDN
