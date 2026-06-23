@@ -237,9 +237,6 @@ function UserCard({ favoritesCount, recentsCount }: { favoritesCount: number; re
         ) : (
           (profile.name || "Q").charAt(0).toUpperCase()
         )}
-        <span className="absolute bottom-0 right-0 h-5 w-5 rounded-full bg-background border border-border flex items-center justify-center">
-          <Camera className="h-3 w-3 text-foreground" />
-        </span>
       </button>
       <input
         ref={fileRef}
