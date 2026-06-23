@@ -10,15 +10,15 @@ export function BottomNav() {
     { to: "/profile", icon: <User className="h-5 w-5" />, label: "Profile", match: (p: string) => p.startsWith("/profile") },
   ];
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-30 bg-background/95 backdrop-blur border-t border-border">
-      <div className="mx-auto max-w-md flex items-center justify-around py-2 pb-[max(env(safe-area-inset-bottom),0.5rem)]">
+    <nav className="fixed bottom-4 left-4 right-4 z-30 mx-auto max-w-md bg-surface/95 backdrop-blur rounded-[2rem] border border-border shadow-lg">
+      <div className="grid grid-cols-4 py-2 pb-[max(env(safe-area-inset-bottom),0.5rem)]">
         {items.map((it) => {
           const active = it.match(pathname);
           return (
             <Link
               key={it.to}
               to={it.to}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition ${
+              className={`flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-2xl transition ${
                 active ? "bg-primary text-primary-foreground" : "text-muted-foreground"
               }`}
             >
