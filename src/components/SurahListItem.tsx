@@ -42,7 +42,7 @@ export function SurahListItem({ id }: { id: number }) {
     >
       <div className="flex-1 min-w-0">
         <h4 className="font-semibold text-foreground truncate">
-          {String(surah.id).padStart(2, "0")} {t("sura")} {surahName(surah, lang)}
+          {localizeNum(String(surah.id).padStart(2, "0"), lang)} {t("sura")} {surahName(surah, lang)}
         </h4>
         <p className={`text-sm mt-0.5 ${isActive ? "text-primary" : "text-muted-foreground"}`}>
           {isActive ? `${formatTime(currentTime)} / ${approxDuration(surah.ayahs)}` : approxDuration(surah.ayahs)}

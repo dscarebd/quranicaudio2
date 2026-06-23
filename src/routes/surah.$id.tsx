@@ -115,7 +115,7 @@ function SurahPage() {
         <div>
           <div className="arabic text-3xl font-bold text-left">{surah.arabic}</div>
           <p className="text-sm text-muted-foreground mt-1">
-            {surah.meaning} · {surah.ayahs} {t("ayahs")} · {surahType(surah, appLang)}
+            {surah.meaning} · {localizeNum(surah.ayahs, appLang)} {t("ayahs")} · {surahType(surah, appLang)}
           </p>
         </div>
         <button
@@ -167,7 +167,7 @@ function SurahPage() {
                     <span className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold ${
                       active ? "bg-primary text-primary-foreground" : "bg-surface-2 text-muted-foreground"
                     }`}>
-                      {ayah.numberInSurah}
+                      {localizeNum(ayah.numberInSurah, appLang)}
                     </span>
                     {active && isPlaying ? (
                       <Pause className="h-4 w-4 text-primary" />

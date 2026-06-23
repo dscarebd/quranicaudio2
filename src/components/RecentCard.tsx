@@ -68,7 +68,7 @@ export function RecentCard({ id }: { id: number }) {
             </button>
           </div>
           <h4 className="mt-3 font-semibold truncate">
-            {String(surah.id).padStart(2, "0")} {t("sura")} {surahName(surah, lang)}
+            {localizeNum(String(surah.id).padStart(2, "0"), lang)} {t("sura")} {surahName(surah, lang)}
           </h4>
           <p className="text-sm text-muted-foreground">{approxDuration(surah.ayahs)}</p>
         </Link>

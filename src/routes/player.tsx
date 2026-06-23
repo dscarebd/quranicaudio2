@@ -115,10 +115,10 @@ function PlayerPage() {
       <div className="px-5 mt-6 flex items-center justify-between gap-4">
         <div className="min-w-0">
           <h2 className="text-2xl font-bold font-display truncate">
-            {String(surah.id).padStart(2, "0")} {t("sura")} {surahName(surah, lang)}
+            {localizeNum(String(surah.id).padStart(2, "0"), lang)} {t("sura")} {surahName(surah, lang)}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {ayahId != null ? `${t("verses")} ${ayahId} / ${surah.ayahs}` : `${surah.ayahs} ${t("ayahs")} · ${surahType(surah, lang)}`}
+            {ayahId != null ? `${t("verses")} ${localizeNum(ayahId, lang)} / ${localizeNum(surah.ayahs, lang)}` : `${localizeNum(surah.ayahs, lang)} ${t("ayahs")} · ${surahType(surah, lang)}`}
           </p>
         </div>
         <button
