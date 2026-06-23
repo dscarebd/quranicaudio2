@@ -18,11 +18,11 @@ export function TopBar({ centerLogo = true }: { centerLogo?: boolean }) {
         <Search className="h-6 w-6" />
       </Link>
       {centerLogo ? (
-        <Link to="/" aria-label={t("home")} className="flex h-8 items-center justify-center justify-self-center">
+        <Link to="/" aria-label={t("home")} className="flex h-9 items-center justify-center justify-self-center">
           <img
             src={logoAsset.url}
             alt="Logo"
-            className="h-7 w-auto object-contain brightness-0 invert"
+            className="h-8 w-auto object-contain brightness-0 invert"
             draggable={false}
           />
         </Link>
