@@ -1,12 +1,14 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { ChevronLeft, Gauge, Heart, Moon, Pause, Play, Repeat, Repeat1, Shuffle, SkipBack, SkipForward } from "lucide-react";
+import { ChevronLeft, Gauge, Heart, Moon, Pause, Play, Repeat, Repeat1, Shuffle, SkipBack, SkipForward, Mic2, Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { usePlayer, formatTime } from "@/stores/player";
 import { getSurah } from "@/lib/quran-data";
-import { useFavorites } from "@/stores/persisted";
+import { useFavorites, useReciterSelection } from "@/stores/persisted";
+import { RECITERS, getReciter } from "@/lib/reciters";
 import { SurahCoverArt } from "@/components/SurahCoverArt";
 import { AppShell } from "@/components/AppShell";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5, 1.75, 2];
 const SLEEP_OPTIONS: { label: string; value: number | "end-of-track" | null }[] = [
@@ -125,7 +127,11 @@ function PlayerPage() {
         </button>
       </div>
 
-      <div className="px-5 mt-8">
+      <div className="px-5 mt-4">
+        <ReciterSwitcher />
+      </div>
+
+      <div className="px-5 mt-6">
         <input
           type="range"
           min={0}
@@ -249,5 +255,85 @@ function PlayerPage() {
       </div>
 
     </AppShell>
+  );
+}
+
+function ReciterSwitcher() {
+  const selectedId = useReciterSelection((s) => s.reciterId);
+  const setReciter = useReciterSelection((s) => s.setReciter);
+  const reciter = getReciter(selectedId);
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <button className="w-full flex items-center gap-3 p-3 rounded-2xl bg-surface transition active:scale-[0.98]">
+          <img
+            src={reciter.image}
+            alt={reciter.name}
+            loading="lazy"
+            width={40}
+            height={40}
+            className="h-10 w-10 rounded-full object-cover bg-surface-2 ring-2 ring-border"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
+            }}
+          />
+          <div className="flex-1 text-left min-w-0">
+            <p className="text-xs text-muted-foreground">Reciter</p>
+            <p className="font-semibold text-sm truncate">{reciter.name}</p>
+          </div>
+          <Mic2 className="h-4 w-4 text-muted-foreground" />
+        </button>
+      </SheetTrigger>
+      <SheetContent side="bottom" className="rounded-t-3xl pb-8">
+        <SheetHeader className="text-left mb-4">
+          <SheetTitle className="font-display">Choose Reciter</SheetTitle>
+        </SheetHeader>
+        <ul className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
+          {RECITERS.map((r) => {
+            const active = r.id === selectedId;
+            return (
+              <li key={r.id}>
+                <button
+                  onClick={() => {
+                    setReciter(r.id);
+                    setOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 p-3 rounded-2xl transition active:scale-[0.98] ${
+                    active
+                      ? "bg-primary/15 ring-1 ring-primary"
+                      : "bg-surface hover:bg-surface-2"
+                  }`}
+                >
+                  <img
+                    src={r.image}
+                    alt={r.name}
+                    loading="lazy"
+                    width={48}
+                    height={48}
+                    className="h-12 w-12 rounded-full object-cover bg-surface-2 ring-2 ring-border"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
+                    }}
+                  />
+                  <div className="flex-1 text-left min-w-0">
+                    <p className={`font-semibold text-sm truncate ${active ? "text-primary" : ""}`}>
+                      {r.name}
+                    </p>
+                    <p className="arabic text-xs text-muted-foreground">{r.arabic}</p>
+                  </div>
+                  {active && (
+                    <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </SheetContent>
+    </Sheet>
   );
 }
