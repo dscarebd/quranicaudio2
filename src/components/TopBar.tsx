@@ -4,7 +4,7 @@ import logoAsset from "@/assets/logo.png.asset.json";
 
 export function TopBar({ centerLogo = true }: { centerLogo?: boolean }) {
   return (
-    <header className="flex items-center justify-between px-5 pt-4 pb-3">
+    <header className="flex items-center justify-between px-5 pt-4 pb-3 bg-surface">
       <Link to="/search" className="text-foreground/90 p-1" aria-label="Search">
         <Search className="h-6 w-6" />
       </Link>
