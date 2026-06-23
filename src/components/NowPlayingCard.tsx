@@ -28,7 +28,7 @@ export function NowPlayingCard() {
   return (
     <Link
       to="/player"
-      className="mb-6 block rounded-3xl bg-primary text-primary-foreground p-5 relative overflow-hidden shadow-lg shadow-primary/20"
+      className="mx-2 mb-6 block rounded-3xl bg-primary text-primary-foreground p-5 relative overflow-hidden shadow-lg shadow-primary/20"
     >
       <div className="flex items-center gap-4">
         <div className="flex-1 min-w-0">
