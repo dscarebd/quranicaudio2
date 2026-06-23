@@ -63,6 +63,13 @@ function SurahPage() {
 
   const [lang, setLang] = useState<TranslationLang>("en");
   const { lang: appLang, t } = useT();
+  const [showTopBtn, setShowTopBtn] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShowTopBtn(window.scrollY > 300);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const { data, isLoading } = useQuery({
     queryKey: ["surah-text", id, lang],
