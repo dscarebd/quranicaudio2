@@ -40,8 +40,28 @@ function PlayerPage() {
   const prev = usePlayer((s) => s.prev);
   const toggleShuffle = usePlayer((s) => s.toggleShuffle);
   const cycleRepeat = usePlayer((s) => s.cycleRepeat);
+  const playbackRate = usePlayer((s) => s.playbackRate);
+  const setPlaybackRate = usePlayer((s) => s.setPlaybackRate);
+  const sleepMode = usePlayer((s) => s.sleepMode);
+  const sleepEndsAt = usePlayer((s) => s.sleepEndsAt);
+  const setSleepTimer = usePlayer((s) => s.setSleepTimer);
   const isFav = useFavorites((s) => surahId != null && s.ids.includes(surahId));
   const toggleFav = useFavorites((s) => s.toggle);
+
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (sleepMode !== "minutes") return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [sleepMode]);
+  const sleepRemaining =
+    sleepMode === "minutes" && sleepEndsAt ? Math.max(0, sleepEndsAt - now) : 0;
+  const sleepLabel =
+    sleepMode === "off"
+      ? null
+      : sleepMode === "end-of-track"
+        ? "End of track"
+        : formatTime(sleepRemaining / 1000);
 
   if (surahId == null) {
     return (
