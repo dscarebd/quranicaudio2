@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, Heart, Pause, Play } from "lucide-react";
+import { useState } from "react";
 import { getSurah } from "@/lib/quran-data";
 import { usePlayer } from "@/stores/player";
 import { useFavorites } from "@/stores/persisted";
@@ -8,6 +9,12 @@ import { SurahCoverArt } from "@/components/SurahCoverArt";
 import { AppShell } from "@/components/AppShell";
 
 type Ayah = { number: number; numberInSurah: number; text: string };
+type TranslationLang = "en" | "bn";
+const TRANSLATION_EDITION: Record<TranslationLang, string> = {
+  en: "en.sahih",
+  bn: "bn.bengali",
+};
+
 
 export const Route = createFileRoute("/surah/$id")({
   params: {
@@ -52,15 +59,25 @@ function SurahPage() {
   const isFav = useFavorites((s) => s.ids.includes(id));
   const toggleFav = useFavorites((s) => s.toggle);
 
+  const [lang, setLang] = useState<TranslationLang>("en");
+
   const { data, isLoading } = useQuery({
-    queryKey: ["surah-text", id],
-    queryFn: async (): Promise<Ayah[]> => {
-      const res = await fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`);
+    queryKey: ["surah-text", id, lang],
+    queryFn: async (): Promise<{ arabic: Ayah[]; translation: Ayah[] }> => {
+      const edition = TRANSLATION_EDITION[lang];
+      const res = await fetch(
+        `https://api.alquran.cloud/v1/surah/${id}/editions/quran-uthmani,${edition}`,
+      );
       const json = await res.json();
-      return json?.data?.ayahs ?? [];
+      const editions = (json?.data ?? []) as Array<{ ayahs: Ayah[] }>;
+      return {
+        arabic: editions[0]?.ayahs ?? [],
+        translation: editions[1]?.ayahs ?? [],
+      };
     },
     staleTime: 1000 * 60 * 60,
   });
+
 
   const fullActive = playerSurahId === id && playerAyahId == null;
 
@@ -101,7 +118,22 @@ function SurahPage() {
       </div>
 
       <section className="mt-6 px-5">
-        <h3 className="text-sm uppercase tracking-widest text-muted-foreground mb-3">Verses</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm uppercase tracking-widest text-muted-foreground">Verses</h3>
+          <div className="inline-flex rounded-full bg-surface p-1 text-xs font-semibold">
+            {(["en", "bn"] as const).map((l) => (
+              <button
+                key={l}
+                onClick={() => setLang(l)}
+                className={`px-3 py-1 rounded-full transition ${
+                  lang === l ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                }`}
+              >
+                {l === "en" ? "English" : "বাংলা"}
+              </button>
+            ))}
+          </div>
+        </div>
         {isLoading && (
           <div className="space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -110,8 +142,9 @@ function SurahPage() {
           </div>
         )}
         <ul className="space-y-2">
-          {data?.map((ayah) => {
+          {data?.arabic.map((ayah, idx) => {
             const active = playerSurahId === id && playerAyahId === ayah.numberInSurah;
+            const tr = data.translation[idx]?.text;
             return (
               <li key={ayah.number}>
                 <button
@@ -135,12 +168,23 @@ function SurahPage() {
                   <p className="arabic text-2xl leading-loose text-right text-foreground">
                     {ayah.text}
                   </p>
+                  {tr && (
+                    <p
+                      className={`mt-3 text-sm leading-relaxed text-muted-foreground ${
+                        lang === "bn" ? "text-right" : "text-left"
+                      }`}
+                      lang={lang}
+                    >
+                      {tr}
+                    </p>
+                  )}
                 </button>
               </li>
             );
           })}
         </ul>
       </section>
+
     </AppShell>
   );
 }
