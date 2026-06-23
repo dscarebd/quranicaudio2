@@ -41,6 +41,9 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   duration: 0,
   shuffle: false,
   repeat: "off",
+  playbackRate: 1,
+  sleepMode: "off",
+  sleepEndsAt: null,
   _seekRequest: null,
   play: (surahId, ayahId = null) =>
     set({ surahId, ayahId, isPlaying: true, currentTime: 0, duration: 0 }),
