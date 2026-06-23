@@ -148,6 +148,78 @@ function PlayerPage() {
           <Shuffle className={`h-6 w-6 ${shuffle ? "text-primary" : ""}`} />
         </button>
       </div>
+
+      <div className="px-5 mt-8 flex items-center justify-center gap-3">
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              className={`flex items-center gap-2 h-10 px-4 rounded-full bg-surface text-sm font-medium ${playbackRate !== 1 ? "text-primary" : "text-foreground"}`}
+              aria-label="Playback speed"
+            >
+              <Gauge className="h-4 w-4" />
+              {playbackRate}x
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-48 p-2" align="center">
+            <p className="text-xs text-muted-foreground px-2 pb-2">Playback speed</p>
+            <div className="grid grid-cols-3 gap-1">
+              {SPEED_OPTIONS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setPlaybackRate(s)}
+                  className={`h-9 rounded-md text-sm font-medium transition ${
+                    playbackRate === s
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-surface"
+                  }`}
+                >
+                  {s}x
+                </button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              className={`flex items-center gap-2 h-10 px-4 rounded-full bg-surface text-sm font-medium ${sleepMode !== "off" ? "text-primary" : "text-foreground"}`}
+              aria-label="Sleep timer"
+            >
+              <Moon className="h-4 w-4" />
+              {sleepLabel ?? "Sleep"}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-56 p-2" align="center">
+            <p className="text-xs text-muted-foreground px-2 pb-2">Sleep timer</p>
+            <div className="flex flex-col">
+              {SLEEP_OPTIONS.map((opt) => {
+                const active =
+                  (opt.value === null && sleepMode === "off") ||
+                  (opt.value === "end-of-track" && sleepMode === "end-of-track") ||
+                  (typeof opt.value === "number" &&
+                    sleepMode === "minutes" &&
+                    sleepEndsAt != null &&
+                    Math.abs((sleepEndsAt - Date.now()) / 60_000 - opt.value) < 1);
+                return (
+                  <button
+                    key={opt.label}
+                    onClick={() => setSleepTimer(opt.value)}
+                    className={`text-left px-3 h-9 rounded-md text-sm transition ${
+                      active
+                        ? "bg-primary text-primary-foreground font-semibold"
+                        : "hover:bg-surface"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+
     </AppShell>
   );
 }
