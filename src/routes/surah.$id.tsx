@@ -7,7 +7,7 @@ import { usePlayer } from "@/stores/player";
 import { useFavorites } from "@/stores/persisted";
 import { SurahCoverArt } from "@/components/SurahCoverArt";
 import { AppShell } from "@/components/AppShell";
-import { useT, surahName, surahType, localizeNum } from "@/lib/i18n";
+import { useT, surahName, surahType, localizeNum, surahMeaning } from "@/lib/i18n";
 
 
 type Ayah = { number: number; numberInSurah: number; text: string };
@@ -115,7 +115,7 @@ function SurahPage() {
         <div>
           <div className="arabic text-3xl font-bold text-left">{surah.arabic}</div>
           <p className="text-sm text-muted-foreground mt-1">
-            {surah.meaning} · {localizeNum(surah.ayahs, appLang)} {t("ayahs")} · {surahType(surah, appLang)}
+            {surahMeaning(surah, appLang)} · {localizeNum(surah.ayahs, appLang)} {t("ayahs")} · {surahType(surah, appLang)}
           </p>
         </div>
         <button

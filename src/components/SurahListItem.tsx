@@ -3,7 +3,7 @@ import { Heart, Play, Pause } from "lucide-react";
 import { SURAHS } from "@/lib/quran-data";
 import { usePlayer } from "@/stores/player";
 import { useFavorites } from "@/stores/persisted";
-import { useT, surahName, localizeNum, surahType } from "@/lib/i18n";
+import { useT, surahName, localizeNum, surahType, surahMeaning } from "@/lib/i18n";
 
 export function SurahListItem({ id }: { id: number }) {
   const surah = SURAHS[id - 1];
@@ -45,7 +45,7 @@ export function SurahListItem({ id }: { id: number }) {
           {localizeNum(String(surah.id).padStart(2, "0"), lang)} {t("sura")} {surahName(surah, lang)}
         </h4>
         <p className={`text-sm mt-0.5 ${isActive ? "text-primary" : "text-muted-foreground"}`}>
-          {surah.meaning} · {surahType(surah, lang)}
+          {surahMeaning(surah, lang)} · {surahType(surah, lang)}
         </p>
       </div>
       <button
