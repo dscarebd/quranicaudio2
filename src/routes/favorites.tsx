@@ -6,7 +6,7 @@ import { useFavorites } from "@/stores/persisted";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/favorites")({
-  head: () => ({ meta: [{ title: "Favorites — Quran Audio" }] }),
+  head: () => ({ meta: [{ title: "Favorites — Listen Quran" }] }),
   component: FavoritesPage,
 });
 

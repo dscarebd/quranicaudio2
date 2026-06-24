@@ -13,7 +13,7 @@ import { useT } from "@/lib/i18n";
 
 
 export const Route = createFileRoute("/profile")({
-  head: () => ({ meta: [{ title: "Profile — Quran Audio" }] }),
+  head: () => ({ meta: [{ title: "Profile — Listen Quran" }] }),
   component: ProfilePage,
 });
 

@@ -16,9 +16,9 @@ import { DownloadSheet } from "@/components/DownloadSheet";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Quran Audio — Listen to all 114 Surahs" },
+      { title: "Listen Quran — Listen to all 114 Surahs" },
       { name: "description", content: "Stream the Holy Quran with 15 renowned reciters. Verse by verse, full surah, offline." },
-      { property: "og:title", content: "Quran Audio" },
+      { property: "og:title", content: "Listen Quran" },
       { property: "og:description", content: "Listen to all 114 Surahs with 15 reciters." },
       { name: "theme-color", content: "#fafbff" },
     ],

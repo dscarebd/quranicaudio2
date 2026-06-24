@@ -8,8 +8,8 @@ import appLogo from "@/assets/logo.png.asset.json";
 export const Route = createFileRoute("/developer-info")({
   head: () => ({
     meta: [
-      { title: "Developer — Quran Audio" },
-      { name: "description", content: "About the developer and the Quran Audio app." },
+      { title: "Developer — Listen Quran" },
+      { name: "description", content: "About the developer and the Listen Quran app." },
     ],
   }),
   component: DeveloperInfoPage,
@@ -105,13 +105,13 @@ function DeveloperInfoPage() {
           <div className="h-12 w-12 shrink-0 rounded-2xl bg-primary/15 inline-flex items-center justify-center">
             <img
               src={appLogo.url}
-              alt="Quran Audio"
+              alt="Listen Quran"
               className="h-7 w-auto object-contain"
               draggable={false}
             />
           </div>
           <div className="min-w-0">
-            <h2 className="text-lg font-bold font-display">About Quran Audio</h2>
+            <h2 className="text-lg font-bold font-display">About Listen Quran</h2>
             <p className="text-xs text-muted-foreground">
               Listen to the Quran, beautifully
             </p>
@@ -119,7 +119,7 @@ function DeveloperInfoPage() {
         </div>
 
         <p className="mt-4 text-sm leading-relaxed text-foreground/80">
-          Quran Audio lets you listen to all 114 Surahs from your favorite reciters.
+          Listen Quran lets you listen to all 114 Surahs from your favorite reciters.
           Save favorites, pick up where you left off with recently played, and drift
           off with the built-in sleep timer. Available in English and Bangla.
         </p>

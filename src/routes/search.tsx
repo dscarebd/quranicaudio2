@@ -7,7 +7,7 @@ import { SURAHS } from "@/lib/quran-data";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/search")({
-  head: () => ({ meta: [{ title: "Search — Quran Audio" }] }),
+  head: () => ({ meta: [{ title: "Search — Listen Quran" }] }),
   component: SearchPage,
 });
 

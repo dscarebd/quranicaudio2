@@ -17,7 +17,7 @@ import { useT, surahName, localizeNum } from "@/lib/i18n";
 export const Route = createFileRoute("/downloads")({
   head: () => ({
     meta: [
-      { title: "Downloads — Quran Audio" },
+      { title: "Downloads — Listen Quran" },
       { name: "description", content: "Manage surahs saved for offline listening." },
     ],
   }),

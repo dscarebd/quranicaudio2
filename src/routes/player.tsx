@@ -25,7 +25,7 @@ const SLEEP_OPTIONS: { label: string; value: number | "end-of-track" | null }[] 
 ];
 
 export const Route = createFileRoute("/player")({
-  head: () => ({ meta: [{ title: "Now Playing — Quran Audio" }] }),
+  head: () => ({ meta: [{ title: "Now Playing — Listen Quran" }] }),
   component: PlayerPage,
 });
 

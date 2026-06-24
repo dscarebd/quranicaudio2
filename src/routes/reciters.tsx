@@ -10,7 +10,7 @@ import { useMemo } from "react";
 export const Route = createFileRoute("/reciters")({
   head: () => ({
     meta: [
-      { title: "Choose Reciter — Quran Audio" },
+      { title: "Choose Reciter — Listen Quran" },
       { name: "description", content: "Pick from renowned Quran reciters." },
     ],
   }),
