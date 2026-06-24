@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, Users } from "lucide-react";
+import { Check } from "lucide-react";
 import { RECITERS } from "@/lib/reciters";
 import { useReciterSelection } from "@/stores/persisted";
 import { AppShell } from "@/components/AppShell";
+import { TopBar } from "@/components/TopBar";
 import { useT } from "@/lib/i18n";
 
 
@@ -23,22 +24,12 @@ function RecitersPage() {
 
   return (
     <AppShell>
-      <header className="px-5 pt-5 pb-3">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <Users className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold font-display">{t("reciters")}</h1>
-            <p className="text-xs text-muted-foreground">
-              {RECITERS.length} {t("renownedVoices")}
-            </p>
-          </div>
-        </div>
-        <p className="text-sm text-muted-foreground mt-3">
+      <TopBar />
+      <div className="px-5 pt-5 pb-3">
+        <p className="text-sm text-muted-foreground">
           {t("recitersHint")}
         </p>
-      </header>
+      </div>
 
       <ul className="px-5 space-y-2 mt-2 pb-6">
         {RECITERS.map((r) => {
