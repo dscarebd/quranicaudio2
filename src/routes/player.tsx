@@ -130,7 +130,7 @@ function PlayerPage() {
         </button>
       </div>
 
-      <div className="px-5 mt-4">
+      <div className="px-5 mt-5">
         <ReciterSwitcher />
       </div>
 
