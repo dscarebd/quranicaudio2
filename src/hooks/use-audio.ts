@@ -243,6 +243,7 @@ export function useAudioEngine() {
       } catch {
         /* unsupported action */
       }
+      void setNotificationActionHandler(action, handler as never);
     };
     safe("play", () => {
       audioRef.current?.play().catch(() => {});
@@ -298,6 +299,11 @@ export function useAudioEngine() {
     } catch {
       /* ignore */
     }
+    void setNotificationPosition({
+      duration,
+      position: Math.min(currentTime, duration),
+      playbackRate,
+    });
   }, [currentTime, duration, playbackRate]);
 
   // touch repeat so React keeps deps fresh
