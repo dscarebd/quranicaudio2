@@ -10,6 +10,7 @@ import { SurahListItem } from "@/components/SurahListItem";
 import { SURAHS } from "@/lib/quran-data";
 import { useRecents } from "@/stores/persisted";
 import { useT } from "@/lib/i18n";
+import { DownloadSheet } from "@/components/DownloadSheet";
 
 
 export const Route = createFileRoute("/")({
