@@ -1,25 +1,32 @@
-## Root cause
+# Why this error appeared
 
-The PWA service worker added in the "native device caching" step is intercepting navigations to `/privacy` and serving a stale cached shell from before the Privacy route existed. The route file, registration, and Settings link are all correct — TypeScript passes and `src/routeTree.gen.ts` includes `/privacy`. The issue is purely the service worker cache.
+Capacitor's `webDir` in `capacitor.config.ts` is set to `dist`, but that folder doesn't exist yet on your local machine. `npx cap sync android` only copies an already-built web bundle into the native Android project — it does not build the web app itself. Since you never ran the build step locally, there is no `dist/index.html` for Capacitor to copy, so it stops with the error you saw.
 
-Evidence:
-- `vite.config.ts` registers `VitePWA` with `runtimeCaching` using `StaleWhileRevalidate` on `request.mode === "navigate"` into a `html-shell` cache.
-- `src/routes/__root.tsx` registers `sw.js` on load.
-- `src/routes/privacy.tsx` exists and is wired in the generated route tree.
+(The `dist/` folder is generated output and is gitignored, so it won't appear after cloning or downloading the project — every machine has to build it once.)
 
-## Fix
+# How to fix it
 
-1. Update the SW config in `vite.config.ts`:
-   - Add `skipWaiting: true` and `clientsClaim: true` so a new SW activates immediately instead of waiting for all tabs to close.
-   - Add `cleanupOutdatedCaches: true` to purge old precache entries on activation.
-   - Move the HTML navigation handler from `StaleWhileRevalidate` to `NetworkFirst` (with a short timeout + offline fallback to cache). This way new routes always reach the network first and only fall back to cache when offline — fixing the "new route returns stale 404" problem permanently.
+Run these commands in your project folder (`C:\Users\USER\quranicaudio-eff43ab5`), in order:
 
-2. Bump the SW filename or add a versioned cache name suffix so existing installs invalidate the old `html-shell` cache once.
+1. `npm install` — install dependencies (only needed the first time, or after dependency changes).
+2. `npm run build` — produces the `dist/` folder with `index.html` and all assets.
+3. `npx cap sync android` — now succeeds and copies `dist/` into the Android project.
+4. `npx cap open android` — opens Android Studio to run/build the APK.
 
-3. In `src/pwa/register-sw.ts`, on `updatefound` → `controllerchange`, call `window.location.reload()` once so the user sees the new content immediately after the SW updates (guarded by a flag to prevent reload loops).
+# Repeat workflow
 
-No changes needed to `src/routes/privacy.tsx`, `src/routes/profile.tsx`, or `src/routeTree.gen.ts` — those are already correct.
+Every time you change web code and want it on the device, repeat:
 
-## After the fix
+```
+npm run build
+npx cap sync android
+```
 
-The user should hard-refresh once (or close/reopen the preview). The new SW activates, drops the stale `html-shell` cache, and `/privacy` loads correctly. Future new routes will also load instantly without this issue.
+# Notes / gotchas
+
+- Node.js 18+ must be installed (check with `node -v`).
+- If `npm run build` fails, fix those errors first — `cap sync` cannot proceed without a successful build.
+- The current `capacitor.config.ts` already has `webDir: 'dist'`, `appId: 'com.annur.listenquran'`, and `appName: 'Listen Quran'`, so no config change is needed.
+- No code changes are required for this issue — it is purely a missing local build step.
+
+Approve this plan and I'll confirm there's nothing to change in the repo, or add an npm script alias (e.g. `"android": "npm run build && cap sync android"`) if you want a one-command shortcut.
