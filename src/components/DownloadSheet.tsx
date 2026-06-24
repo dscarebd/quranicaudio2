@@ -14,7 +14,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { RECITERS } from "@/lib/reciters";
 import { SURAHS } from "@/lib/quran-data";
-import { useReciter } from "@/stores/persisted";
+import { useReciterSelection } from "@/stores/persisted";
 import { useT, surahName, localizeNum } from "@/lib/i18n";
 import {
   downloadSelected,
