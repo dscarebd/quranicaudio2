@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 
 export function DownloadSheet() {
   const { t, lang } = useT();
-  const currentReciter = useReciter((s) => s.id);
+  const currentReciter = useReciterSelection((s) => s.reciterId);
   const [open, setOpen] = useState(false);
   const [reciterId, setReciterId] = useState(currentReciter);
   const [selected, setSelected] = useState<Set<number>>(new Set());
