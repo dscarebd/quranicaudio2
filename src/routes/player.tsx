@@ -159,39 +159,39 @@ function PlayerPage() {
         )}
       </div>
 
-      <div className="px-5 mt-10 flex items-center justify-between">
+      <div className="px-5 mt-12 flex items-center justify-between">
         <button onClick={cycleRepeat} aria-label={t("repeat")} className="text-muted-foreground p-2 transition-transform active:scale-90">
           {repeat === "one" ? (
-            <Repeat1 className="h-6 w-6 text-primary" />
+            <Repeat1 className="h-7 w-7 text-primary" />
           ) : (
-            <Repeat className={`h-6 w-6 transition-colors ${repeat === "all" ? "text-primary" : ""}`} />
+            <Repeat className={`h-7 w-7 transition-colors ${repeat === "all" ? "text-primary" : ""}`} />
           )}
         </button>
         <button onClick={prev} aria-label={t("previous")} className="text-foreground p-2 transition-transform active:scale-90">
-          <SkipBack className="h-8 w-8 fill-current" />
+          <SkipBack className="h-9 w-9 fill-current" />
         </button>
         <button
           onClick={toggle}
           aria-label={isPlaying ? t("pause") : t("play")}
           aria-pressed={isPlaying}
-          className={`relative h-20 w-20 rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all duration-200 ${
+          className={`relative h-[5.5rem] w-[5.5rem] rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all duration-200 ${
             isPlaying
               ? "bg-primary text-primary-foreground shadow-primary/40 ring-4 ring-primary/25"
               : "bg-foreground text-background shadow-foreground/20"
           }`}
         >
           {isPlaying ? (
-            <Pause className="h-9 w-9 relative" fill="currentColor" />
+            <Pause className="h-10 w-10 relative" fill="currentColor" />
           ) : (
-            <Play className="h-9 w-9 ml-1 relative" fill="currentColor" />
+            <Play className="h-10 w-10 ml-1 relative" fill="currentColor" />
           )}
         </button>
 
         <button onClick={next} aria-label={t("next")} className="text-foreground p-2 transition-transform active:scale-90">
-          <SkipForward className="h-8 w-8 fill-current" />
+          <SkipForward className="h-9 w-9 fill-current" />
         </button>
         <button onClick={toggleShuffle} aria-label={t("shuffle")} className="text-muted-foreground p-2 transition-transform active:scale-90">
-          <Shuffle className={`h-6 w-6 transition-colors ${shuffle ? "text-primary" : ""}`} />
+          <Shuffle className={`h-7 w-7 transition-colors ${shuffle ? "text-primary" : ""}`} />
         </button>
       </div>
 
