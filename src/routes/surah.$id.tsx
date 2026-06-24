@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, Heart, Pause, Play, ArrowUp } from "lucide-react";
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { getSurah } from "@/lib/quran-data";
 import { usePlayer } from "@/stores/player";
 import { useFavorites } from "@/stores/persisted";
@@ -64,6 +65,8 @@ function SurahPage() {
   const { lang: appLang, t } = useT();
   const [lang, setLang] = useState<TranslationLang>(appLang);
   const [showTopBtn, setShowTopBtn] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     const check = () => {
@@ -208,21 +211,24 @@ function SurahPage() {
         </ul>
       </section>
 
-      <button
-        onClick={() => {
-          window.scrollTo({ top: 0, behavior: "smooth" });
-          document.documentElement.scrollTop = 0;
-          document.body.scrollTop = 0;
-        }}
-        className={`fixed bottom-24 left-4 z-40 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center transition-all duration-200 ${
-          showTopBtn
-            ? "opacity-100 scale-100"
-            : "opacity-0 scale-90 pointer-events-none"
-        }`}
-        aria-label={t("scrollToTop")}
-      >
-        <ArrowUp className="h-5 w-5" />
-      </button>
+      {mounted && createPortal(
+        <button
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+          }}
+          className={`fixed bottom-24 left-4 z-50 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center transition-all duration-200 ${
+            showTopBtn
+              ? "opacity-100 scale-100"
+              : "opacity-0 scale-90 pointer-events-none"
+          }`}
+          aria-label={t("scrollToTop")}
+        >
+          <ArrowUp className="h-5 w-5" />
+        </button>,
+        document.body
+      )}
 
     </AppShell>
   );
