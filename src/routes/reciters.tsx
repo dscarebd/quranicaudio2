@@ -24,6 +24,7 @@ function RecitersPage() {
 
   return (
     <AppShell>
+      <TopBar />
       <header className="px-5 pt-5 pb-3">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
