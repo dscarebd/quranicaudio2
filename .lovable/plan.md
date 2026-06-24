@@ -1,32 +1,45 @@
-# Why this error appeared
+**Goal:** After the Capacitor/mobile build, `dist/` should contain `index.html` and assets directly — not `dist/client/` and `dist/server/`.
 
-Capacitor's `webDir` in `capacitor.config.ts` is set to `dist`, but that folder doesn't exist yet on your local machine. `npx cap sync android` only copies an already-built web bundle into the native Android project — it does not build the web app itself. Since you never ran the build step locally, there is no `dist/index.html` for Capacitor to copy, so it stops with the error you saw.
+**Important:** TanStack Start normally creates `dist/client` and `dist/server`. That is expected for the web app. To avoid breaking the Lovable/web deployment, I will flatten only for the Capacitor build commands.
 
-(The `dist/` folder is generated output and is gitignored, so it won't appear after cloning or downloading the project — every machine has to build it once.)
+**Plan:**
 
-# How to fix it
+1. Add a small Node script, for example `scripts/prepare-capacitor-dist.mjs`, that runs after `vite build` and:
+   - verifies `dist/client/index.html` exists
+   - copies/moves everything from `dist/client/` into `dist/`
+   - removes `dist/client/`
+   - removes `dist/server/`
+   - leaves `dist/index.html` directly in place
 
-Run these commands in your project folder (`C:\Users\USER\quranicaudio-eff43ab5`), in order:
+2. Update `capacitor.config.ts` back to:
+   ```ts
+   webDir: 'dist'
+   ```
 
-1. `npm install` — install dependencies (only needed the first time, or after dependency changes).
-2. `npm run build` — produces the `dist/` folder with `index.html` and all assets.
-3. `npx cap sync android` — now succeeds and copies `dist/` into the Android project.
-4. `npx cap open android` — opens Android Studio to run/build the APK.
+3. Update mobile scripts in `package.json`:
+   ```json
+   "build:mobile": "vite build && node scripts/prepare-capacitor-dist.mjs",
+   "android": "npm run build:mobile && cap sync android",
+   "android:open": "npm run build:mobile && cap sync android && cap open android"
+   ```
 
-# Repeat workflow
+4. Keep the normal web script unchanged:
+   ```json
+   "build": "vite build"
+   ```
+   so the hosted web app still builds correctly.
 
-Every time you change web code and want it on the device, repeat:
-
+**After this, use:**
+```bash
+npm run android:open
 ```
-npm run build
-npx cap sync android
+
+**Result:**
+```text
+dist/
+  index.html
+  assets/
+  manifest.webmanifest
+  ...
 ```
-
-# Notes / gotchas
-
-- Node.js 18+ must be installed (check with `node -v`).
-- If `npm run build` fails, fix those errors first — `cap sync` cannot proceed without a successful build.
-- The current `capacitor.config.ts` already has `webDir: 'dist'`, `appId: 'com.annur.listenquran'`, and `appName: 'Listen Quran'`, so no config change is needed.
-- No code changes are required for this issue — it is purely a missing local build step.
-
-Approve this plan and I'll confirm there's nothing to change in the repo, or add an npm script alias (e.g. `"android": "npm run build && cap sync android"`) if you want a one-command shortcut.
+No `dist/client` or `dist/server` after the mobile build.
