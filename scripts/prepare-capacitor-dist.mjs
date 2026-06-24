@@ -68,6 +68,15 @@ for (const entry of readdirSync(clientDir)) {
 
 rmSync(clientDir, { recursive: true, force: true });
 
+// Nitro writes deployment-only metadata at dist/. These are not needed for a
+// static Capacitor bundle and can make the output look like a server build.
+for (const entry of ["nitro.json", "package.json", "package-lock.json"]) {
+  const path = join(root, entry);
+  if (existsSync(path)) {
+    rmSync(path, { force: true });
+  }
+}
+
 if (!existsSync(join(root, "index.html"))) {
   console.error("[prepare-capacitor-dist] Failed: dist/index.html not present after flatten.");
   process.exit(1);
