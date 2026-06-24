@@ -4,17 +4,13 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  HeadContent,
-  Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect } from "react";
 
-import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { PageTransition } from "../components/PageTransition";
 import { BottomNav } from "../components/BottomNav";
 import { useAudioEngine } from "../hooks/use-audio";
-
 
 function NotFoundComponent() {
   return (
@@ -77,51 +73,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { name: "theme-color", content: "#fafaf7" },
-      { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { title: "Listen Quran" },
-      { name: "description", content: "Listen to all 114 Surahs with 15 renowned reciters. Verse-by-verse playback, favorites, and offline support." },
-      { property: "og:title", content: "Listen Quran" },
-      { property: "og:description", content: "Listen to all 114 Surahs with 15 renowned reciters. Verse-by-verse playback, favorites, and offline support." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "Listen Quran" },
-      { name: "twitter:description", content: "Listen to all 114 Surahs with 15 renowned reciters. Verse-by-verse playback, favorites, and offline support." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/dc3e534f-1c8a-4918-acf1-124ccdfb6ff1/id-preview-d7908133--a1583c4d-6881-4f80-840b-e1060d10ae8c.lovable.app-1782218751380.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/dc3e534f-1c8a-4918-acf1-124ccdfb6ff1/id-preview-d7908133--a1583c4d-6881-4f80-840b-e1060d10ae8c.lovable.app-1782218751380.png" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400;500;600;700;800&display=swap" },
-    ],
-  }),
-  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
-
-function RootShell({ children }: { children: ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
-}
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -133,10 +88,9 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here via PageTransition's <Outlet />. */}
       <PageTransition />
       <BottomNav />
+      <Outlet />
     </QueryClientProvider>
   );
 }
-
