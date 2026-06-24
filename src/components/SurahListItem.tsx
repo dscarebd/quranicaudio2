@@ -52,7 +52,7 @@ export function SurahListItem({ id }: { id: number }) {
         type="button"
         onClick={onPlay}
         aria-label={isPlaying ? t("pause") : t("play")}
-        className="p-2 rounded-full bg-surface hover:bg-muted transition"
+        className="p-2 rounded-full bg-surface-blue hover:bg-muted transition"
       >
         {isPlaying ? (
           <Pause className={`h-6 w-6 transition ${isActive ? "text-primary" : "text-muted-foreground"}`} />
