@@ -25,7 +25,7 @@ function PrivacyPage() {
   return (
     <AppShell>
       <TopBar />
-      <div className="px-5 pb-8">
+      <div className="px-5 pt-4 pb-8">
         <header className="mb-6">
           <h1 className="text-2xl font-bold font-display">Privacy Policy</h1>
           <p className="text-xs text-muted-foreground mt-1">
