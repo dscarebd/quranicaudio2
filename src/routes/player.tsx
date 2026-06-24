@@ -281,23 +281,23 @@ function ReciterSwitcher() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <button className="w-full flex items-center gap-3 p-3 rounded-2xl bg-surface transition active:scale-[0.98]">
+        <button className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl bg-surface transition active:scale-[0.98]">
           <img
             src={reciter.image}
             alt={reciter.name}
             loading="lazy"
-            width={40}
-            height={40}
-            className="h-10 w-10 rounded-full object-cover bg-surface-2 ring-2 ring-border"
+            width={48}
+            height={48}
+            className="h-12 w-12 rounded-full object-cover bg-surface-2 ring-2 ring-border"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
             }}
           />
           <div className="flex-1 text-left min-w-0">
-            <p className="text-xs text-muted-foreground">{t("reciter")}</p>
-            <p className="font-semibold text-sm truncate">{reciter.name}</p>
+            <p className="text-sm text-muted-foreground">{t("reciter")}</p>
+            <p className="font-semibold text-base truncate">{reciter.name}</p>
           </div>
-          <Mic2 className="h-4 w-4 text-muted-foreground" />
+          <Mic2 className="h-5 w-5 text-muted-foreground" />
         </button>
       </SheetTrigger>
       <SheetContent side="bottom" className="rounded-t-3xl pb-8">
