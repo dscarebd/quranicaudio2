@@ -6,6 +6,40 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
+
+// Auto-flatten dist/ into a single static folder after every production build.
+// Nitro runs as a separate vite environment whose lifecycle does not align with
+// the outer client closeBundle, so we hook process `beforeExit` — that fires
+// once after Vite + Nitro + PWA have finished writing, right before the build
+// process exits. The flatten script itself is idempotent.
+function flattenDistPlugin() {
+  let registered = false;
+  return {
+    name: "lovable:flatten-dist",
+    apply: "build" as const,
+    configResolved() {
+      if (registered) return;
+      registered = true;
+      let done = false;
+      process.on("beforeExit", () => {
+        if (done) return;
+        done = true;
+        const dist = resolve(process.cwd(), "dist");
+        if (!existsSync(dist)) return;
+        const script = resolve(process.cwd(), "scripts/prepare-capacitor-dist.mjs");
+        const result = spawnSync(process.execPath, [script], { stdio: "inherit" });
+        if (result.status !== 0) process.exitCode = result.status ?? 1;
+      });
+    },
+  };
+}
+
+
+
+
 
 export default defineConfig({
   tanstackStart: {
@@ -15,6 +49,7 @@ export default defineConfig({
   },
   vite: {
     plugins: [
+      flattenDistPlugin(),
       VitePWA({
         registerType: "autoUpdate",
         injectRegister: null,
