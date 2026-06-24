@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Globe, Mail, MessageCircle, Info } from "lucide-react";
+import { ArrowLeft, Globe, Mail, MessageCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import annurLogo from "@/assets/annur-digital.png.asset.json";
 import appLogo from "@/assets/logo.png.asset.json";
