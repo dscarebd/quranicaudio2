@@ -87,7 +87,7 @@ function DeveloperInfoPage() {
             href="mailto:support@annurdigital.com"
           />
           <ContactRow
-            icon={<MessageCircle className="h-5 w-5" />}
+            icon={<img src={telegramIcon.url} alt="Telegram" className="h-5 w-5 object-contain" draggable={false} />}
             label="Telegram"
             value="@nuralamin.official"
             href="https://t.me/nuralamin.official"
