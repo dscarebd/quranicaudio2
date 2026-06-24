@@ -175,7 +175,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <h2 className="px-5 mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         {title}
       </h2>
-      <div className="mx-5 rounded-3xl bg-surface border border-border overflow-hidden divide-y divide-border">
+      <div className="mx-5 rounded-3xl bg-card border border-border overflow-hidden divide-y divide-border">
         {children}
       </div>
     </section>
