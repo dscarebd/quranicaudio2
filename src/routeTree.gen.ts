@@ -14,6 +14,7 @@ import { Route as RecitersRouteImport } from './routes/reciters'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PlayerRouteImport } from './routes/player'
 import { Route as FavoritesRouteImport } from './routes/favorites'
+import { Route as DeveloperInfoRouteImport } from './routes/developer-info'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SurahIdRouteImport } from './routes/surah.$id'
 
@@ -42,6 +43,11 @@ const FavoritesRoute = FavoritesRouteImport.update({
   path: '/favorites',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeveloperInfoRoute = DeveloperInfoRouteImport.update({
+  id: '/developer-info',
+  path: '/developer-info',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -55,6 +61,7 @@ const SurahIdRoute = SurahIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/developer-info': typeof DeveloperInfoRoute
   '/favorites': typeof FavoritesRoute
   '/player': typeof PlayerRoute
   '/profile': typeof ProfileRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/developer-info': typeof DeveloperInfoRoute
   '/favorites': typeof FavoritesRoute
   '/player': typeof PlayerRoute
   '/profile': typeof ProfileRoute
@@ -74,6 +82,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/developer-info': typeof DeveloperInfoRoute
   '/favorites': typeof FavoritesRoute
   '/player': typeof PlayerRoute
   '/profile': typeof ProfileRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/developer-info'
     | '/favorites'
     | '/player'
     | '/profile'
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/developer-info'
     | '/favorites'
     | '/player'
     | '/profile'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/developer-info'
     | '/favorites'
     | '/player'
     | '/profile'
@@ -113,6 +125,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DeveloperInfoRoute: typeof DeveloperInfoRoute
   FavoritesRoute: typeof FavoritesRoute
   PlayerRoute: typeof PlayerRoute
   ProfileRoute: typeof ProfileRoute
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FavoritesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/developer-info': {
+      id: '/developer-info'
+      path: '/developer-info'
+      fullPath: '/developer-info'
+      preLoaderRoute: typeof DeveloperInfoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -177,6 +197,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DeveloperInfoRoute: DeveloperInfoRoute,
   FavoritesRoute: FavoritesRoute,
   PlayerRoute: PlayerRoute,
   ProfileRoute: ProfileRoute,
