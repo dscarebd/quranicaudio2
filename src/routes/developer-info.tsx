@@ -3,7 +3,7 @@ import { ArrowLeft, Globe, Mail } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import annurLogo from "@/assets/annur-digital.png.asset.json";
 import appLogo from "@/assets/logo.png.asset.json";
-import telegramIcon from "@/assets/telegram-icon.png.asset.json";
+
 
 export const Route = createFileRoute("/developer-info")({
   head: () => ({
