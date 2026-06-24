@@ -108,8 +108,8 @@ function PlayerPage() {
         <div className="w-9" />
       </header>
 
-      <div className="px-5 mt-5">
-        <SurahCoverArt surahId={surahId} className="w-full aspect-[4/3] rounded-3xl" />
+      <div className="px-5 mt-3">
+        <SurahCoverArt surahId={surahId} className="w-full aspect-video rounded-2xl" />
       </div>
 
       <div className="px-5 mt-8 flex items-center justify-between gap-4">
