@@ -109,11 +109,20 @@ function ProfilePage() {
           <div className="text-xs text-muted-foreground">{favorites.length}</div>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </Link>
+        <Link
+          to="/downloads"
+          className="flex items-center gap-3 px-5 py-4 hover:bg-muted/50 transition"
+        >
+          <Download className="h-5 w-5 text-primary" />
+          <div className="flex-1 text-sm font-medium">{t("downloads")}</div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </Link>
         <div className="px-5 py-4 flex items-center gap-3">
           <Clock className="h-5 w-5 text-primary" />
           <div className="flex-1 text-sm font-medium">{t("recentlyPlayedShort")}</div>
           <div className="text-xs text-muted-foreground">{recents.length}</div>
         </div>
+
       </Section>
 
       {/* Data */}
