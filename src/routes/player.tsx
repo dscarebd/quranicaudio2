@@ -195,14 +195,14 @@ function PlayerPage() {
         </button>
       </div>
 
-      <div className="px-5 mt-8 flex items-center justify-center gap-3">
+      <div className="px-5 mt-10 flex items-center justify-center gap-4">
         <Popover>
           <PopoverTrigger asChild>
             <button
-              className={`flex items-center gap-2 h-10 px-4 rounded-full bg-surface text-sm font-medium transition-all active:scale-95 ${playbackRate !== 1 ? "text-primary" : "text-foreground"}`}
+              className={`flex items-center gap-2.5 h-12 px-5 rounded-full bg-surface text-base font-medium transition-all active:scale-95 ${playbackRate !== 1 ? "text-primary" : "text-foreground"}`}
               aria-label={t("playbackSpeed")}
             >
-              <Gauge className="h-4 w-4" />
+              <Gauge className="h-5 w-5" />
               {playbackRate}x
             </button>
           </PopoverTrigger>
@@ -229,10 +229,10 @@ function PlayerPage() {
         <Popover>
           <PopoverTrigger asChild>
             <button
-              className={`flex items-center gap-2 h-10 px-4 rounded-full bg-surface text-sm font-medium ${sleepMode !== "off" ? "text-primary" : "text-foreground"}`}
+              className={`flex items-center gap-2.5 h-12 px-5 rounded-full bg-surface text-base font-medium ${sleepMode !== "off" ? "text-primary" : "text-foreground"}`}
               aria-label={t("sleepTimer")}
             >
-              <Moon className="h-4 w-4" />
+              <Moon className="h-5 w-5" />
               {sleepLabel ?? t("sleep")}
             </button>
           </PopoverTrigger>
