@@ -335,3 +335,32 @@ export function DownloadSheet() {
     </Sheet>
   );
 }
+
+function StatusBadge({ status }: { status: "pending" | "downloading" | "done" | "error" }) {
+  if (status === "done") {
+    return (
+      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary/15 text-primary">
+        <Check className="h-3.5 w-3.5" strokeWidth={3} />
+      </span>
+    );
+  }
+  if (status === "downloading") {
+    return (
+      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary/10 text-primary">
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+      </span>
+    );
+  }
+  if (status === "error") {
+    return (
+      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-destructive/15 text-destructive">
+        <AlertCircle className="h-3.5 w-3.5" />
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-muted text-muted-foreground">
+      <Clock className="h-3.5 w-3.5" />
+    </span>
+  );
+}
