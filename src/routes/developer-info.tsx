@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Globe, Mail, MessageCircle, Info } from "lucide-react";
+import { ArrowLeft, Globe, Mail, MessageCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import annurLogo from "@/assets/annur-digital.png.asset.json";
 import appLogo from "@/assets/logo.png.asset.json";
@@ -119,13 +119,6 @@ function DeveloperInfoPage() {
           off with the built-in sleep timer. Available in English and Bangla.
         </p>
 
-        <div className="mt-5 pt-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5">
-            <Info className="h-3.5 w-3.5" />
-            Version
-          </span>
-          <span className="font-semibold text-foreground/80">1.0.0</span>
-        </div>
       </section>
     </AppShell>
   );
