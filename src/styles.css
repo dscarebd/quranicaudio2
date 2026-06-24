@@ -38,6 +38,7 @@
   --color-ring: var(--ring);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-surface-blue: var(--surface-blue);
 }
 
 :root {
@@ -63,6 +64,7 @@
   --border: oklch(0.2 0.04 255 / 10%);
   --input: oklch(0.2 0.04 255 / 14%);
   --ring: oklch(0.55 0.18 255);
+  --surface-blue: oklch(0.94 0.03 255);
 
 }
 
