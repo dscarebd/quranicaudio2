@@ -3,6 +3,7 @@ import { Check, Users } from "lucide-react";
 import { RECITERS } from "@/lib/reciters";
 import { useReciterSelection } from "@/stores/persisted";
 import { AppShell } from "@/components/AppShell";
+import { TopBar } from "@/components/TopBar";
 import { useT } from "@/lib/i18n";
 
 
