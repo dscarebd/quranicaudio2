@@ -83,7 +83,9 @@ export function DownloadSheet() {
     if (!reciterId || selected.size === 0) return;
     setIsDone(false);
     const ids = [...selected].sort((a, b) => a - b);
-    setProgress({ total: ids.length, completed: 0, failed: 0, currentSurah: ids[0] });
+    const statuses: Record<number, "pending" | "downloading" | "done" | "error"> = {};
+    ids.forEach((id) => (statuses[id] = "pending"));
+    setProgress({ total: ids.length, completed: 0, failed: 0, currentSurah: ids[0], statuses });
     const handle = downloadSelected(reciterId, ids, (p) => setProgress({ ...p }));
     handleRef.current = handle;
     handle.promise.then((final) => {
