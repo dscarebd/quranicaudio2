@@ -1,45 +1,35 @@
-Bundle every image and font into `dist/` so the app runs fully offline as a Capacitor Android app.
+## Goal
+On Android, a single hardware back press should navigate to the previous page. Only when there is no previous page (user is on a root screen) should back act as exit — and even then, it requires **two presses within 2 seconds** to actually exit, with a toast hint in between.
 
-## What changes
+## Changes
 
-**1. Local images (downloaded, replacing CDN pointers)**
-- `src/assets/logo.png` (1.1 MB)
-- `src/assets/annur-digital.png` (80 KB)
-- `src/assets/telegram-icon.png` (3.6 KB)
-- Removed: `logo.png.asset.json`, `annur-digital.png.asset.json`, `telegram-icon.png.asset.json`
+1. **Install Capacitor App plugin**
+   - Add `@capacitor/app` (already a peer of Capacitor core, but ensure it's in `package.json`).
+   - Run `npx cap sync android` after build (user step, documented in closing note).
 
-**2. Self-hosted Anek Bangla font (downloaded woff2 chunks)**
-- `src/assets/fonts/anek-bangla-bengali.woff2` (152 KB)
-- `src/assets/fonts/anek-bangla-latin.woff2` (42 KB)
-- `src/assets/fonts/anek-bangla-latin-ext.woff2` (3 KB)
+2. **New hook `src/hooks/use-android-back-button.ts`**
+   - Registers `App.addListener('backButton', ...)` only when running under Capacitor native (`Capacitor.isNativePlatform()`).
+   - Logic on back press:
+     - If `window.history.length > 1` AND current route is not a designated "root" route (`/`, `/reciters`, `/favorites`, `/downloads`, `/profile` — the BottomNav tabs) → call `window.history.back()`.
+     - Else (on a root tab with nothing to pop):
+       - First press: show a sonner toast "Press back again to exit" and start a 2-second timer.
+       - Second press within 2s: call `App.exitApp()`.
+       - Timer expiry: reset the "armed" flag.
+   - Cleans up the listener on unmount.
 
-## Code edits to apply
+3. **Wire the hook into `src/routes/__root.tsx`**
+   - Call `useAndroidBackButton()` inside `RootComponent` alongside `useAudioEngine()`.
+   - No-op on web/PWA builds (guarded by `Capacitor.isNativePlatform()`), so web behavior is unchanged.
 
-- `src/components/TopBar.tsx` — `import logoUrl from "@/assets/logo.png"`; use `src={logoUrl}`.
-- `src/components/NowPlayingCard.tsx` — same swap; collapse duplicated idle/playing branches that used the same image.
-- `src/routes/developer-info.tsx` — switch `annurLogo` and `appLogo` imports to the PNG files; use `src={annurLogo}` / `src={appLogo}`.
-- `index.html` — remove the 3 lines that preconnect to / load Google Fonts.
-- `src/styles.css` — add `@font-face` blocks for Anek Bangla 400/500/600/700/800 using `url("/src/assets/fonts/anek-bangla-*.woff2")` with the same `unicode-range` chunks Google uses, so Vite hashes them into `dist/assets/`.
-- `vite.config.ts` — remove the now-unused `fonts.googleapis.com` / `fonts.gstatic.com` runtime cache entry from the PWA workbox config.
+4. **Toast**
+   - Reuse the existing `sonner` toaster already in the app (no new dependency). Message text in both English and Bangla based on current `useLanguage()` store: e.g. EN "Press back again to exit", BN "প্রস্থান করতে আবার ব্যাক চাপুন".
 
-## Result
+## Out of scope
+- No changes to web/PWA back behavior (browser handles it natively).
+- No changes to in-app navigation UI or BottomNav.
+- No new screens or settings toggle — this is always-on native behavior, matching standard Android app UX. (If you want it as a user-toggleable setting in Profile, say so and I'll add it.)
 
-After `npm run build`:
-
-```
-dist/
-├── index.html
-└── assets/
-    ├── index-*.js
-    ├── index-*.css
-    ├── logo-*.png
-    ├── annur-digital-*.png
-    ├── telegram-icon-*.png
-    └── anek-bangla-*.woff2
-```
-
-Zero references to `/__l5e/`, `fonts.googleapis.com`, or `fonts.gstatic.com` in the built output. Ready for `npx cap sync android` — works offline in Android WebView.
-
-## Memory update
-
-Replace the locked-logo rule with: header logo is locked to `src/assets/logo.png` (bundled), rendered in `src/components/TopBar.tsx`. Do not substitute alternative artwork.
+## Files touched
+- `package.json` — add `@capacitor/app` dependency
+- `src/hooks/use-android-back-button.ts` — new
+- `src/routes/__root.tsx` — call the new hook

@@ -9,7 +9,9 @@ import { useEffect } from "react";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { PageTransition } from "../components/PageTransition";
 import { BottomNav } from "../components/BottomNav";
+import { Toaster } from "../components/ui/sonner";
 import { useAudioEngine } from "../hooks/use-audio";
+import { useAndroidBackButton } from "../hooks/use-android-back-button";
 
 function NotFoundComponent() {
   return (
@@ -80,6 +82,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   useAudioEngine();
+  useAndroidBackButton();
 
   useEffect(() => {
     void import("../pwa/register-sw").then((m) => m.registerServiceWorker());
@@ -89,6 +92,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <PageTransition />
       <BottomNav />
+      <Toaster />
     </QueryClientProvider>
   );
 }
