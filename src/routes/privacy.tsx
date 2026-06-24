@@ -1,7 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { TopBar } from "@/components/TopBar";
-import { ChevronLeft } from "lucide-react";
 
 const APP_NAME = "Listen Quran";
 const OWNER = "Listen Quran";
