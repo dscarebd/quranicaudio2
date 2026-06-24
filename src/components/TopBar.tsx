@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Search } from "lucide-react";
-import logoAsset from "@/assets/logo.png.asset.json";
+import logoUrl from "@/assets/logo.png";
 import { useLanguage } from "@/stores/language";
 import { useT } from "@/lib/i18n";
 
@@ -19,7 +19,7 @@ export function TopBar() {
       </Link>
       <Link to="/" aria-label={t("home")} className="flex h-10 items-center justify-self-center">
         <img
-          src={logoAsset.url}
+          src={logoUrl}
           alt="Logo"
           className="h-9 w-auto object-contain brightness-0 invert"
           draggable={false}
