@@ -137,6 +137,10 @@ export function surahName(surah: Pick<Surah, "name" | "bangla">, lang: Lang): st
   return lang === "bn" && surah.bangla ? surah.bangla : surah.name;
 }
 
+export function surahMeaning(surah: Pick<Surah, "meaning" | "banglaMeaning">, lang: Lang): string {
+  return lang === "bn" && surah.banglaMeaning ? surah.banglaMeaning : surah.meaning;
+}
+
 export function surahType(s: Surah, lang: Lang): string {
   return s.type === "Meccan" ? translate(lang, "meccan") : translate(lang, "medinan");
 }

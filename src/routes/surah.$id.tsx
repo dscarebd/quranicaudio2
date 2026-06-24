@@ -7,7 +7,7 @@ import { usePlayer } from "@/stores/player";
 import { useFavorites } from "@/stores/persisted";
 import { SurahCoverArt } from "@/components/SurahCoverArt";
 import { AppShell } from "@/components/AppShell";
-import { useT, surahName, surahType, localizeNum } from "@/lib/i18n";
+import { useT, surahName, surahType, localizeNum, surahMeaning } from "@/lib/i18n";
 
 
 type Ayah = { number: number; numberInSurah: number; text: string };
