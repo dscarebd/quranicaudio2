@@ -112,21 +112,21 @@ function PlayerPage() {
         <SurahCoverArt surahId={surahId} className="w-full aspect-video rounded-2xl" />
       </div>
 
-      <div className="px-5 mt-8 flex items-center justify-between gap-4">
+      <div className="px-5 mt-4 flex items-center justify-between gap-4">
         <div className="min-w-0">
-          <h2 className="text-[1.65rem] font-bold font-display truncate">
+          <h2 className="text-xl font-bold font-display truncate">
             {localizeNum(String(surah.id).padStart(2, "0"), lang)} {t("sura")} {surahName(surah, lang)}
           </h2>
-          <p className="text-base text-muted-foreground mt-1.5">
+          <p className="text-sm text-muted-foreground mt-0.5">
             {ayahId != null ? `${t("verses")} ${localizeNum(ayahId, lang)} / ${localizeNum(surah.ayahs, lang)}` : `${localizeNum(surah.ayahs, lang)} ${t("ayahs")} · ${surahType(surah, lang)}`}
           </p>
         </div>
         <button
           onClick={() => toggleFav(surahId)}
           aria-label={t("favorite")}
-          className="p-2 transition-transform active:scale-75"
+          className="p-1.5 transition-transform active:scale-75"
         >
-          <Heart className={`h-8 w-8 transition-colors duration-200 ${isFav ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+          <Heart className={`h-6 w-6 transition-colors duration-200 ${isFav ? "fill-primary text-primary" : "text-muted-foreground"}`} />
         </button>
       </div>
 
