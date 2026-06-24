@@ -14,6 +14,7 @@ import { Route as RecitersRouteImport } from './routes/reciters'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PlayerRouteImport } from './routes/player'
 import { Route as FavoritesRouteImport } from './routes/favorites'
+import { Route as DownloadsRouteImport } from './routes/downloads'
 import { Route as DeveloperInfoRouteImport } from './routes/developer-info'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SurahIdRouteImport } from './routes/surah.$id'
@@ -43,6 +44,11 @@ const FavoritesRoute = FavoritesRouteImport.update({
   path: '/favorites',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DownloadsRoute = DownloadsRouteImport.update({
+  id: '/downloads',
+  path: '/downloads',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DeveloperInfoRoute = DeveloperInfoRouteImport.update({
   id: '/developer-info',
   path: '/developer-info',
@@ -62,6 +68,7 @@ const SurahIdRoute = SurahIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/developer-info': typeof DeveloperInfoRoute
+  '/downloads': typeof DownloadsRoute
   '/favorites': typeof FavoritesRoute
   '/player': typeof PlayerRoute
   '/profile': typeof ProfileRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/developer-info': typeof DeveloperInfoRoute
+  '/downloads': typeof DownloadsRoute
   '/favorites': typeof FavoritesRoute
   '/player': typeof PlayerRoute
   '/profile': typeof ProfileRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/developer-info': typeof DeveloperInfoRoute
+  '/downloads': typeof DownloadsRoute
   '/favorites': typeof FavoritesRoute
   '/player': typeof PlayerRoute
   '/profile': typeof ProfileRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/developer-info'
+    | '/downloads'
     | '/favorites'
     | '/player'
     | '/profile'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/developer-info'
+    | '/downloads'
     | '/favorites'
     | '/player'
     | '/profile'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/developer-info'
+    | '/downloads'
     | '/favorites'
     | '/player'
     | '/profile'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DeveloperInfoRoute: typeof DeveloperInfoRoute
+  DownloadsRoute: typeof DownloadsRoute
   FavoritesRoute: typeof FavoritesRoute
   PlayerRoute: typeof PlayerRoute
   ProfileRoute: typeof ProfileRoute
@@ -171,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FavoritesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/downloads': {
+      id: '/downloads'
+      path: '/downloads'
+      fullPath: '/downloads'
+      preLoaderRoute: typeof DownloadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/developer-info': {
       id: '/developer-info'
       path: '/developer-info'
@@ -198,6 +218,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DeveloperInfoRoute: DeveloperInfoRoute,
+  DownloadsRoute: DownloadsRoute,
   FavoritesRoute: FavoritesRoute,
   PlayerRoute: PlayerRoute,
   ProfileRoute: ProfileRoute,

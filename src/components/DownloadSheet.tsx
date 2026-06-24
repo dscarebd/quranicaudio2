@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Download, X, Check, Loader2, Search } from "lucide-react";
+import { Download, X, Check, Loader2, Search, AlertCircle, Clock } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -83,7 +83,9 @@ export function DownloadSheet() {
     if (!reciterId || selected.size === 0) return;
     setIsDone(false);
     const ids = [...selected].sort((a, b) => a - b);
-    setProgress({ total: ids.length, completed: 0, failed: 0, currentSurah: ids[0] });
+    const statuses: Record<number, "pending" | "downloading" | "done" | "error"> = {};
+    ids.forEach((id) => (statuses[id] = "pending"));
+    setProgress({ total: ids.length, completed: 0, failed: 0, currentSurah: ids[0], statuses });
     const handle = downloadSelected(reciterId, ids, (p) => setProgress({ ...p }));
     handleRef.current = handle;
     handle.promise.then((final) => {
@@ -243,42 +245,76 @@ export function DownloadSheet() {
 
         {/* Progress / Done state */}
         {(isDownloading || isDone) && progress && (
-          <div className="flex-1 flex flex-col items-center justify-center px-8 text-center gap-6">
-            <div
-              className={cn(
-                "w-20 h-20 rounded-full flex items-center justify-center",
-                isDone ? "bg-primary/15" : "bg-primary/10",
-              )}
-            >
-              {isDone ? (
-                <Check className="h-10 w-10 text-primary" strokeWidth={3} />
-              ) : (
-                <Loader2 className="h-10 w-10 text-primary animate-spin" />
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <h3 className="text-xl font-display font-bold">
-                {isDone ? t("downloadComplete") : t("downloading")}
-              </h3>
-              <p className="text-sm text-muted-foreground tabular-nums">
-                {localizeNum(progress.completed, lang)} / {localizeNum(progress.total, lang)}
-                {progress.failed > 0 && (
-                  <span className="text-destructive ml-2">
-                    · {localizeNum(progress.failed, lang)} {t("failedCount")}
-                  </span>
+          <div className="flex-1 flex flex-col px-5 pt-5 pb-4 gap-4 overflow-hidden">
+            {/* Overall header */}
+            <div className="flex items-center gap-4">
+              <div
+                className={cn(
+                  "w-14 h-14 rounded-full flex items-center justify-center shrink-0",
+                  isDone && progress.failed === 0 && "bg-primary/15",
+                  isDone && progress.failed > 0 && "bg-destructive/15",
+                  !isDone && "bg-primary/10",
                 )}
-              </p>
+              >
+                {isDone ? (
+                  progress.failed > 0 ? (
+                    <AlertCircle className="h-7 w-7 text-destructive" strokeWidth={2.5} />
+                  ) : (
+                    <Check className="h-7 w-7 text-primary" strokeWidth={3} />
+                  )
+                ) : (
+                  <Loader2 className="h-7 w-7 text-primary animate-spin" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-display font-bold truncate">
+                  {isDone ? t("downloadComplete") : t("downloading")}
+                </h3>
+                <p className="text-xs text-muted-foreground tabular-nums">
+                  {localizeNum(progress.completed, lang)} / {localizeNum(progress.total, lang)}
+                  {progress.failed > 0 && (
+                    <span className="text-destructive ml-2">
+                      · {localizeNum(progress.failed, lang)} {t("failedCount")}
+                    </span>
+                  )}
+                </p>
+              </div>
+              <span className="text-sm font-bold text-primary tabular-nums shrink-0">
+                {percent}%
+              </span>
             </div>
 
-            <div className="w-full max-w-xs">
-              <Progress value={percent} className="h-2" />
+            <Progress value={percent} className="h-2" />
+
+            {/* Per-surah list */}
+            <div className="flex-1 overflow-y-auto -mx-5 px-5 rounded-2xl bg-secondary/30">
+              <div className="flex flex-col divide-y divide-border/40">
+                {Object.keys(progress.statuses)
+                  .map(Number)
+                  .sort((a, b) => a - b)
+                  .map((id) => {
+                    const status = progress.statuses[id];
+                    const surah = SURAHS.find((s) => s.id === id);
+                    if (!surah) return null;
+                    return (
+                      <div key={id} className="flex items-center gap-3 py-2.5">
+                        <span className="w-6 text-xs font-bold text-muted-foreground tabular-nums">
+                          {localizeNum(id, lang)}
+                        </span>
+                        <span className="flex-1 text-sm font-medium truncate">
+                          {surahName(surah, lang)}
+                        </span>
+                        <StatusBadge status={status} />
+                      </div>
+                    );
+                  })}
+              </div>
             </div>
 
             {isDone ? (
               <Button
                 onClick={() => handleOpenChange(false)}
-                className="w-full max-w-xs h-12 rounded-xl font-bold"
+                className="w-full h-12 rounded-xl font-bold"
               >
                 <Check className="h-4 w-4 mr-2" />
                 {t("done")}
@@ -287,7 +323,7 @@ export function DownloadSheet() {
               <Button
                 onClick={cancel}
                 variant="outline"
-                className="w-full max-w-xs h-12 rounded-xl font-bold"
+                className="w-full h-12 rounded-xl font-bold"
               >
                 <X className="h-4 w-4 mr-2" />
                 {t("cancel")}
@@ -297,5 +333,34 @@ export function DownloadSheet() {
         )}
       </SheetContent>
     </Sheet>
+  );
+}
+
+function StatusBadge({ status }: { status: "pending" | "downloading" | "done" | "error" }) {
+  if (status === "done") {
+    return (
+      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary/15 text-primary">
+        <Check className="h-3.5 w-3.5" strokeWidth={3} />
+      </span>
+    );
+  }
+  if (status === "downloading") {
+    return (
+      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary/10 text-primary">
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+      </span>
+    );
+  }
+  if (status === "error") {
+    return (
+      <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-destructive/15 text-destructive">
+        <AlertCircle className="h-3.5 w-3.5" />
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-muted text-muted-foreground">
+      <Clock className="h-3.5 w-3.5" />
+    </span>
   );
 }

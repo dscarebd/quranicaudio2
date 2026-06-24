@@ -7,11 +7,14 @@ import { getReciter, type Reciter } from "./reciters";
 import { fullSurahUrl } from "./audio-urls";
 import { SURAHS } from "./quran-data";
 
+export type SurahStatus = "pending" | "downloading" | "done" | "error";
+
 export type DownloadProgress = {
   total: number;
   completed: number;
   failed: number;
   currentSurah: number | null;
+  statuses: Record<number, SurahStatus>;
 };
 
 export type DownloadHandle = {
@@ -35,14 +38,19 @@ export function downloadSelected(
 ): DownloadHandle {
   const reciter: Reciter = getReciter(reciterId);
   const urls = surahIds.map((id) => ({ id, url: fullSurahUrl(reciter, id) }));
+  const statuses: Record<number, SurahStatus> = {};
+  surahIds.forEach((id) => (statuses[id] = "pending"));
   const state: DownloadProgress = {
     total: urls.length,
     completed: 0,
     failed: 0,
     currentSurah: null,
+    statuses,
   };
   let cancelled = false;
   const controllers: AbortController[] = [];
+
+  const emit = () => onProgress({ ...state, statuses: { ...state.statuses } });
 
   const run = async () => {
     let cursor = 0;
@@ -52,21 +60,26 @@ export function downloadSelected(
         if (i >= urls.length) return;
         const { id, url } = urls[i];
         state.currentSurah = id;
+        state.statuses[id] = "downloading";
+        emit();
         const ctrl = new AbortController();
         controllers.push(ctrl);
         try {
-          // no-cors: opaque response — workbox CacheFirst with statuses [0,200] still caches it.
           await fetch(url, { mode: "no-cors", signal: ctrl.signal, cache: "reload" });
           state.completed += 1;
+          state.statuses[id] = "done";
         } catch {
-          if (!cancelled) state.failed += 1;
+          if (!cancelled) {
+            state.failed += 1;
+            state.statuses[id] = "error";
+          }
         }
-        onProgress({ ...state });
+        emit();
       }
     };
     await Promise.all(Array.from({ length: CONCURRENCY }, worker));
     state.currentSurah = null;
-    onProgress({ ...state });
+    emit();
     return state;
   };
 
@@ -102,3 +115,71 @@ export async function getCachedSurahCount(reciterId: string): Promise<number> {
     return 0;
   }
 }
+
+/** Returns surah ids currently cached for a reciter. */
+export async function getCachedSurahIds(reciterId: string): Promise<number[]> {
+  if (typeof caches === "undefined") return [];
+  try {
+    const cache = await caches.open("quran-audio-full");
+    const reciter = getReciter(reciterId);
+    const keys = await cache.keys();
+    const ids = new Set<number>();
+    for (const s of SURAHS) {
+      const url = fullSurahUrl(reciter, s.id);
+      if (keys.some((r) => r.url === url)) ids.add(s.id);
+    }
+    return [...ids].sort((a, b) => a - b);
+  } catch {
+    return [];
+  }
+}
+
+/** Returns a map of reciterId -> cached surah ids, for every reciter that has any. */
+export async function getAllCached(): Promise<Record<string, number[]>> {
+  if (typeof caches === "undefined") return {};
+  const { RECITERS } = await import("./reciters");
+  const result: Record<string, number[]> = {};
+  try {
+    const cache = await caches.open("quran-audio-full");
+    const keys = await cache.keys();
+    const urlSet = new Set(keys.map((r) => r.url));
+    for (const reciter of RECITERS) {
+      const ids: number[] = [];
+      for (const s of SURAHS) {
+        if (urlSet.has(fullSurahUrl(reciter, s.id))) ids.push(s.id);
+      }
+      if (ids.length > 0) result[reciter.id] = ids;
+    }
+  } catch {
+    /* ignore */
+  }
+  return result;
+}
+
+/** Remove a single cached surah for a reciter. */
+export async function removeCachedSurah(reciterId: string, surahId: number): Promise<boolean> {
+  if (typeof caches === "undefined") return false;
+  try {
+    const cache = await caches.open("quran-audio-full");
+    const reciter = getReciter(reciterId);
+    const url = fullSurahUrl(reciter, surahId);
+    return await cache.delete(url);
+  } catch {
+    return false;
+  }
+}
+
+/** Remove all cached surahs for a single reciter. */
+export async function removeReciterDownloads(reciterId: string): Promise<void> {
+  if (typeof caches === "undefined") return;
+  try {
+    const cache = await caches.open("quran-audio-full");
+    const reciter = getReciter(reciterId);
+    await Promise.allSettled(
+      SURAHS.map((s) => cache.delete(fullSurahUrl(reciter, s.id))),
+    );
+  } catch {
+    /* ignore */
+  }
+}
+
