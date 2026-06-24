@@ -64,7 +64,7 @@ function DeveloperInfoPage() {
           <img
             src={annurLogo.url}
             alt="An-Nur Digital"
-            className="h-24 w-36 object-contain"
+            className="h-24 w-36 object-contain rounded-xl"
             draggable={false}
           />
           <h1 className="mt-3 text-2xl font-bold font-display">An-Nur Digital</h1>
