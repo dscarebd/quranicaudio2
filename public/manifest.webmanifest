@@ -1,6 +1,6 @@
 {
-  "name": "Quran Audio",
-  "short_name": "Quran",
+  "name": "Listen Quran",
+  "short_name": "Listen Quran",
   "description": "Listen to all 114 Surahs with 15 renowned reciters.",
   "start_url": "/",
   "scope": "/",

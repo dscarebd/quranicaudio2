@@ -28,7 +28,7 @@ export const Route = createFileRoute("/surah/$id")({
     const surah = getSurah(params.id);
     return {
       meta: [
-        { title: surah ? `${surah.name} — Quran Audio` : "Surah" },
+        { title: surah ? `${surah.name} — Listen Quran` : "Surah" },
         { name: "description", content: surah ? `Listen to Surah ${surah.name} (${surah.arabic}) — ${surah.ayahs} verses.` : "" },
       ],
     };
