@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Globe, Mail, MessageCircle } from "lucide-react";
+import { ArrowLeft, Globe, Mail } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import annurLogo from "@/assets/annur-digital.png.asset.json";
 import appLogo from "@/assets/logo.png.asset.json";
+import telegramIcon from "@/assets/telegram-icon.png.asset.json";
 
 export const Route = createFileRoute("/developer-info")({
   head: () => ({
@@ -86,7 +87,7 @@ function DeveloperInfoPage() {
             href="mailto:support@annurdigital.com"
           />
           <ContactRow
-            icon={<MessageCircle className="h-5 w-5" />}
+            icon={<img src={telegramIcon.url} alt="Telegram" className="h-5 w-5 object-contain" draggable={false} />}
             label="Telegram"
             value="@nuralamin.official"
             href="https://t.me/nuralamin.official"
