@@ -115,7 +115,7 @@ function SurahPage() {
         <div>
           <div className="arabic text-3xl font-bold text-left">{surah.arabic}</div>
           <p className="text-sm text-muted-foreground mt-1">
-            {surah.meaning} · {localizeNum(surah.ayahs, appLang)} {t("ayahs")} · {surahType(surah, appLang)}
+            {surahMeaning(surah, appLang)} · {localizeNum(surah.ayahs, appLang)} {t("ayahs")} · {surahType(surah, appLang)}
           </p>
         </div>
         <button
