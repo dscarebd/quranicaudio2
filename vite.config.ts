@@ -1,118 +1,84 @@
-// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
-// or the app will break with duplicate plugins:
-//   - tanstackStart, viteReact, tailwindcss, tsConfigPaths, nitro (build-only using cloudflare as a default target),
-//     componentTagger (dev-only), VITE_* env injection, @ path alias, React/TanStack dedupe,
-//     error logger plugins, and sandbox detection (port/host/strictPort).
-// You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tsconfigPaths from "vite-tsconfig-paths";
+import tailwindcss from "@tailwindcss/vite";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import { VitePWA } from "vite-plugin-pwa";
-import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
-import { resolve } from "node:path";
-
-// Auto-flatten dist/ into a single static folder after every production build.
-// Nitro runs as a separate vite environment whose lifecycle does not align with
-// the outer client closeBundle, so we hook process `beforeExit` — that fires
-// once after Vite + Nitro + PWA have finished writing, right before the build
-// process exits. The flatten script itself is idempotent.
-function flattenDistPlugin() {
-  let registered = false;
-  return {
-    name: "lovable:flatten-dist",
-    apply: "build" as const,
-    configResolved() {
-      if (registered) return;
-      registered = true;
-      let done = false;
-      process.on("beforeExit", () => {
-        if (done) return;
-        done = true;
-        const dist = resolve(process.cwd(), "dist");
-        if (!existsSync(dist)) return;
-        const script = resolve(process.cwd(), "scripts/prepare-capacitor-dist.mjs");
-        const result = spawnSync(process.execPath, [script], { stdio: "inherit" });
-        if (result.status !== 0) process.exitCode = result.status ?? 1;
-      });
-    },
-  };
-}
-
-
-
-
 
 export default defineConfig({
-  tanstackStart: {
-    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
-    server: { entry: "server" },
+  server: {
+    host: "::",
+    port: 8080,
+    strictPort: true,
   },
-  vite: {
-    plugins: [
-      flattenDistPlugin(),
-      VitePWA({
-        registerType: "autoUpdate",
-        injectRegister: null,
-        filename: "sw.js",
-        devOptions: { enabled: false },
-        manifest: false,
-        workbox: {
-          navigateFallback: null,
-          navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
-          globPatterns: ["**/*.{js,css,html,svg,png,ico,webmanifest}"],
-          runtimeCaching: [
-            {
-              // Full-surah MP3 hosts (server1..serverN.mp3quran.net)
-              urlPattern: ({ url }) => /\.mp3quran\.net$/.test(url.hostname),
-              handler: "CacheFirst",
-              options: {
-                cacheName: "quran-audio-full",
-                cacheableResponse: { statuses: [0, 200, 206] },
-                rangeRequests: true,
-                expiration: { maxEntries: 500, maxAgeSeconds: 60 * 60 * 24 * 90 },
-              },
+  resolve: {
+    dedupe: ["react", "react-dom", "@tanstack/react-router", "@tanstack/react-query"],
+  },
+  plugins: [
+    tanstackRouter({
+      target: "react",
+      autoCodeSplitting: true,
+      routesDirectory: "src/routes",
+      generatedRouteTree: "src/routeTree.gen.ts",
+    }),
+    react(),
+    tsconfigPaths(),
+    tailwindcss(),
+    VitePWA({
+      registerType: "autoUpdate",
+      injectRegister: null,
+      filename: "sw.js",
+      devOptions: { enabled: false },
+      manifest: false,
+      workbox: {
+        navigateFallback: "/index.html",
+        navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
+        globPatterns: ["**/*.{js,css,html,svg,png,ico,webmanifest}"],
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => /\.mp3quran\.net$/.test(url.hostname),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "quran-audio-full",
+              cacheableResponse: { statuses: [0, 200, 206] },
+              rangeRequests: true,
+              expiration: { maxEntries: 500, maxAgeSeconds: 60 * 60 * 24 * 90 },
             },
-            {
-              // Per-ayah MP3 host
-              urlPattern: ({ url }) => url.hostname === "everyayah.com",
-              handler: "CacheFirst",
-              options: {
-                cacheName: "quran-audio-ayah",
-                cacheableResponse: { statuses: [0, 200, 206] },
-                rangeRequests: true,
-                expiration: { maxEntries: 2000, maxAgeSeconds: 60 * 60 * 24 * 90 },
-              },
+          },
+          {
+            urlPattern: ({ url }) => url.hostname === "everyayah.com",
+            handler: "CacheFirst",
+            options: {
+              cacheName: "quran-audio-ayah",
+              cacheableResponse: { statuses: [0, 200, 206] },
+              rangeRequests: true,
+              expiration: { maxEntries: 2000, maxAgeSeconds: 60 * 60 * 24 * 90 },
             },
-            {
-              // HTML navigations: serve cached shell instantly, refresh in background
-              urlPattern: ({ request }) => request.mode === "navigate",
-              handler: "StaleWhileRevalidate",
-              options: {
-                cacheName: "html-shell",
-                expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 30 },
-              },
+          },
+          {
+            urlPattern: ({ url }) =>
+              url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com",
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "google-fonts",
+              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
             },
-            {
-              // Google Fonts stylesheet + files
-              urlPattern: ({ url }) => url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com",
-              handler: "StaleWhileRevalidate",
-              options: {
-                cacheName: "google-fonts",
-                expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              },
+          },
+          {
+            urlPattern: ({ url }) =>
+              url.hostname === "api.alquran.cloud" || url.hostname === "api.quran.com",
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "quran-api",
+              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
             },
-            {
-              // Quran text / metadata APIs
-              urlPattern: ({ url }) => url.hostname === "api.alquran.cloud" || url.hostname === "api.quran.com",
-              handler: "StaleWhileRevalidate",
-              options: {
-                cacheName: "quran-api",
-                expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
-              },
-            },
-          ],
-        },
-      }),
-    ],
+          },
+        ],
+      },
+    }),
+  ],
+  build: {
+    outDir: "dist",
+    emptyOutDir: true,
   },
 });
