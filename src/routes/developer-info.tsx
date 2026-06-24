@@ -67,7 +67,7 @@ function DeveloperInfoPage() {
             className="h-20 w-32 object-contain"
             draggable={false}
           />
-          <h1 className="mt-3 text-2xl font-bold font-display">An-Nur Digital</h1>
+          <h1 className="mt-3 text-4xl font-bold font-display">An-Nur Digital</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Crafting digital experiences with purpose
           </p>
