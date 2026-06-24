@@ -1,46 +1,59 @@
 ## Goal
 
-Add a Developer & About page accessible from the Profile screen, styled like the reference. Use the uploaded An-Nur Digital logo as the developer image.
+Replace the plain blue "Download all" link on the home page with a UI-matched icon button. Tapping it opens a popup where the user picks a reciter and one/multiple/all surahs, then taps "Start download" to cache audio on the device for offline playback.
 
-## Asset
+## Scope
 
-Upload the user-provided logo via `lovable-assets`:
-- Source: `/mnt/user-uploads/Untitled_design_1.png`
-- Pointer: `src/assets/annur-digital.png.asset.json` (CDN-hosted, not committed as binary)
+- File to edit: `src/routes/index.tsx` (button trigger)
+- New component: `src/components/DownloadSheet.tsx` (the popup)
+- Reuse existing infra: `src/lib/offline-download.ts`, `src/lib/reciters.ts`, `src/lib/audio-urls.ts`, `src/lib/quran-data.ts`
+- i18n: add a few keys to `src/lib/i18n.ts` (English + Bangla)
 
-## New route: `src/routes/developer-info.tsx`
+## Button redesign
 
-- `AppShell` + simple header with a back link "← Back to profile" → `/profile`.
-- `head()`: title "Developer — Quran Audio".
+Replace the text link with a compact pill button that matches the app's primary style:
+- Icon: `Download` from lucide-react
+- Label: "Download" (short)
+- Style: rounded-full, `bg-primary/10 text-primary` with hover state — visually consistent with existing accent chips, not a bare blue link
 
-### Developer card (top)
-- Centered An-Nur Digital logo (h-24, from new asset pointer)
-- Name: **An-Nur Digital** (font-display, bold)
-- Tagline: *Crafting digital experiences with purpose*
-- Three contact rows, each an `<a>`:
-  - Globe icon → Website · `annurdigital.com` → `https://annurdigital.com`
-  - Mail icon → Email · `support@annurdigital.com` → `mailto:`
-  - MessageCircle icon → Telegram · `@nuralamin.official` → `https://t.me/nuralamin.official`
-- Icon chips: `bg-primary/15 text-primary` rounded-full (uses app's blue theme, not the reference's purple).
+## Popup (bottom sheet)
 
-### About app card (below)
-- Header: app logo chip (existing `logo.png.asset.json`) + **About Quran Audio** + sub "Listen to the Quran, beautifully"
-- Body: short description — 114 Surahs, choose reciter, favorites, recently played, sleep timer, EN/BN.
-- Footer line: `Version 1.0.0`.
+Use the existing shadcn `Sheet` component (side="bottom") for a mobile-friendly modal.
 
-## Profile entry point
+Sections inside the sheet:
+1. **Header** — title "Download for offline", close button
+2. **Reciter picker** — shadcn `Select` listing all reciters from `RECITERS`
+3. **Surah selection**
+   - Three quick chips: "All 114", "Clear", and a search input to filter
+   - Scrollable list of surahs with a `Checkbox` per row (id, name, transliteration)
+   - Header row shows "X selected" counter
+4. **Footer (sticky)**
+   - Primary button: "Start download" — disabled until reciter + ≥1 surah selected
+   - Shows progress (`completed / total`, current surah, failed count) once downloading
+   - Cancel button while in progress
+   - Success state: "✓ Saved to device" with close action
 
-`src/routes/profile.tsx`: add a new `Section title="About"` (last section) with a single `Link` row → `/developer-info`:
-- Icon `Info`, label "Developer & About", chevron right.
+## Download logic
 
-## Design notes
+- Extend `src/lib/offline-download.ts` with a new helper `downloadSelected(reciterId, surahIds[], onProgress)` mirroring the existing `downloadReciter` worker pool (concurrency 3, AbortController, no-cors fetch). Existing `downloadReciter` stays for callers that want all 114.
+- The service worker's CacheFirst rule already persists these requests, so no other plumbing is needed.
+- Audio plays from cache automatically when offline (already wired through the SW).
 
-- Reuse existing `Section`/card styling (rounded-3xl, bg-surface, border-border) so it feels native.
-- All colors via design tokens — no hardcoded hex/purple.
-- Mobile-first, matches existing profile aesthetic.
+## Technical notes
 
-## Out of scope
+- The popup state (`open`, selected reciter, selected surah set, progress, handle) lives inside `DownloadSheet`. The home page only renders the trigger button + sheet.
+- Progress UI updates via React state from the `onProgress` callback.
+- On unmount or cancel, call `handle.cancel()` to abort in-flight fetches.
+- Out of scope: a separate "Downloads" management screen, per-reciter cache size display, deleting individual cached surahs (the existing `clearReciterCache` already nukes everything if needed).
 
-- No i18n strings (English labels, matching existing static profile copy).
-- No new npm dependencies.
-- No bottom-nav changes.
+## Files touched
+
+```text
+src/routes/index.tsx              edit: swap button → <DownloadSheet />
+src/components/DownloadSheet.tsx  new
+src/lib/offline-download.ts       edit: add downloadSelected()
+src/lib/i18n.ts                   edit: add keys (download, selectReciter,
+                                         selectSurahs, selected, startDownload,
+                                         downloading, downloadComplete, cancel,
+                                         selectAll, clear, searchSurah)
+```
