@@ -26,13 +26,6 @@ function PrivacyPage() {
     <AppShell>
       <TopBar />
       <div className="px-5 pb-8">
-        <Link
-          to="/profile"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
-        >
-          <ChevronLeft className="h-4 w-4" /> Back
-        </Link>
-
         <header className="mb-6">
           <h1 className="text-2xl font-bold font-display">Privacy Policy</h1>
           <p className="text-xs text-muted-foreground mt-1">
