@@ -6,7 +6,7 @@ import { TopBar } from "@/components/TopBar";
 import { useFavorites, useRecents, useReciterSelection } from "@/stores/persisted";
 import { usePlayer } from "@/stores/player";
 import { getReciter } from "@/lib/reciters";
-import { ChevronRight, Mic2, Heart, Clock, Gauge, Repeat, Shuffle, Trash2, Pencil, Check, X, Info } from "lucide-react";
+import { ChevronRight, Mic2, Heart, Clock, Gauge, Repeat, Shuffle, Trash2, Pencil, Check, X, Info, Download } from "lucide-react";
 import { useT } from "@/lib/i18n";
 
 
