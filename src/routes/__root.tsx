@@ -1,6 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
-  Outlet,
   Link,
   createRootRouteWithContext,
   useRouter,
@@ -90,7 +89,6 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <PageTransition />
       <BottomNav />
-      <Outlet />
     </QueryClientProvider>
   );
 }
