@@ -66,10 +66,23 @@ function SurahPage() {
   const [showTopBtn, setShowTopBtn] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setShowTopBtn(window.scrollY > 300);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    const check = () => {
+      const y =
+        window.scrollY ||
+        document.documentElement.scrollTop ||
+        document.body.scrollTop ||
+        0;
+      setShowTopBtn(y > 300);
+    };
+    check();
+    window.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return () => {
+      window.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
   }, []);
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["surah-text", id, lang],
@@ -195,15 +208,22 @@ function SurahPage() {
         </ul>
       </section>
 
-      {showTopBtn && (
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-24 left-4 z-40 h-10 w-10 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center transition-opacity"
-          aria-label={t("scrollToTop")}
-        >
-          <ArrowUp className="h-5 w-5" />
-        </button>
-      )}
+      <button
+        onClick={() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
+        }}
+        className={`fixed bottom-24 left-4 z-40 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center transition-all duration-200 ${
+          showTopBtn
+            ? "opacity-100 scale-100"
+            : "opacity-0 scale-90 pointer-events-none"
+        }`}
+        aria-label={t("scrollToTop")}
+      >
+        <ArrowUp className="h-5 w-5" />
+      </button>
+
     </AppShell>
   );
 }
