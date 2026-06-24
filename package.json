@@ -4,7 +4,7 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
+    "dev": "vite",
     "prepare:dist": "node scripts/prepare-capacitor-dist.mjs",
     "build": "vite build && npm run prepare:dist",
     "build:dev": "vite build --mode development && npm run prepare:dist",
