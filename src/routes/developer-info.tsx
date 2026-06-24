@@ -64,10 +64,11 @@ function DeveloperInfoPage() {
           <img
             src={annurLogo.url}
             alt="An-Nur Digital"
-            className="h-20 w-auto object-contain"
+            className="h-24 w-24 object-contain"
             draggable={false}
           />
-          <p className="mt-3 text-sm text-muted-foreground">
+          <h1 className="mt-3 text-2xl font-bold font-display">An-Nur Digital</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Crafting digital experiences with purpose
           </p>
         </div>
