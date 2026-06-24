@@ -1,59 +1,30 @@
-## Goal
+## Why page switches feel slow (3–4s blink)
 
-Replace the plain blue "Download all" link on the home page with a UI-matched icon button. Tapping it opens a popup where the user picks a reciter and one/multiple/all surahs, then taps "Start download" to cache audio on the device for offline playback.
+Two compounding causes in the current setup:
 
-## Scope
+1. **`PageTransition` uses `AnimatePresence mode="wait"`** (`src/components/PageTransition.tsx`). This forces the OLD page to fully play its exit animation (opacity + translate, 220ms) BEFORE the NEW page starts mounting. During that gap the screen is blank — that's the "blink". On top of that, the NEW page then plays its own 220ms enter animation. So even in the best case every tap costs ~450ms of pure animation, and it visually reads as a blank flash.
 
-- File to edit: `src/routes/index.tsx` (button trigger)
-- New component: `src/components/DownloadSheet.tsx` (the popup)
-- Reuse existing infra: `src/lib/offline-download.ts`, `src/lib/reciters.ts`, `src/lib/audio-urls.ts`, `src/lib/quran-data.ts`
-- i18n: add a few keys to `src/lib/i18n.ts` (English + Bangla)
+2. **No link preloading is configured.** `src/router.tsx` sets `defaultPreloadStaleTime: 0` but never sets `defaultPreload`. That means when you tap a tab, the route's JS chunk + its loader/query only start fetching AT tap time. Combined with the exit animation blocking the mount, on a cold route this stacks to multiple seconds. Routes like `/reciters`, `/downloads`, `/favorites` each load their own data on mount, so the first visit is the slowest.
 
-## Button redesign
+The "blank for 3–4s then appears" pattern is the signature of `mode="wait"` + un-preloaded route chunks.
 
-Replace the text link with a compact pill button that matches the app's primary style:
-- Icon: `Download` from lucide-react
-- Label: "Download" (short)
-- Style: rounded-full, `bg-primary/10 text-primary` with hover state — visually consistent with existing accent chips, not a bare blue link
+## Plan
 
-## Popup (bottom sheet)
+### 1. Fix the page transition (remove the blank gap)
+File: `src/components/PageTransition.tsx`
+- Switch `AnimatePresence` from `mode="wait"` to the default (`"sync"`) so the new page mounts immediately while the old one fades out underneath.
+- Shorten enter animation to ~120ms, opacity-only (drop the `y` translate which also costs a paint). Remove the exit animation entirely (or make it 80ms opacity) so navigation feels instant.
+- Keep `key={pathname}` and `initial={false}` behavior.
 
-Use the existing shadcn `Sheet` component (side="bottom") for a mobile-friendly modal.
+### 2. Enable route preloading
+File: `src/router.tsx`
+- Add `defaultPreload: "intent"` and `defaultPreloadDelay: 50` to `createRouter`. This makes TanStack Router start fetching the route's JS chunk + loader data on hover / touchstart, so by the time the tap fires the page is usually already ready.
 
-Sections inside the sheet:
-1. **Header** — title "Download for offline", close button
-2. **Reciter picker** — shadcn `Select` listing all reciters from `RECITERS`
-3. **Surah selection**
-   - Three quick chips: "All 114", "Clear", and a search input to filter
-   - Scrollable list of surahs with a `Checkbox` per row (id, name, transliteration)
-   - Header row shows "X selected" counter
-4. **Footer (sticky)**
-   - Primary button: "Start download" — disabled until reciter + ≥1 surah selected
-   - Shows progress (`completed / total`, current surah, failed count) once downloading
-   - Cancel button while in progress
-   - Success state: "✓ Saved to device" with close action
+### 3. (Optional but recommended) Bottom nav links use Link, not navigate
+Spot-check `src/components/BottomNav.tsx` to confirm it uses `<Link to=...>` (required for `defaultPreload: "intent"` to work). If it uses `useNavigate` onClick, switch to `<Link>` so preloading kicks in.
 
-## Download logic
+## Out of scope
+- No data-layer changes, no route restructuring, no loader rewrites. This is a perceived-performance fix focused on the transition layer and router config.
 
-- Extend `src/lib/offline-download.ts` with a new helper `downloadSelected(reciterId, surahIds[], onProgress)` mirroring the existing `downloadReciter` worker pool (concurrency 3, AbortController, no-cors fetch). Existing `downloadReciter` stays for callers that want all 114.
-- The service worker's CacheFirst rule already persists these requests, so no other plumbing is needed.
-- Audio plays from cache automatically when offline (already wired through the SW).
-
-## Technical notes
-
-- The popup state (`open`, selected reciter, selected surah set, progress, handle) lives inside `DownloadSheet`. The home page only renders the trigger button + sheet.
-- Progress UI updates via React state from the `onProgress` callback.
-- On unmount or cancel, call `handle.cancel()` to abort in-flight fetches.
-- Out of scope: a separate "Downloads" management screen, per-reciter cache size display, deleting individual cached surahs (the existing `clearReciterCache` already nukes everything if needed).
-
-## Files touched
-
-```text
-src/routes/index.tsx              edit: swap button → <DownloadSheet />
-src/components/DownloadSheet.tsx  new
-src/lib/offline-download.ts       edit: add downloadSelected()
-src/lib/i18n.ts                   edit: add keys (download, selectReciter,
-                                         selectSurahs, selected, startDownload,
-                                         downloading, downloadComplete, cancel,
-                                         selectAll, clear, searchSurah)
-```
+## Expected result
+Tapping a bottom-nav tab should feel instant: no blank flash, page content appears within ~100ms on warm routes and noticeably faster on first visit thanks to intent preloading.
