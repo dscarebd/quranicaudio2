@@ -153,6 +153,14 @@ function ProfilePage() {
           <div className="flex-1 text-sm font-medium">Developer & About</div>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </Link>
+        <Link
+          to="/privacy"
+          className="flex items-center gap-3 px-5 py-4 hover:bg-muted/50 transition"
+        >
+          <ShieldCheck className="h-5 w-5 text-primary" />
+          <div className="flex-1 text-sm font-medium">Privacy Policy</div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </Link>
       </Section>
 
     </AppShell>
