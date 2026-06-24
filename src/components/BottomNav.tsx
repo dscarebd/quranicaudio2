@@ -25,7 +25,7 @@ export function BottomNav() {
               }`}
             >
               {it.icon}
-              <span className="text-[10px] font-medium">{it.label}</span>
+              <span className="text-xs font-medium">{it.label}</span>
             </Link>
           );
         })}
