@@ -40,8 +40,16 @@ function flattenDistPlugin() {
     name: "lovable:flatten-dist",
     apply: "build" as const,
     enforce: "post" as const,
-    closeBundle: run,
+    closeBundle: {
+      order: "post" as const,
+      sequential: true,
+      handler: () => {
+        console.log("[lovable:flatten-dist] closeBundle fired");
+        return run();
+      },
+    },
   };
+
 }
 
 
