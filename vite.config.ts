@@ -6,51 +6,38 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
-import { spawn } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 
-// Auto-flatten dist/ into a single static folder after every production build,
-// regardless of whether the build was started via `npm run build` or `vite build`.
+// Auto-flatten dist/ into a single static folder after every production build.
+// Nitro runs as a separate vite environment whose lifecycle does not align with
+// the outer client closeBundle, so we hook process `beforeExit` — that fires
+// once after Vite + Nitro + PWA have finished writing, right before the build
+// process exits. The flatten script itself is idempotent.
 function flattenDistPlugin() {
-  let ran = false;
-  const run = () =>
-    new Promise<void>((res) => {
-      if (ran) return res();
-      ran = true;
-      const dist = resolve(process.cwd(), "dist");
-      // Wait briefly for nitro to finish writing dist/server before flattening.
-      const deadline = Date.now() + 30_000;
-      const waitForNitro = () => {
-        const serverReady = existsSync(resolve(dist, "server", "index.mjs"));
-        const alreadyFlat = existsSync(dist) && !existsSync(resolve(dist, "client")) && !existsSync(resolve(dist, "server"));
-        if (serverReady || alreadyFlat || Date.now() > deadline) {
-          const child = spawn(process.execPath, [resolve(process.cwd(), "scripts/prepare-capacitor-dist.mjs")], { stdio: "inherit" });
-          child.on("exit", (code) => {
-            if (code !== 0) process.exitCode = code ?? 1;
-            res();
-          });
-          return;
-        }
-        setTimeout(waitForNitro, 200);
-      };
-      waitForNitro();
-    });
+  let registered = false;
   return {
     name: "lovable:flatten-dist",
     apply: "build" as const,
-    enforce: "post" as const,
-    closeBundle: {
-      order: "post" as const,
-      sequential: true,
-      handler: () => {
-        console.log("[lovable:flatten-dist] closeBundle fired");
-        return run();
-      },
+    configResolved() {
+      if (registered) return;
+      registered = true;
+      let done = false;
+      process.on("beforeExit", () => {
+        if (done) return;
+        done = true;
+        const dist = resolve(process.cwd(), "dist");
+        if (!existsSync(dist)) return;
+        const script = resolve(process.cwd(), "scripts/prepare-capacitor-dist.mjs");
+        const result = spawnSync(process.execPath, [script], { stdio: "inherit" });
+        if (result.status !== 0) process.exitCode = result.status ?? 1;
+      });
     },
   };
-
 }
+
+
 
 
 
