@@ -49,10 +49,31 @@ export default defineConfig({
               },
             },
             {
-              // HTML navigations: always try network first
+              // HTML navigations: serve cached shell instantly, refresh in background
               urlPattern: ({ request }) => request.mode === "navigate",
-              handler: "NetworkFirst",
-              options: { cacheName: "html-shell" },
+              handler: "StaleWhileRevalidate",
+              options: {
+                cacheName: "html-shell",
+                expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              },
+            },
+            {
+              // Google Fonts stylesheet + files
+              urlPattern: ({ url }) => url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com",
+              handler: "StaleWhileRevalidate",
+              options: {
+                cacheName: "google-fonts",
+                expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              },
+            },
+            {
+              // Quran text / metadata APIs
+              urlPattern: ({ url }) => url.hostname === "api.alquran.cloud" || url.hostname === "api.quran.com",
+              handler: "StaleWhileRevalidate",
+              options: {
+                cacheName: "quran-api",
+                expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              },
             },
           ],
         },
