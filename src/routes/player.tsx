@@ -180,9 +180,6 @@ function PlayerPage() {
               : "bg-foreground text-background shadow-foreground/20"
           }`}
         >
-          {isPlaying && (
-            <span className="absolute inset-0 rounded-full bg-primary/30 animate-ping" aria-hidden />
-          )}
           {isPlaying ? (
             <Pause className="h-9 w-9 relative" fill="currentColor" />
           ) : (
