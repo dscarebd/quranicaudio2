@@ -68,6 +68,23 @@ export const useReciterSelection = create<ReciterState>((set) => ({
   },
 }));
 
+/* ---- Pinned reciters ---- */
+type PinnedRecitersState = {
+  ids: string[];
+  toggle: (id: string) => void;
+  has: (id: string) => boolean;
+};
+export const usePinnedReciters = create<PinnedRecitersState>((set, get) => ({
+  ids: read<string[]>("q_pinned_reciters", []),
+  toggle: (id) => {
+    const cur = get().ids;
+    const next = cur.includes(id) ? cur.filter((x) => x !== id) : [id, ...cur];
+    set({ ids: next });
+    write("q_pinned_reciters", next);
+  },
+  has: (id) => get().ids.includes(id),
+}));
+
 /* ---- Playback positions (resume per reciter+surah) ---- */
 type PositionsMap = Record<string, number>; // key: `${reciterId}:${surahId}` -> seconds
 type PositionsState = {
