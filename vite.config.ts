@@ -57,15 +57,6 @@ export default defineConfig({
           },
           {
             urlPattern: ({ url }) =>
-              url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com",
-            handler: "StaleWhileRevalidate",
-            options: {
-              cacheName: "google-fonts",
-              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            },
-          },
-          {
-            urlPattern: ({ url }) =>
               url.hostname === "api.alquran.cloud" || url.hostname === "api.quran.com",
             handler: "StaleWhileRevalidate",
             options: {

@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Globe, Mail } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import annurLogo from "@/assets/annur-digital.png.asset.json";
-import appLogo from "@/assets/logo.png.asset.json";
+import annurLogo from "@/assets/annur-digital.png";
+import appLogo from "@/assets/logo.png";
 
 
 export const Route = createFileRoute("/developer-info")({
@@ -62,7 +62,7 @@ function DeveloperInfoPage() {
       <section className="mx-5 mt-3 mb-6 rounded-3xl bg-surface border border-border p-6">
         <div className="flex flex-col items-center text-center">
           <img
-            src={annurLogo.url}
+            src={annurLogo}
             alt="An-Nur Digital"
             className="h-24 w-36 object-contain rounded-xl"
             draggable={false}
@@ -104,7 +104,7 @@ function DeveloperInfoPage() {
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 shrink-0 rounded-2xl bg-primary/15 inline-flex items-center justify-center">
             <img
-              src={appLogo.url}
+              src={appLogo}
               alt="Listen Quran"
               className="h-7 w-auto object-contain"
               draggable={false}

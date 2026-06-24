@@ -1,44 +1,45 @@
-I will convert the production build path to a standard Vite SPA output so `npm run build` creates `dist/index.html` directly instead of relying on TanStack Start server output.
+Bundle every image and font into `dist/` so the app runs fully offline as a Capacitor Android app.
 
-Implementation plan:
+## What changes
 
-1. Add a browser entry file
-   - Create a normal React/Vite client bootstrap that mounts the existing TanStack Router into `#root`.
-   - Keep the existing route files, UI, stores, PWA registration, and app behavior.
+**1. Local images (downloaded, replacing CDN pointers)**
+- `src/assets/logo.png` (1.1 MB)
+- `src/assets/annur-digital.png` (80 KB)
+- `src/assets/telegram-icon.png` (3.6 KB)
+- Removed: `logo.png.asset.json`, `annur-digital.png.asset.json`, `telegram-icon.png.asset.json`
 
-2. Add a real SPA `index.html`
-   - Create project-root `index.html` with `<div id="root"></div>` and a module script pointing to the new browser entry.
-   - Include the app title, viewport, manifest, and mobile/PWA meta tags needed for Android WebView.
+**2. Self-hosted Anek Bangla font (downloaded woff2 chunks)**
+- `src/assets/fonts/anek-bangla-bengali.woff2` (152 KB)
+- `src/assets/fonts/anek-bangla-latin.woff2` (42 KB)
+- `src/assets/fonts/anek-bangla-latin-ext.woff2` (3 KB)
 
-3. Replace production build config with standard Vite SPA build
-   - Update `vite.config.ts` so it no longer runs TanStack Start/Nitro/server build for `npm run build`.
-   - Use normal Vite plugins only: React, TanStack Router file-route generation, Tailwind, path aliases, and PWA.
-   - Keep output directory as `dist`.
+## Code edits to apply
 
-4. Remove server-output dependency from build
-   - Stop generating or depending on `dist/client` and `dist/server`.
-   - Keep `scripts/prepare-capacitor-dist.mjs` only as a safety validator/cleanup step, or simplify it so it fails if server folders appear.
-   - Ensure `package.json` build remains `npm run build` and final output is:
+- `src/components/TopBar.tsx` — `import logoUrl from "@/assets/logo.png"`; use `src={logoUrl}`.
+- `src/components/NowPlayingCard.tsx` — same swap; collapse duplicated idle/playing branches that used the same image.
+- `src/routes/developer-info.tsx` — switch `annurLogo` and `appLogo` imports to the PNG files; use `src={annurLogo}` / `src={appLogo}`.
+- `index.html` — remove the 3 lines that preconnect to / load Google Fonts.
+- `src/styles.css` — add `@font-face` blocks for Anek Bangla 400/500/600/700/800 using `url("/src/assets/fonts/anek-bangla-*.woff2")` with the same `unicode-range` chunks Google uses, so Vite hashes them into `dist/assets/`.
+- `vite.config.ts` — remove the now-unused `fonts.googleapis.com` / `fonts.gstatic.com` runtime cache entry from the PWA workbox config.
 
-```text
+## Result
+
+After `npm run build`:
+
+```
 dist/
 ├── index.html
-├── assets/
+└── assets/
+    ├── index-*.js
+    ├── index-*.css
+    ├── logo-*.png
+    ├── annur-digital-*.png
+    ├── telegram-icon-*.png
+    └── anek-bangla-*.woff2
 ```
 
-5. Keep Capacitor pointed at the flat folder
-   - Confirm `capacitor.config.ts` stays `webDir: "dist"`.
-   - Ensure static assets use paths that work inside Android WebView.
+Zero references to `/__l5e/`, `fonts.googleapis.com`, or `fonts.gstatic.com` in the built output. Ready for `npx cap sync android` — works offline in Android WebView.
 
-6. Verify the result
-   - Run a clean build after implementation.
-   - Confirm `dist/index.html` exists.
-   - Confirm `dist/assets/` exists.
-   - Confirm these do not exist:
+## Memory update
 
-```text
-dist/client
-dist/server
-```
-
-Technical note: this changes the app’s build output from TanStack Start SSR/Nitro to a plain Vite SPA bundle for Capacitor, while preserving TanStack Router on the client.
+Replace the locked-logo rule with: header logo is locked to `src/assets/logo.png` (bundled), rendered in `src/components/TopBar.tsx`. Do not substitute alternative artwork.
