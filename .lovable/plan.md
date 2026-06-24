@@ -1,28 +1,23 @@
-I’ll fix this at the build-system level so the final `dist` cannot remain as `client/` and `server/` folders, even if Lovable or another environment runs `vite build` directly instead of `npm run build`.
-
-## Plan
-
-1. Add a small custom Vite plugin in `vite.config.ts` that runs after the production bundle is written.
-2. In that plugin, call the existing `scripts/prepare-capacitor-dist.mjs` automatically from Vite’s `closeBundle` hook.
-3. Keep `package.json` scripts as backup, but make the script safe against double-runs so it does not fail if Vite already flattened the folder.
-4. Update the prepare script to be stricter:
-   - render/write `dist/client/index.html`
-   - move `dist/client/*` into `dist/`
-   - delete `dist/client/`
-   - delete `dist/server/`
-   - delete Nitro-only files from `dist/`
-   - fail the build if `dist/client` or `dist/server` still exists
-5. Verify with a build that final output is exactly a flat static folder like:
+The screenshot shows your downloaded/local `dist` folder still contains only:
 
 ```text
 dist/
-  index.html
-  assets/
-  favicon.ico
-  logo.png
-  manifest.webmanifest
-  sw.js
-  workbox-*.js
+  client/
+  server/
 ```
 
-No `dist/client` and no `dist/server`.
+In this workspace, the current `dist` is flat, but your screenshot proves the build/export path you received is still the original TanStack/Nitro output before flattening.
+
+Plan to fix it properly:
+
+1. Remove the fragile `beforeExit` hook from `vite.config.ts` because it may not run in every export/download path.
+2. Keep the flattening script as the source of truth.
+3. Make the build scripts run the flattening step explicitly after Vite finishes.
+4. Add a hard final validation: if `dist/client` or `dist/server` exists, the build exits with failure.
+5. Verify the final downloadable `dist/` contains `index.html` and assets directly, with no `client` or `server` folders.
+
+Technical details:
+
+- `dist/client` and `dist/server` are normal framework build folders.
+- For your static/offline package, `dist/client/*` must be moved up into `dist/`, and `dist/server/` must be deleted.
+- The safest fix is to make the command itself produce the flattened result, not rely on a lifecycle hook that can be skipped.
