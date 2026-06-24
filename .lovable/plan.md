@@ -1,18 +1,26 @@
-## Root cause
+## Why it resets
 
-`PageTransition` wraps every route in a `motion.div` that animates `y` and sets `will-change: transform, opacity`. A `position: fixed` child inside a transformed ancestor is positioned relative to that ancestor's box — not the viewport. The scroll-to-top button therefore sits at `bottom: 6rem` of the *full surah content*, which is far below the visible screen, so it's effectively invisible no matter how far you scroll.
+The "Now Playing" card on the home page reads from the in-memory Zustand player store (`src/stores/player.ts`). Nothing is saved to the browser, so every page refresh or reopen starts with `surahId = null` — which is why the card flips back to "Tap a Surah to start listening".
 
 ## Fix
 
-In `src/routes/surah.$id.tsx`, render the floating button through a React portal to `document.body` so it escapes the transformed `motion.div`:
+Persist the player store to `localStorage` using Zustand's built-in `persist` middleware. Only the fields that should survive a reload are saved; transient playback fields are not.
 
-- Import `createPortal` from `react-dom`.
-- Track a `mounted` state (set `true` in a `useEffect`) so SSR doesn't try to portal.
-- When `mounted` is true, wrap the existing `<button>` in `createPortal(..., document.body)`.
-- Keep current styles (`fixed bottom-24 left-4 z-40 h-12 w-12 ...`) and the show/hide opacity/scale logic.
+### Changes
 
-No changes to `PageTransition`, `AppShell`, or any other route — the transform-based slide animation stays intact.
+`src/stores/player.ts`
+- Wrap the store in `persist(...)` from `zustand/middleware` with key `quran-player`.
+- `partialize` to persist only:
+  - `surahId`, `ayahId`
+  - `shuffle`, `repeat`, `playbackRate`
+- Do NOT persist: `isPlaying`, `currentTime`, `duration`, `_seekRequest`, `sleepMode`, `sleepEndsAt` (audio should not auto-resume on reload; sleep timers shouldn't survive).
+- On rehydrate, force `isPlaying: false` and `currentTime: 0` so the card shows the last-played Surah, paused at 0:00, ready for the user to tap play.
 
-## Verification
+### Result
 
-Open `/surah/2`, scroll down past the first card → the circular up-arrow button appears at the bottom-left, above the bottom nav. Tap it → smooth scroll to top, button fades out.
+After a refresh: the card still shows "Sura Al-Fatihah" (or whatever was last played) with the play button, instead of resetting to the idle prompt.
+
+### Out of scope
+
+- No change to `NowPlayingCard.tsx`, `use-audio.ts`, or any route.
+- No auto-play on reload (browsers block it anyway, and it would be surprising UX).
