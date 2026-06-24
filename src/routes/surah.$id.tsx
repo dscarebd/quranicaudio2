@@ -61,8 +61,8 @@ function SurahPage() {
   const isFav = useFavorites((s) => s.ids.includes(id));
   const toggleFav = useFavorites((s) => s.toggle);
 
-  const [lang, setLang] = useState<TranslationLang>("en");
   const { lang: appLang, t } = useT();
+  const [lang, setLang] = useState<TranslationLang>(appLang);
   const [showTopBtn, setShowTopBtn] = useState(false);
 
   useEffect(() => {
