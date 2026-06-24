@@ -6,7 +6,7 @@ import { TopBar } from "@/components/TopBar";
 import { useFavorites, useRecents, useReciterSelection } from "@/stores/persisted";
 import { usePlayer } from "@/stores/player";
 import { getReciter } from "@/lib/reciters";
-import { ChevronRight, Mic2, Heart, Clock, Gauge, Repeat, Shuffle, Trash2, Pencil, Check, X } from "lucide-react";
+import { ChevronRight, Mic2, Heart, Clock, Gauge, Repeat, Shuffle, Trash2, Pencil, Check, X, Info } from "lucide-react";
 import { useT } from "@/lib/i18n";
 
 
@@ -132,6 +132,18 @@ function ProfilePage() {
           <Trash2 className="h-5 w-5 text-destructive" />
           <div className="flex-1 text-sm font-medium">{t("clearFavorites")}</div>
         </button>
+      </Section>
+
+      {/* About */}
+      <Section title="About">
+        <Link
+          to="/developer-info"
+          className="flex items-center gap-3 px-5 py-4 hover:bg-muted/50 transition"
+        >
+          <Info className="h-5 w-5 text-primary" />
+          <div className="flex-1 text-sm font-medium">Developer & About</div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </Link>
       </Section>
 
     </AppShell>
