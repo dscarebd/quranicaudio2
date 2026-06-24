@@ -47,7 +47,8 @@ function ProfilePage() {
     <AppShell>
       <TopBar />
 
-      {/* User card */}
+      <div className="pt-4">
+        {/* User card */}
       <UserCard favoritesCount={favorites.length} recentsCount={recents.length} />
 
 
@@ -162,6 +163,7 @@ function ProfilePage() {
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </Link>
       </Section>
+      </div>
 
     </AppShell>
   );
