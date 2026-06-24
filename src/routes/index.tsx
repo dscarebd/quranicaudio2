@@ -10,6 +10,7 @@ import { SurahListItem } from "@/components/SurahListItem";
 import { SURAHS } from "@/lib/quran-data";
 import { useRecents } from "@/stores/persisted";
 import { useT } from "@/lib/i18n";
+import { DownloadSheet } from "@/components/DownloadSheet";
 
 
 export const Route = createFileRoute("/")({
@@ -63,7 +64,7 @@ function Home() {
       <section className="mt-8">
         <div className="flex items-center justify-between px-5 mb-2">
           <h2 className="text-2xl font-bold font-display">{t("allSurah")}</h2>
-          <button className="text-primary font-semibold text-sm">{t("downloadAll")}</button>
+          <DownloadSheet />
         </div>
         <div className="flex flex-col">
           {SURAHS.map((s) => (
