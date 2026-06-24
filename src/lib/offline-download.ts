@@ -25,8 +25,16 @@ export function downloadReciter(
   reciterId: string,
   onProgress: (p: DownloadProgress) => void,
 ): DownloadHandle {
+  return downloadSelected(reciterId, SURAHS.map((s) => s.id), onProgress);
+}
+
+export function downloadSelected(
+  reciterId: string,
+  surahIds: number[],
+  onProgress: (p: DownloadProgress) => void,
+): DownloadHandle {
   const reciter: Reciter = getReciter(reciterId);
-  const urls = SURAHS.map((s) => ({ id: s.id, url: fullSurahUrl(reciter, s.id) }));
+  const urls = surahIds.map((id) => ({ id, url: fullSurahUrl(reciter, id) }));
   const state: DownloadProgress = {
     total: urls.length,
     completed: 0,
