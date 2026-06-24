@@ -108,16 +108,16 @@ function PlayerPage() {
         <div className="w-10" />
       </header>
 
-      <div className="px-5 mt-4">
-        <SurahCoverArt surahId={surahId} className="w-full aspect-[16/9] rounded-3xl" />
+      <div className="px-5 mt-5">
+        <SurahCoverArt surahId={surahId} className="w-full aspect-[4/3] rounded-3xl" />
       </div>
 
-      <div className="px-5 mt-6 flex items-center justify-between gap-4">
+      <div className="px-5 mt-8 flex items-center justify-between gap-4">
         <div className="min-w-0">
-          <h2 className="text-2xl font-bold font-display truncate">
+          <h2 className="text-[1.65rem] font-bold font-display truncate">
             {localizeNum(String(surah.id).padStart(2, "0"), lang)} {t("sura")} {surahName(surah, lang)}
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-base text-muted-foreground mt-1.5">
             {ayahId != null ? `${t("verses")} ${localizeNum(ayahId, lang)} / ${localizeNum(surah.ayahs, lang)}` : `${localizeNum(surah.ayahs, lang)} ${t("ayahs")} · ${surahType(surah, lang)}`}
           </p>
         </div>
@@ -126,15 +126,15 @@ function PlayerPage() {
           aria-label={t("favorite")}
           className="p-2 transition-transform active:scale-75"
         >
-          <Heart className={`h-7 w-7 transition-colors duration-200 ${isFav ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+          <Heart className={`h-8 w-8 transition-colors duration-200 ${isFav ? "fill-primary text-primary" : "text-muted-foreground"}`} />
         </button>
       </div>
 
-      <div className="px-5 mt-4">
+      <div className="px-5 mt-5">
         <ReciterSwitcher />
       </div>
 
-      <div className="px-5 mt-6">
+      <div className="px-5 mt-8">
         <input
           type="range"
           min={0}
@@ -144,12 +144,12 @@ function PlayerPage() {
           onChange={(e) => seek(Number(e.target.value))}
           className="w-full accent-primary cursor-pointer"
         />
-        <div className="flex justify-between text-sm text-muted-foreground mt-1 tabular-nums">
+        <div className="flex justify-between text-base text-muted-foreground mt-2 tabular-nums">
           <span>{formatTime(currentTime)}</span>
           <span>-{formatTime(Math.max(0, duration - currentTime))}</span>
         </div>
         {sleepMode === "minutes" && sleepEndsAt && (
-          <div className="text-center text-xs text-muted-foreground mt-1">
+          <div className="text-center text-sm text-muted-foreground mt-1.5">
             {t("sleepAt")}{" "}
             {new Date(sleepEndsAt).toLocaleTimeString([], {
               hour: "2-digit",
@@ -159,50 +159,50 @@ function PlayerPage() {
         )}
       </div>
 
-      <div className="px-5 mt-10 flex items-center justify-between">
+      <div className="px-5 mt-12 flex items-center justify-between">
         <button onClick={cycleRepeat} aria-label={t("repeat")} className="text-muted-foreground p-2 transition-transform active:scale-90">
           {repeat === "one" ? (
-            <Repeat1 className="h-6 w-6 text-primary" />
+            <Repeat1 className="h-7 w-7 text-primary" />
           ) : (
-            <Repeat className={`h-6 w-6 transition-colors ${repeat === "all" ? "text-primary" : ""}`} />
+            <Repeat className={`h-7 w-7 transition-colors ${repeat === "all" ? "text-primary" : ""}`} />
           )}
         </button>
         <button onClick={prev} aria-label={t("previous")} className="text-foreground p-2 transition-transform active:scale-90">
-          <SkipBack className="h-8 w-8 fill-current" />
+          <SkipBack className="h-9 w-9 fill-current" />
         </button>
         <button
           onClick={toggle}
           aria-label={isPlaying ? t("pause") : t("play")}
           aria-pressed={isPlaying}
-          className={`relative h-20 w-20 rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all duration-200 ${
+          className={`relative h-[5.5rem] w-[5.5rem] rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all duration-200 ${
             isPlaying
               ? "bg-primary text-primary-foreground shadow-primary/40 ring-4 ring-primary/25"
               : "bg-foreground text-background shadow-foreground/20"
           }`}
         >
           {isPlaying ? (
-            <Pause className="h-9 w-9 relative" fill="currentColor" />
+            <Pause className="h-10 w-10 relative" fill="currentColor" />
           ) : (
-            <Play className="h-9 w-9 ml-1 relative" fill="currentColor" />
+            <Play className="h-10 w-10 ml-1 relative" fill="currentColor" />
           )}
         </button>
 
         <button onClick={next} aria-label={t("next")} className="text-foreground p-2 transition-transform active:scale-90">
-          <SkipForward className="h-8 w-8 fill-current" />
+          <SkipForward className="h-9 w-9 fill-current" />
         </button>
         <button onClick={toggleShuffle} aria-label={t("shuffle")} className="text-muted-foreground p-2 transition-transform active:scale-90">
-          <Shuffle className={`h-6 w-6 transition-colors ${shuffle ? "text-primary" : ""}`} />
+          <Shuffle className={`h-7 w-7 transition-colors ${shuffle ? "text-primary" : ""}`} />
         </button>
       </div>
 
-      <div className="px-5 mt-8 flex items-center justify-center gap-3">
+      <div className="px-5 mt-10 flex items-center justify-center gap-4">
         <Popover>
           <PopoverTrigger asChild>
             <button
-              className={`flex items-center gap-2 h-10 px-4 rounded-full bg-surface text-sm font-medium transition-all active:scale-95 ${playbackRate !== 1 ? "text-primary" : "text-foreground"}`}
+              className={`flex items-center gap-2.5 h-12 px-5 rounded-full bg-surface text-base font-medium transition-all active:scale-95 ${playbackRate !== 1 ? "text-primary" : "text-foreground"}`}
               aria-label={t("playbackSpeed")}
             >
-              <Gauge className="h-4 w-4" />
+              <Gauge className="h-5 w-5" />
               {playbackRate}x
             </button>
           </PopoverTrigger>
@@ -229,10 +229,10 @@ function PlayerPage() {
         <Popover>
           <PopoverTrigger asChild>
             <button
-              className={`flex items-center gap-2 h-10 px-4 rounded-full bg-surface text-sm font-medium ${sleepMode !== "off" ? "text-primary" : "text-foreground"}`}
+              className={`flex items-center gap-2.5 h-12 px-5 rounded-full bg-surface text-base font-medium ${sleepMode !== "off" ? "text-primary" : "text-foreground"}`}
               aria-label={t("sleepTimer")}
             >
-              <Moon className="h-4 w-4" />
+              <Moon className="h-5 w-5" />
               {sleepLabel ?? t("sleep")}
             </button>
           </PopoverTrigger>
@@ -281,23 +281,23 @@ function ReciterSwitcher() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <button className="w-full flex items-center gap-3 p-3 rounded-2xl bg-surface transition active:scale-[0.98]">
+        <button className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl bg-surface transition active:scale-[0.98]">
           <img
             src={reciter.image}
             alt={reciter.name}
             loading="lazy"
-            width={40}
-            height={40}
-            className="h-10 w-10 rounded-full object-cover bg-surface-2 ring-2 ring-border"
+            width={48}
+            height={48}
+            className="h-12 w-12 rounded-full object-cover bg-surface-2 ring-2 ring-border"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
             }}
           />
           <div className="flex-1 text-left min-w-0">
-            <p className="text-xs text-muted-foreground">{t("reciter")}</p>
-            <p className="font-semibold text-sm truncate">{reciter.name}</p>
+            <p className="text-sm text-muted-foreground">{t("reciter")}</p>
+            <p className="font-semibold text-base truncate">{reciter.name}</p>
           </div>
-          <Mic2 className="h-4 w-4 text-muted-foreground" />
+          <Mic2 className="h-5 w-5 text-muted-foreground" />
         </button>
       </SheetTrigger>
       <SheetContent side="bottom" className="rounded-t-3xl pb-8">
