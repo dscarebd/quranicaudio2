@@ -1,30 +1,25 @@
-## Why page switches feel slow (3–4s blink)
+## Root cause
 
-Two compounding causes in the current setup:
+The PWA service worker added in the "native device caching" step is intercepting navigations to `/privacy` and serving a stale cached shell from before the Privacy route existed. The route file, registration, and Settings link are all correct — TypeScript passes and `src/routeTree.gen.ts` includes `/privacy`. The issue is purely the service worker cache.
 
-1. **`PageTransition` uses `AnimatePresence mode="wait"`** (`src/components/PageTransition.tsx`). This forces the OLD page to fully play its exit animation (opacity + translate, 220ms) BEFORE the NEW page starts mounting. During that gap the screen is blank — that's the "blink". On top of that, the NEW page then plays its own 220ms enter animation. So even in the best case every tap costs ~450ms of pure animation, and it visually reads as a blank flash.
+Evidence:
+- `vite.config.ts` registers `VitePWA` with `runtimeCaching` using `StaleWhileRevalidate` on `request.mode === "navigate"` into a `html-shell` cache.
+- `src/routes/__root.tsx` registers `sw.js` on load.
+- `src/routes/privacy.tsx` exists and is wired in the generated route tree.
 
-2. **No link preloading is configured.** `src/router.tsx` sets `defaultPreloadStaleTime: 0` but never sets `defaultPreload`. That means when you tap a tab, the route's JS chunk + its loader/query only start fetching AT tap time. Combined with the exit animation blocking the mount, on a cold route this stacks to multiple seconds. Routes like `/reciters`, `/downloads`, `/favorites` each load their own data on mount, so the first visit is the slowest.
+## Fix
 
-The "blank for 3–4s then appears" pattern is the signature of `mode="wait"` + un-preloaded route chunks.
+1. Update the SW config in `vite.config.ts`:
+   - Add `skipWaiting: true` and `clientsClaim: true` so a new SW activates immediately instead of waiting for all tabs to close.
+   - Add `cleanupOutdatedCaches: true` to purge old precache entries on activation.
+   - Move the HTML navigation handler from `StaleWhileRevalidate` to `NetworkFirst` (with a short timeout + offline fallback to cache). This way new routes always reach the network first and only fall back to cache when offline — fixing the "new route returns stale 404" problem permanently.
 
-## Plan
+2. Bump the SW filename or add a versioned cache name suffix so existing installs invalidate the old `html-shell` cache once.
 
-### 1. Fix the page transition (remove the blank gap)
-File: `src/components/PageTransition.tsx`
-- Switch `AnimatePresence` from `mode="wait"` to the default (`"sync"`) so the new page mounts immediately while the old one fades out underneath.
-- Shorten enter animation to ~120ms, opacity-only (drop the `y` translate which also costs a paint). Remove the exit animation entirely (or make it 80ms opacity) so navigation feels instant.
-- Keep `key={pathname}` and `initial={false}` behavior.
+3. In `src/pwa/register-sw.ts`, on `updatefound` → `controllerchange`, call `window.location.reload()` once so the user sees the new content immediately after the SW updates (guarded by a flag to prevent reload loops).
 
-### 2. Enable route preloading
-File: `src/router.tsx`
-- Add `defaultPreload: "intent"` and `defaultPreloadDelay: 50` to `createRouter`. This makes TanStack Router start fetching the route's JS chunk + loader data on hover / touchstart, so by the time the tap fires the page is usually already ready.
+No changes needed to `src/routes/privacy.tsx`, `src/routes/profile.tsx`, or `src/routeTree.gen.ts` — those are already correct.
 
-### 3. (Optional but recommended) Bottom nav links use Link, not navigate
-Spot-check `src/components/BottomNav.tsx` to confirm it uses `<Link to=...>` (required for `defaultPreload: "intent"` to work). If it uses `useNavigate` onClick, switch to `<Link>` so preloading kicks in.
+## After the fix
 
-## Out of scope
-- No data-layer changes, no route restructuring, no loader rewrites. This is a perceived-performance fix focused on the transition layer and router config.
-
-## Expected result
-Tapping a bottom-nav tab should feel instant: no blank flash, page content appears within ~100ms on warm routes and noticeably faster on first visit thanks to intent preloading.
+The user should hard-refresh once (or close/reopen the preview). The new SW activates, drops the stale `html-shell` cache, and `/privacy` loads correctly. Future new routes will also load instantly without this issue.
