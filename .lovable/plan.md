@@ -1,30 +1,23 @@
-Make the build output a fully self-contained `dist/` (static `index.html` + assets) that runs offline inside Capacitor — no live URL required.
+I’ll fix this at the build-system level so the final `dist` cannot remain as `client/` and `server/` folders, even if Lovable or another environment runs `vite build` directly instead of `npm run build`.
 
-## Approach: render `/` once at build time and save the HTML
+## Plan
 
-TanStack Start is SSR-only, so `vite build` never produces an `index.html`. Instead of restructuring the project into a SPA, render the homepage once at the end of the build by invoking the just-built server bundle in Node, capture the HTML response, write it to `dist/client/index.html`, then flatten as before.
+1. Add a small custom Vite plugin in `vite.config.ts` that runs after the production bundle is written.
+2. In that plugin, call the existing `scripts/prepare-capacitor-dist.mjs` automatically from Vite’s `closeBundle` hook.
+3. Keep `package.json` scripts as backup, but make the script safe against double-runs so it does not fail if Vite already flattened the folder.
+4. Update the prepare script to be stricter:
+   - render/write `dist/client/index.html`
+   - move `dist/client/*` into `dist/`
+   - delete `dist/client/`
+   - delete `dist/server/`
+   - delete Nitro-only files from `dist/`
+   - fail the build if `dist/client` or `dist/server` still exists
+5. Verify with a build that final output is exactly a flat static folder like:
 
-## Changes
-
-1. **Update `scripts/prepare-capacitor-dist.mjs`** — before the existing flatten logic:
-   - Dynamically `import()` the built server entry (`dist/server/index.mjs`).
-   - Call its `fetch(new Request("http://localhost/"))` to get the SSR-rendered HTML.
-   - Rewrite absolute asset URLs if needed (e.g. `/assets/...` stays relative-safe because Capacitor serves from the file root).
-   - Write the response body to `dist/client/index.html`.
-   - Then run the existing flatten step (move `dist/client/*` → `dist/`, delete `dist/server/`).
-
-2. **Fallback for Worker-only globals** — if the SSR module touches Cloudflare-only APIs at import or fetch time and crashes in Node, stub the minimum needed (`caches`, env bindings) with empty objects in the script. The app is mostly browser-rendered after hydration, so the SSR pass only needs to produce a shell.
-
-3. **No changes to `vite.config.ts`, `package.json`, or `capacitor.config.ts`** — `capacitor.config.ts` already has `webDir: 'dist'`, and `npm run build` already chains the flatten script.
-
-## Result
-
-After `npm run build` (or `npm run android`):
-
-```
+```text
 dist/
-  index.html          ← rendered shell, hydrates client-side
-  assets/             ← JS / CSS chunks
+  index.html
+  assets/
   favicon.ico
   logo.png
   manifest.webmanifest
@@ -32,10 +25,4 @@ dist/
   workbox-*.js
 ```
 
-`npx cap sync android` succeeds, and the Android app loads `index.html` from the APK with no network dependency for the app shell.
-
-## Risk / fallback
-
-If the server bundle can't be executed in plain Node (Cloudflare-only API at fetch time), I'll fall back to **plan B**: write a minimal hand-crafted `dist/index.html` that references the existing client entry chunk from `dist/client/assets/` (the file matching `index-*.js` + its CSS) and mounts the router client-side only. This loses SSR for the first paint but still works offline.
-
-I'll try the SSR-capture approach first and only fall back if it fails during the build.
+No `dist/client` and no `dist/server`.
