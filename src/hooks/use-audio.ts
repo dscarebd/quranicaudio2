@@ -5,6 +5,12 @@ import { getReciter } from "@/lib/reciters";
 import { fullSurahUrl, ayahAudioUrl } from "@/lib/audio-urls";
 import { getSurah } from "@/lib/quran-data";
 import logoUrl from "@/assets/logo.png";
+import {
+  setNotificationActionHandler,
+  setNotificationMetadata,
+  setNotificationPlaybackState,
+  setNotificationPosition,
+} from "@/lib/media-notification";
 
 /**
  * Single global audio engine. Mount once at the app shell.
@@ -190,6 +196,7 @@ export function useAudioEngine() {
     if (surahId == null) {
       navigator.mediaSession.metadata = null;
       navigator.mediaSession.playbackState = "none";
+      void setNotificationPlaybackState("none");
       return;
     }
     const surah = getSurah(surahId);
@@ -203,23 +210,28 @@ export function useAudioEngine() {
       typeof window !== "undefined"
         ? new URL(logoUrl, window.location.href).toString()
         : logoUrl;
+    const artist = reciter?.name ?? "Reciter";
+    const album = surah ? `${surah.arabic} — ${surah.meaning}` : "Holy Quran";
+    const artwork = [
+      { src: artworkUrl, sizes: "512x512", type: "image/png" },
+      { src: artworkUrl, sizes: "256x256", type: "image/png" },
+      { src: artworkUrl, sizes: "192x192", type: "image/png" },
+      { src: artworkUrl, sizes: "96x96", type: "image/png" },
+    ];
     navigator.mediaSession.metadata = new MediaMetadata({
       title,
-      artist: reciter?.name ?? "Reciter",
-      album: surah ? `${surah.arabic} — ${surah.meaning}` : "Holy Quran",
-      artwork: [
-        { src: artworkUrl, sizes: "512x512", type: "image/png" },
-        { src: artworkUrl, sizes: "256x256", type: "image/png" },
-        { src: artworkUrl, sizes: "192x192", type: "image/png" },
-        { src: artworkUrl, sizes: "96x96", type: "image/png" },
-      ],
+      artist,
+      album,
+      artwork,
     });
+    void setNotificationMetadata({ title, artist, album, artwork });
   }, [surahId, ayahId, reciterId]);
 
   // Media Session: playback state + action handlers
   useEffect(() => {
     if (typeof navigator === "undefined" || !("mediaSession" in navigator)) return;
     navigator.mediaSession.playbackState = isPlaying ? "playing" : "paused";
+    void setNotificationPlaybackState(isPlaying ? "playing" : "paused");
   }, [isPlaying]);
 
   useEffect(() => {
@@ -231,6 +243,7 @@ export function useAudioEngine() {
       } catch {
         /* unsupported action */
       }
+      void setNotificationActionHandler(action as never, handler as never);
     };
     safe("play", () => {
       audioRef.current?.play().catch(() => {});
@@ -286,6 +299,11 @@ export function useAudioEngine() {
     } catch {
       /* ignore */
     }
+    void setNotificationPosition({
+      duration,
+      position: Math.min(currentTime, duration),
+      playbackRate,
+    });
   }, [currentTime, duration, playbackRate]);
 
   // touch repeat so React keeps deps fresh
