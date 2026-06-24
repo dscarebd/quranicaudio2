@@ -134,7 +134,7 @@ function PlayerPage() {
         <ReciterSwitcher />
       </div>
 
-      <div className="px-5 mt-6">
+      <div className="px-5 mt-8">
         <input
           type="range"
           min={0}
@@ -144,12 +144,12 @@ function PlayerPage() {
           onChange={(e) => seek(Number(e.target.value))}
           className="w-full accent-primary cursor-pointer"
         />
-        <div className="flex justify-between text-sm text-muted-foreground mt-1 tabular-nums">
+        <div className="flex justify-between text-base text-muted-foreground mt-2 tabular-nums">
           <span>{formatTime(currentTime)}</span>
           <span>-{formatTime(Math.max(0, duration - currentTime))}</span>
         </div>
         {sleepMode === "minutes" && sleepEndsAt && (
-          <div className="text-center text-xs text-muted-foreground mt-1">
+          <div className="text-center text-sm text-muted-foreground mt-1.5">
             {t("sleepAt")}{" "}
             {new Date(sleepEndsAt).toLocaleTimeString([], {
               hour: "2-digit",
