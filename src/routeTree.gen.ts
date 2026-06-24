@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as RecitersRouteImport } from './routes/reciters'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlayerRouteImport } from './routes/player'
 import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as DownloadsRouteImport } from './routes/downloads'
@@ -32,6 +33,11 @@ const RecitersRoute = RecitersRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlayerRoute = PlayerRouteImport.update({
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/downloads': typeof DownloadsRoute
   '/favorites': typeof FavoritesRoute
   '/player': typeof PlayerRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/reciters': typeof RecitersRoute
   '/search': typeof SearchRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/downloads': typeof DownloadsRoute
   '/favorites': typeof FavoritesRoute
   '/player': typeof PlayerRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/reciters': typeof RecitersRoute
   '/search': typeof SearchRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/downloads': typeof DownloadsRoute
   '/favorites': typeof FavoritesRoute
   '/player': typeof PlayerRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/reciters': typeof RecitersRoute
   '/search': typeof SearchRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/downloads'
     | '/favorites'
     | '/player'
+    | '/privacy'
     | '/profile'
     | '/reciters'
     | '/search'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/downloads'
     | '/favorites'
     | '/player'
+    | '/privacy'
     | '/profile'
     | '/reciters'
     | '/search'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/downloads'
     | '/favorites'
     | '/player'
+    | '/privacy'
     | '/profile'
     | '/reciters'
     | '/search'
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   DownloadsRoute: typeof DownloadsRoute
   FavoritesRoute: typeof FavoritesRoute
   PlayerRoute: typeof PlayerRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   RecitersRoute: typeof RecitersRoute
   SearchRoute: typeof SearchRoute
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/player': {
@@ -221,6 +241,7 @@ const rootRouteChildren: RootRouteChildren = {
   DownloadsRoute: DownloadsRoute,
   FavoritesRoute: FavoritesRoute,
   PlayerRoute: PlayerRoute,
+  PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   RecitersRoute: RecitersRoute,
   SearchRoute: SearchRoute,
