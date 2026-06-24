@@ -6,6 +6,45 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
+import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
+
+// Auto-flatten dist/ into a single static folder after every production build,
+// regardless of whether the build was started via `npm run build` or `vite build`.
+function flattenDistPlugin() {
+  let ran = false;
+  const run = () =>
+    new Promise<void>((res) => {
+      if (ran) return res();
+      ran = true;
+      const dist = resolve(process.cwd(), "dist");
+      // Wait briefly for nitro to finish writing dist/server before flattening.
+      const deadline = Date.now() + 30_000;
+      const waitForNitro = () => {
+        const serverReady = existsSync(resolve(dist, "server", "index.mjs"));
+        const alreadyFlat = existsSync(dist) && !existsSync(resolve(dist, "client")) && !existsSync(resolve(dist, "server"));
+        if (serverReady || alreadyFlat || Date.now() > deadline) {
+          const child = spawn(process.execPath, [resolve(process.cwd(), "scripts/prepare-capacitor-dist.mjs")], { stdio: "inherit" });
+          child.on("exit", (code) => {
+            if (code !== 0) process.exitCode = code ?? 1;
+            res();
+          });
+          return;
+        }
+        setTimeout(waitForNitro, 200);
+      };
+      waitForNitro();
+    });
+  return {
+    name: "lovable:flatten-dist",
+    apply: "build" as const,
+    enforce: "post" as const,
+    closeBundle: run,
+  };
+}
+
+
 
 export default defineConfig({
   tanstackStart: {
@@ -15,6 +54,7 @@ export default defineConfig({
   },
   vite: {
     plugins: [
+      flattenDistPlugin(),
       VitePWA({
         registerType: "autoUpdate",
         injectRegister: null,
