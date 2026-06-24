@@ -9,7 +9,11 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "android": "vite build && cap sync android",
+    "android:open": "vite build && cap sync android && cap open android",
+    "ios": "vite build && cap sync ios",
+    "ios:open": "vite build && cap sync ios && cap open ios"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
