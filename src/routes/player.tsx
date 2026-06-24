@@ -96,16 +96,16 @@ function PlayerPage() {
   return (
     <AppShell>
       <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-      <header className="flex items-center justify-between px-5 pt-4 pb-2">
+      <header className="flex items-center justify-between px-5 pt-3 pb-1">
         <button
           onClick={() => navigate({ to: "/" })}
-          className="h-10 w-10 rounded-full bg-surface flex items-center justify-center transition-transform active:scale-90"
+          className="h-9 w-9 rounded-full bg-surface flex items-center justify-center transition-transform active:scale-90"
           aria-label={t("back")}
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
-        <h1 className="text-lg font-bold font-display">{t("nowPlaying")}</h1>
-        <div className="w-10" />
+        <h1 className="text-base font-bold font-display">{t("nowPlaying")}</h1>
+        <div className="w-9" />
       </header>
 
       <div className="px-5 mt-5">
