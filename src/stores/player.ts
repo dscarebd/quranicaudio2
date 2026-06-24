@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 import { getSurah } from "@/lib/quran-data";
 
 const randInt = (max: number, excluding?: number) => {
@@ -41,7 +42,9 @@ export type PlayerState = {
   consumeSeek: () => number | null;
 };
 
-export const usePlayer = create<PlayerState>((set, get) => ({
+export const usePlayer = create<PlayerState>()(
+  persist(
+    (set, get) => ({
   surahId: null,
   ayahId: null,
   isPlaying: false,
@@ -124,7 +127,34 @@ export const usePlayer = create<PlayerState>((set, get) => ({
       set({ isPlaying: false, sleepMode: "off", sleepEndsAt: null });
     }
   },
-}));
+    }),
+    {
+      name: "quran-player",
+      storage: createJSONStorage(() =>
+        typeof window !== "undefined"
+          ? window.localStorage
+          : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
+      ),
+      partialize: (s) => ({
+        surahId: s.surahId,
+        ayahId: s.ayahId,
+        shuffle: s.shuffle,
+        repeat: s.repeat,
+        playbackRate: s.playbackRate,
+      }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.isPlaying = false;
+          state.currentTime = 0;
+          state.duration = 0;
+          state._seekRequest = null;
+          state.sleepMode = "off";
+          state.sleepEndsAt = null;
+        }
+      },
+    }
+  )
+);
 
 export const formatTime = (s: number) => {
   if (!isFinite(s) || s < 0) s = 0;
