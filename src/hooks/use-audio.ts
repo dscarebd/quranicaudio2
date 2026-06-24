@@ -4,6 +4,7 @@ import { useReciterSelection, useRecents, usePlaybackPositions } from "@/stores/
 import { getReciter } from "@/lib/reciters";
 import { fullSurahUrl, ayahAudioUrl } from "@/lib/audio-urls";
 import { getSurah } from "@/lib/quran-data";
+import logoUrl from "@/assets/logo.png";
 
 /**
  * Single global audio engine. Mount once at the app shell.
@@ -198,10 +199,20 @@ export function useAudioEngine() {
         ? `${surah.name} · Ayah ${ayahId}`
         : `${surah.id}. ${surah.name}`
       : "Quran";
+    const artworkUrl =
+      typeof window !== "undefined"
+        ? new URL(logoUrl, window.location.href).toString()
+        : logoUrl;
     navigator.mediaSession.metadata = new MediaMetadata({
       title,
       artist: reciter?.name ?? "Reciter",
       album: surah ? `${surah.arabic} — ${surah.meaning}` : "Holy Quran",
+      artwork: [
+        { src: artworkUrl, sizes: "512x512", type: "image/png" },
+        { src: artworkUrl, sizes: "256x256", type: "image/png" },
+        { src: artworkUrl, sizes: "192x192", type: "image/png" },
+        { src: artworkUrl, sizes: "96x96", type: "image/png" },
+      ],
     });
   }, [surahId, ayahId, reciterId]);
 
