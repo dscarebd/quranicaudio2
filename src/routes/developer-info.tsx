@@ -119,13 +119,6 @@ function DeveloperInfoPage() {
           off with the built-in sleep timer. Available in English and Bangla.
         </p>
 
-        <div className="mt-5 pt-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5">
-            <Info className="h-3.5 w-3.5" />
-            Version
-          </span>
-          <span className="font-semibold text-foreground/80">1.0.0</span>
-        </div>
       </section>
     </AppShell>
   );
