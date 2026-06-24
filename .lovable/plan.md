@@ -1,55 +1,63 @@
-## Goal
-Add a persistent media-style notification on Android with play/pause/next/prev controls so the user can manage Quran playback from the notification panel and lock screen — even when the app is backgrounded.
+## Why nothing shows in the panel
 
-## Why the current setup isn't enough
-`src/hooks/use-audio.ts` already wires up the Web `MediaSession` API (metadata, playback state, action handlers). In a Chrome PWA this surfaces a media notification automatically, but inside a Capacitor Android WebView **no notification is shown** unless a native plugin bridges playback to Android's `MediaSession` / `MediaStyle` notification. That's the missing piece.
+The plugin currently installed — **`@capgo/capacitor-media-session`** — is only a thin bridge that forwards JS `navigator.mediaSession` calls to the native Android `MediaSessionCompat` object. It does **not** post a MediaStyle notification and does **not** start a foreground service. On Android, no notification = nothing in the panel, no matter how much metadata we set. That's why your build (synced + reinstalled, audio playing) still shows nothing.
 
-## Approach
-Use the community plugin **`capacitor-plugin-musiccontrols`** (Capacitor 6/7 compatible, MIT, actively maintained fork of the Cordova music-controls plugin). It renders a `MediaStyle` notification with album art + transport controls and forwards button events back to JS, which we connect to the existing `usePlayer` store.
+To get the YouTube-style media tile in the notification panel, the plugin has to (a) post a MediaStyle notification and (b) bind it to a foreground service while playing. Two community plugins do this correctly today; the cleanest swap is **`@capawesome/capacitor-media-session`** (Capacitor 6/7, actively maintained, MIT, same API shape as the current one — so almost no code changes).
 
-No changes to playback engine, UI, or download/offline logic — purely additive native bridge.
+## Plan
 
-### Steps
+### 1. Replace the plugin
+- `bun remove @capgo/capacitor-media-session`
+- `bun add @capawesome/capacitor-media-session`
 
-1. **Install dependency**
-   - `capacitor-plugin-musiccontrols` (added to `package.json`).
-   - User will run `npx cap sync android` after pulling, per the Capacitor workflow.
+### 2. Rewrite `src/lib/media-notification.ts` against the new API
+The Capawesome API is almost identical in shape but uses upper-snake-case action names and a `MediaSession` import from `@capawesome/capacitor-media-session`. The bridge keeps the same four exports (`setNotificationMetadata`, `setNotificationPlaybackState`, `setNotificationPosition`, `setNotificationActionHandler`) so **`src/hooks/use-audio.ts` does not change**.
 
-2. **New `src/lib/media-notification.ts`**
-   - Exports `showMediaNotification(meta)`, `updatePlaybackState(isPlaying)`, `hideMediaNotification()`.
-   - Internally no-ops on web (`Capacitor.getPlatform() !== 'android'`) so PWA keeps using `navigator.mediaSession`.
-   - On Android calls `MusicControls.create({ track, artist, album, cover, isPlaying, hasPrev: true, hasNext: true, hasClose: true, ticker })` and `MusicControls.subscribe(...)` once, dispatching:
-     - `music-controls-play` → `usePlayer.setPlaying(true)` + `audio.play()`
-     - `music-controls-pause` → `usePlayer.setPlaying(false)` + `audio.pause()`
-     - `music-controls-next` → `usePlayer.next()`
-     - `music-controls-previous` → `usePlayer.prev()`
-     - `music-controls-destroy` / headset unplug → pause
-   - Cover art uses the bundled `src/assets/logo.png` (resolved to absolute URL, matching the existing MediaSession artwork — does not violate the locked-logo rule).
+Mapping inside the bridge:
+```text
+web action          → Capawesome MediaSessionAction
+play                → 'PLAY'
+pause               → 'PAUSE'
+previoustrack       → 'PREVIOUS_TRACK'
+nexttrack           → 'NEXT_TRACK'
+seekbackward        → 'SEEK_BACKWARD'
+seekforward         → 'SEEK_FORWARD'
+seekto              → 'SEEK_TO'
+stop                → 'STOP'
+```
+The bridge translates internally; `use-audio.ts` keeps calling `setNotificationActionHandler('play', …)` etc.
 
-3. **Wire into `src/hooks/use-audio.ts`**
-   - In the existing metadata effect (already keyed on `surahId/ayahId/reciterId`): after setting `navigator.mediaSession.metadata`, also call `showMediaNotification({ title, artist, album, cover })`.
-   - In the existing `isPlaying` effect: also call `updatePlaybackState(isPlaying)`.
-   - When `surahId == null`: call `hideMediaNotification()`.
-   - The action handlers in the new module reuse the same store actions the lock-screen handlers already call, so behavior stays consistent.
+Also call `MediaSession.setSupportedActions({ actions: [...] })` once after handlers register, which is what tells Android which transport buttons to render in the MediaStyle notification (this is the bit @capgo doesn't do, and a common reason buttons or the notification itself don't appear).
 
-4. **Capacitor config**
-   - No permission changes required; the plugin declares `FOREGROUND_SERVICE` in its own manifest and merges automatically.
-   - No edits to `capacitor.config.ts` unless the user wants to customize notification color (skipping for now).
+### 3. Android manifest permissions
+Capawesome auto-merges these, but verify after `cap sync` that `android/app/src/main/AndroidManifest.xml` contains:
+```text
+android.permission.FOREGROUND_SERVICE
+android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK
+android.permission.POST_NOTIFICATIONS
+android.permission.WAKE_LOCK
+```
+If any are missing after the auto-merge, add them. Android 13+ also requires runtime `POST_NOTIFICATIONS` permission — the plugin requests it on first `setMetadata`, but if it fails silently we'll add an explicit request inside the bridge before the first `setMetadata` call (using `@capacitor/core` `PermissionsAndroid` via the plugin's `requestPermissions()` helper).
 
-### Out of scope
-- iOS lock-screen controls (already work via MediaSession in WKWebView — no change needed; plugin also supports iOS if we want parity later).
-- Changing playback, offline downloads, UI sizing, or the locked header logo.
-- Background audio service for long pauses with screen off — the plugin keeps the notification as a foreground service automatically while playing.
+### 4. Small icon
+Capawesome lets you set the notification's small icon. Default `ic_media_play` is a generic Android system icon, but it works. We'll leave it as default for now — adding a custom `ic_stat_notify.png` under `android/app/src/main/res/drawable-*` is optional and can come later if you want app branding.
+
+### 5. Verify
+After implementing:
+1. `npx cap sync android`
+2. Rebuild & reinstall APK
+3. Open app → tap play on any surah → swipe down notification panel → media tile must appear with surah title, reciter, app logo cover, and prev/play-pause/next buttons
+4. Lock screen should show the same controls
+
+If still nothing shows, the bridge will `console.warn` the underlying error so we can see it in `adb logcat`.
 
 ## Files touched
-- `package.json` (add dependency)
-- `src/lib/media-notification.ts` (new)
-- `src/hooks/use-audio.ts` (3 small additions inside existing effects)
+- `package.json` / `bun.lock` (swap dependency)
+- `src/lib/media-notification.ts` (rewrite against new API, same exports)
+- `src/hooks/use-audio.ts` (no changes)
+- `android/app/src/main/AndroidManifest.xml` (verify only — usually no edit needed)
 
-## After merge — user action
-Pull, then run:
-```
-npm install
-npx cap sync android
-npx cap run android
-```
+## Out of scope
+- Custom notification small icon / color theming
+- iOS lock-screen controls (already work via WebView's built-in MediaSession)
+- Any playback engine, UI, download, or offline changes
