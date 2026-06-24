@@ -38,6 +38,7 @@
   --color-ring: var(--ring);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-surface-blue: var(--surface-blue);
 }
 
 :root {
