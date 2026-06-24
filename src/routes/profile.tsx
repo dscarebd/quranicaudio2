@@ -260,7 +260,7 @@ function UserCard({ favoritesCount, recentsCount }: { favoritesCount: number; re
   const cancelEdit = () => setEditing(false);
 
   return (
-    <div className="mx-5 mb-6 rounded-3xl bg-surface border border-border p-5 flex items-center gap-4">
+    <div className="mx-5 mb-6 rounded-3xl bg-card border border-border p-5 flex items-center gap-4">
       <button
         type="button"
         onClick={() => fileRef.current?.click()}
