@@ -45,7 +45,7 @@ export function SurahListItem({ id }: { id: number }) {
           {localizeNum(String(surah.id).padStart(2, "0"), lang)} {t("sura")} {surahName(surah, lang)}
         </h4>
         <p className={`text-sm mt-0.5 ${isActive ? "text-primary" : "text-muted-foreground"}`}>
-          {isActive ? `${formatTime(currentTime)} / ${approxDuration(surah.ayahs)}` : approxDuration(surah.ayahs)}
+          {surah.meaning} · {surahType(surah, lang)}
         </p>
       </div>
       <button
