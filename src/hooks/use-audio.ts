@@ -243,7 +243,7 @@ export function useAudioEngine() {
       } catch {
         /* unsupported action */
       }
-      void setNotificationActionHandler(action, handler as never);
+      void setNotificationActionHandler(action as never, handler as never);
     };
     safe("play", () => {
       audioRef.current?.play().catch(() => {});
