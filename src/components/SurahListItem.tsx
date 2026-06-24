@@ -1,9 +1,9 @@
 import { useNavigate } from "@tanstack/react-router";
 import { Heart, Play, Pause } from "lucide-react";
-import { SURAHS, approxDuration } from "@/lib/quran-data";
-import { usePlayer, formatTime } from "@/stores/player";
+import { SURAHS } from "@/lib/quran-data";
+import { usePlayer } from "@/stores/player";
 import { useFavorites } from "@/stores/persisted";
-import { useT, surahName, localizeNum } from "@/lib/i18n";
+import { useT, surahName, localizeNum, surahType } from "@/lib/i18n";
 
 export function SurahListItem({ id }: { id: number }) {
   const surah = SURAHS[id - 1];
