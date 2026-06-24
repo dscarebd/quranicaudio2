@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, Users } from "lucide-react";
+import { Check } from "lucide-react";
 import { RECITERS } from "@/lib/reciters";
 import { useReciterSelection } from "@/stores/persisted";
 import { AppShell } from "@/components/AppShell";
