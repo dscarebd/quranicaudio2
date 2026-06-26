@@ -3,6 +3,7 @@ import { usePlayer } from "@/stores/player";
 import { useReciterSelection, useRecents, usePlaybackPositions } from "@/stores/persisted";
 import { getReciter } from "@/lib/reciters";
 import { fullSurahUrl, ayahAudioUrl } from "@/lib/audio-urls";
+import { getLocalSurahUri } from "@/lib/offline-download";
 import { getSurah } from "@/lib/quran-data";
 import logoUrl from "@/assets/logo.png";
 import {
@@ -53,13 +54,29 @@ export function useAudioEngine() {
       return;
     }
     const reciter = getReciter(reciterId);
-    const url =
+    const remoteUrl =
       ayahId != null
         ? ayahAudioUrl(reciter, surahId, ayahId)
         : fullSurahUrl(reciter, surahId);
-    audio.src = url;
-    audio.load();
-    audio.playbackRate = usePlayer.getState().playbackRate;
+
+    let cancelled = false;
+    const applySource = (url: string) => {
+      if (cancelled) return;
+      audio.src = url;
+      audio.load();
+      audio.playbackRate = usePlayer.getState().playbackRate;
+      if (usePlayer.getState().isPlaying) audio.play().catch(() => {});
+    };
+
+    // Prefer locally downloaded file on native if available (full-surah only).
+    if (ayahId == null) {
+      getLocalSurahUri(reciterId, surahId)
+        .then((local) => applySource(local ?? remoteUrl))
+        .catch(() => applySource(remoteUrl));
+    } else {
+      applySource(remoteUrl);
+    }
+
 
     // Resume from saved position (full-surah playback only)
     if (ayahId == null) {
@@ -78,7 +95,7 @@ export function useAudioEngine() {
       }
     }
 
-    if (isPlaying) audio.play().catch(() => {});
+
     // Only push to recents on real user-initiated track changes:
     // - skip the first mount (restored state shouldn't re-push)
     // - skip pushes that come from reciterId changes alone (same surah)
@@ -89,8 +106,13 @@ export function useAudioEngine() {
       didMountRef.current = true;
       lastPushedSurahRef.current = surahId;
     }
+
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [surahId, ayahId, reciterId]);
+
 
   // Play / pause state
   useEffect(() => {

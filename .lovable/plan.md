@@ -1,63 +1,48 @@
-## Why nothing shows in the panel
+## Problem
 
-The plugin currently installed — **`@capgo/capacitor-media-session`** — is only a thin bridge that forwards JS `navigator.mediaSession` calls to the native Android `MediaSessionCompat` object. It does **not** post a MediaStyle notification and does **not** start a foreground service. On Android, no notification = nothing in the panel, no matter how much metadata we set. That's why your build (synced + reinstalled, audio playing) still shows nothing.
+Current downloads rely on the service worker's `CacheFirst` rule (`quran-audio-full` cache) to silently store each surah as the app fetches it. On Android in the Capacitor WebView this isn't reliable:
 
-To get the YouTube-style media tile in the notification panel, the plugin has to (a) post a MediaStyle notification and (b) bind it to a foreground service while playing. Two community plugins do this correctly today; the cleanest swap is **`@capawesome/capacitor-media-session`** (Capacitor 6/7, actively maintained, MIT, same API shape as the current one — so almost no code changes).
+- The SW often isn't registered (or doesn't intercept cross-origin `mode: "no-cors"` requests the same way), so `caches.open("quran-audio-full")` ends up empty.
+- The download sheet only counts successful `fetch()` calls, so it cheerfully shows "Download complete" even though nothing was actually cached.
+- `getAllCached()` on the Downloads page reads from that empty Cache Storage, so the list stays empty.
 
-## Plan
+## Fix
 
-### 1. Replace the plugin
-- `bun remove @capgo/capacitor-media-session`
-- `bun add @capawesome/capacitor-media-session`
+Switch the offline-download layer to write real files on native (Capacitor) and keep the Cache API path for the web PWA. The UI doesn't change — only the storage backend behind `offline-download.ts`.
 
-### 2. Rewrite `src/lib/media-notification.ts` against the new API
-The Capawesome API is almost identical in shape but uses upper-snake-case action names and a `MediaSession` import from `@capawesome/capacitor-media-session`. The bridge keeps the same four exports (`setNotificationMetadata`, `setNotificationPlaybackState`, `setNotificationPosition`, `setNotificationActionHandler`) so **`src/hooks/use-audio.ts` does not change**.
+### 1. Add Capacitor Filesystem
+- Install `@capacitor/filesystem`.
+- User will run `npx cap sync` after pulling.
 
-Mapping inside the bridge:
-```text
-web action          → Capawesome MediaSessionAction
-play                → 'PLAY'
-pause               → 'PAUSE'
-previoustrack       → 'PREVIOUS_TRACK'
-nexttrack           → 'NEXT_TRACK'
-seekbackward        → 'SEEK_BACKWARD'
-seekforward         → 'SEEK_FORWARD'
-seekto              → 'SEEK_TO'
-stop                → 'STOP'
-```
-The bridge translates internally; `use-audio.ts` keeps calling `setNotificationActionHandler('play', …)` etc.
+### 2. Rework `src/lib/offline-download.ts`
+Detect platform with `Capacitor.isNativePlatform()`.
 
-Also call `MediaSession.setSupportedActions({ actions: [...] })` once after handlers register, which is what tells Android which transport buttons to render in the MediaStyle notification (this is the bit @capgo doesn't do, and a common reason buttons or the notification itself don't appear).
+Native path (Android/iOS):
+- For each surah, `fetch(url)` (normal CORS — mp3quran serves it; if blocked, fall back to `CapacitorHttp` plugin already bundled in core), read as `Blob` → base64.
+- `Filesystem.writeFile({ path: \`quran-audio/${reciterId}/${surahId}.mp3\`, data, directory: Directory.Data, recursive: true })`.
+- Mark surah as `done` only after the write resolves — this fixes the false "complete" toast.
+- `getCachedSurahIds` → `Filesystem.readdir` on `quran-audio/${reciterId}` and parse filenames.
+- `getAllCached` → `Filesystem.readdir('quran-audio')` then per-reciter readdir.
+- `removeCachedSurah` / `removeReciterDownloads` → `Filesystem.deleteFile` / `rmdir({ recursive: true })`.
+- Expose a helper `getLocalSurahUri(reciterId, surahId)` returning a `Capacitor.convertFileSrc(uri)` URL for the player to use when the file exists.
 
-### 3. Android manifest permissions
-Capawesome auto-merges these, but verify after `cap sync` that `android/app/src/main/AndroidManifest.xml` contains:
-```text
-android.permission.FOREGROUND_SERVICE
-android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK
-android.permission.POST_NOTIFICATIONS
-android.permission.WAKE_LOCK
-```
-If any are missing after the auto-merge, add them. Android 13+ also requires runtime `POST_NOTIFICATIONS` permission — the plugin requests it on first `setMetadata`, but if it fails silently we'll add an explicit request inside the bridge before the first `setMetadata` call (using `@capacitor/core` `PermissionsAndroid` via the plugin's `requestPermissions()` helper).
+Web path: keep current Cache Storage logic unchanged.
 
-### 4. Small icon
-Capawesome lets you set the notification's small icon. Default `ic_media_play` is a generic Android system icon, but it works. We'll leave it as default for now — adding a custom `ic_stat_notify.png` under `android/app/src/main/res/drawable-*` is optional and can come later if you want app branding.
+### 3. Player playback fallback
+In `src/routes/player.tsx` (and wherever the `<audio>` `src` is set), before using the CDN URL, check `getLocalSurahUri`; if present, use that file URL so playback works fully offline on Android.
 
-### 5. Verify
-After implementing:
-1. `npx cap sync android`
-2. Rebuild & reinstall APK
-3. Open app → tap play on any surah → swipe down notification panel → media tile must appear with surah title, reciter, app logo cover, and prev/play-pause/next buttons
-4. Lock screen should show the same controls
+### 4. Downloads page
+No structural changes — it already calls `getAllCached` / `removeReciterDownloads`. Once the backend writes real files, the page will populate.
 
-If still nothing shows, the bridge will `console.warn` the underlying error so we can see it in `adb logcat`.
+### 5. Verification
+- In the preview (web), confirm Cache API path still works.
+- Ask the user to `git pull`, `npm install`, `npx cap sync`, rebuild the Android app, download one surah, and check:
+  - "Download complete" only appears after the file write succeeds.
+  - Settings → Downloads lists the reciter and surah.
+  - Airplane mode → surah still plays.
 
 ## Files touched
-- `package.json` / `bun.lock` (swap dependency)
-- `src/lib/media-notification.ts` (rewrite against new API, same exports)
-- `src/hooks/use-audio.ts` (no changes)
-- `android/app/src/main/AndroidManifest.xml` (verify only — usually no edit needed)
-
-## Out of scope
-- Custom notification small icon / color theming
-- iOS lock-screen controls (already work via WebView's built-in MediaSession)
-- Any playback engine, UI, download, or offline changes
+- `package.json` (add `@capacitor/filesystem`)
+- `src/lib/offline-download.ts` (rewrite with platform split)
+- `src/routes/player.tsx` (use local file URI when available)
+- No UI/markup changes to `DownloadSheet.tsx` or `downloads.tsx`.

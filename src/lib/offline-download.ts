@@ -1,8 +1,14 @@
-// Pre-cache all 114 surahs for a reciter by fetching each URL.
-// The service worker's CacheFirst rule for the audio hosts intercepts and
-// stores them. We use mode: "no-cors" so opaque responses still populate
-// the cache when the CDN doesn't send CORS headers.
+// Offline download layer.
+//
+// Two backends:
+//  - Native (Capacitor Android/iOS): real files written via @capacitor/filesystem
+//    under Data/quran-audio/<reciterId>/<surahId>.mp3, and played back via
+//    Capacitor.convertFileSrc(uri).
+//  - Web: relies on the service worker's CacheFirst rule populating the
+//    "quran-audio-full" Cache Storage as URLs are fetched.
 
+import { Capacitor } from "@capacitor/core";
+import { Filesystem, Directory } from "@capacitor/filesystem";
 import { getReciter, type Reciter } from "./reciters";
 import { fullSurahUrl } from "./audio-urls";
 import { SURAHS } from "./quran-data";
@@ -23,6 +29,70 @@ export type DownloadHandle = {
 };
 
 const CONCURRENCY = 3;
+const NATIVE = Capacitor.isNativePlatform();
+const ROOT_DIR = "quran-audio";
+
+const reciterDir = (reciterId: string) => `${ROOT_DIR}/${reciterId}`;
+const surahPath = (reciterId: string, surahId: number) =>
+  `${reciterDir(reciterId)}/${surahId}.mp3`;
+
+async function ensureReciterDir(reciterId: string) {
+  try {
+    await Filesystem.mkdir({
+      path: reciterDir(reciterId),
+      directory: Directory.Data,
+      recursive: true,
+    });
+  } catch {
+    /* already exists */
+  }
+}
+
+async function blobToBase64(blob: Blob): Promise<string> {
+  return await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error);
+    reader.onload = () => {
+      const result = reader.result as string;
+      const comma = result.indexOf(",");
+      resolve(comma >= 0 ? result.slice(comma + 1) : result);
+    };
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function nativeSurahExists(reciterId: string, surahId: number): Promise<boolean> {
+  try {
+    await Filesystem.stat({ path: surahPath(reciterId, surahId), directory: Directory.Data });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function downloadOneNative(
+  reciterId: string,
+  surahId: number,
+  url: string,
+  signal: AbortSignal,
+) {
+  await ensureReciterDir(reciterId);
+  const res = await fetch(url, { signal, cache: "reload" });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const blob = await res.blob();
+  const data = await blobToBase64(blob);
+  await Filesystem.writeFile({
+    path: surahPath(reciterId, surahId),
+    data,
+    directory: Directory.Data,
+    recursive: true,
+  });
+}
+
+async function downloadOneWeb(url: string, signal: AbortSignal) {
+  // Relies on SW CacheFirst rule to capture the response.
+  await fetch(url, { mode: "no-cors", signal, cache: "reload" });
+}
 
 export function downloadReciter(
   reciterId: string,
@@ -65,7 +135,13 @@ export function downloadSelected(
         const ctrl = new AbortController();
         controllers.push(ctrl);
         try {
-          await fetch(url, { mode: "no-cors", signal: ctrl.signal, cache: "reload" });
+          if (NATIVE) {
+            if (!(await nativeSurahExists(reciterId, id))) {
+              await downloadOneNative(reciterId, id, url, ctrl.signal);
+            }
+          } else {
+            await downloadOneWeb(url, ctrl.signal);
+          }
           state.completed += 1;
           state.statuses[id] = "done";
         } catch {
@@ -99,25 +175,42 @@ export function downloadSelected(
 }
 
 export async function clearReciterCache(): Promise<void> {
+  if (NATIVE) {
+    try {
+      await Filesystem.rmdir({ path: ROOT_DIR, directory: Directory.Data, recursive: true });
+    } catch {
+      /* ignore */
+    }
+    return;
+  }
   if (typeof caches === "undefined") return;
   await Promise.allSettled([caches.delete("quran-audio-full"), caches.delete("quran-audio-ayah")]);
 }
 
 export async function getCachedSurahCount(reciterId: string): Promise<number> {
-  if (typeof caches === "undefined") return 0;
-  try {
-    const cache = await caches.open("quran-audio-full");
-    const reciter = getReciter(reciterId);
-    const keys = await cache.keys();
-    const prefix = reciter.mp3quranBase;
-    return keys.filter((req) => req.url.startsWith(prefix)).length;
-  } catch {
-    return 0;
-  }
+  const ids = await getCachedSurahIds(reciterId);
+  return ids.length;
 }
 
 /** Returns surah ids currently cached for a reciter. */
 export async function getCachedSurahIds(reciterId: string): Promise<number[]> {
+  if (NATIVE) {
+    try {
+      const res = await Filesystem.readdir({
+        path: reciterDir(reciterId),
+        directory: Directory.Data,
+      });
+      const ids: number[] = [];
+      for (const f of res.files) {
+        const name = typeof f === "string" ? f : f.name;
+        const m = name.match(/^(\d+)\.mp3$/);
+        if (m) ids.push(Number(m[1]));
+      }
+      return ids.sort((a, b) => a - b);
+    } catch {
+      return [];
+    }
+  }
   if (typeof caches === "undefined") return [];
   try {
     const cache = await caches.open("quran-audio-full");
@@ -136,9 +229,25 @@ export async function getCachedSurahIds(reciterId: string): Promise<number[]> {
 
 /** Returns a map of reciterId -> cached surah ids, for every reciter that has any. */
 export async function getAllCached(): Promise<Record<string, number[]>> {
-  if (typeof caches === "undefined") return {};
   const { RECITERS } = await import("./reciters");
   const result: Record<string, number[]> = {};
+  if (NATIVE) {
+    let entries: { name: string }[] = [];
+    try {
+      const res = await Filesystem.readdir({ path: ROOT_DIR, directory: Directory.Data });
+      entries = res.files.map((f) => ({ name: typeof f === "string" ? f : f.name }));
+    } catch {
+      return result;
+    }
+    const knownIds = new Set(RECITERS.map((r) => r.id));
+    for (const e of entries) {
+      if (!knownIds.has(e.name)) continue;
+      const ids = await getCachedSurahIds(e.name);
+      if (ids.length > 0) result[e.name] = ids;
+    }
+    return result;
+  }
+  if (typeof caches === "undefined") return result;
   try {
     const cache = await caches.open("quran-audio-full");
     const keys = await cache.keys();
@@ -158,6 +267,17 @@ export async function getAllCached(): Promise<Record<string, number[]>> {
 
 /** Remove a single cached surah for a reciter. */
 export async function removeCachedSurah(reciterId: string, surahId: number): Promise<boolean> {
+  if (NATIVE) {
+    try {
+      await Filesystem.deleteFile({
+        path: surahPath(reciterId, surahId),
+        directory: Directory.Data,
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
   if (typeof caches === "undefined") return false;
   try {
     const cache = await caches.open("quran-audio-full");
@@ -171,6 +291,18 @@ export async function removeCachedSurah(reciterId: string, surahId: number): Pro
 
 /** Remove all cached surahs for a single reciter. */
 export async function removeReciterDownloads(reciterId: string): Promise<void> {
+  if (NATIVE) {
+    try {
+      await Filesystem.rmdir({
+        path: reciterDir(reciterId),
+        directory: Directory.Data,
+        recursive: true,
+      });
+    } catch {
+      /* ignore */
+    }
+    return;
+  }
   if (typeof caches === "undefined") return;
   try {
     const cache = await caches.open("quran-audio-full");
@@ -183,3 +315,22 @@ export async function removeReciterDownloads(reciterId: string): Promise<void> {
   }
 }
 
+/**
+ * On native, returns a playable file:// URL (converted via Capacitor.convertFileSrc)
+ * for a previously downloaded surah, or null if not downloaded / on web.
+ */
+export async function getLocalSurahUri(
+  reciterId: string,
+  surahId: number,
+): Promise<string | null> {
+  if (!NATIVE) return null;
+  try {
+    const stat = await Filesystem.stat({
+      path: surahPath(reciterId, surahId),
+      directory: Directory.Data,
+    });
+    return Capacitor.convertFileSrc(stat.uri);
+  } catch {
+    return null;
+  }
+}
