@@ -95,7 +95,7 @@ export function useAudioEngine() {
       }
     }
 
-    if (isPlaying) audio.play().catch(() => {});
+
     // Only push to recents on real user-initiated track changes:
     // - skip the first mount (restored state shouldn't re-push)
     // - skip pushes that come from reciterId changes alone (same surah)
@@ -106,8 +106,13 @@ export function useAudioEngine() {
       didMountRef.current = true;
       lastPushedSurahRef.current = surahId;
     }
+
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [surahId, ayahId, reciterId]);
+
 
   // Play / pause state
   useEffect(() => {
