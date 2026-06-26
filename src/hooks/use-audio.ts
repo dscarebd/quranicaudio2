@@ -54,13 +54,29 @@ export function useAudioEngine() {
       return;
     }
     const reciter = getReciter(reciterId);
-    const url =
+    const remoteUrl =
       ayahId != null
         ? ayahAudioUrl(reciter, surahId, ayahId)
         : fullSurahUrl(reciter, surahId);
-    audio.src = url;
-    audio.load();
-    audio.playbackRate = usePlayer.getState().playbackRate;
+
+    let cancelled = false;
+    const applySource = (url: string) => {
+      if (cancelled) return;
+      audio.src = url;
+      audio.load();
+      audio.playbackRate = usePlayer.getState().playbackRate;
+      if (usePlayer.getState().isPlaying) audio.play().catch(() => {});
+    };
+
+    // Prefer locally downloaded file on native if available (full-surah only).
+    if (ayahId == null) {
+      getLocalSurahUri(reciterId, surahId)
+        .then((local) => applySource(local ?? remoteUrl))
+        .catch(() => applySource(remoteUrl));
+    } else {
+      applySource(remoteUrl);
+    }
+
 
     // Resume from saved position (full-surah playback only)
     if (ayahId == null) {
