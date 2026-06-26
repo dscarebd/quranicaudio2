@@ -11,8 +11,8 @@ export function TopBar() {
 
   return (
     <header
-      className="sticky top-0 z-30 grid grid-cols-3 items-center px-5 pb-4 bg-primary border-b border-primary-foreground/15"
-      style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)" }}
+      className="sticky top-0 z-30 grid grid-cols-3 items-center px-5 pb-2 bg-primary border-b border-primary-foreground/15"
+      style={{ paddingTop: "calc(env(safe-area-inset-top) + 0.5rem)" }}
     >
       <Link to="/search" className="text-primary-foreground/90 p-1 justify-self-start" aria-label={t("search")}>
         <Search className="h-6 w-6" />
