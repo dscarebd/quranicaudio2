@@ -3,6 +3,7 @@ import { usePlayer } from "@/stores/player";
 import { useReciterSelection, useRecents, usePlaybackPositions } from "@/stores/persisted";
 import { getReciter } from "@/lib/reciters";
 import { fullSurahUrl, ayahAudioUrl } from "@/lib/audio-urls";
+import { getLocalSurahUri } from "@/lib/offline-download";
 import { getSurah } from "@/lib/quran-data";
 import logoUrl from "@/assets/logo.png";
 import {
